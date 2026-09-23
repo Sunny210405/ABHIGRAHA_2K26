@@ -1,0 +1,11 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and runtime artifacts
+*.log
+
+# Editor settings (optional / user-specific)
+.vscode/*
+!.vscode/settings.json
