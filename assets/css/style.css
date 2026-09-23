@@ -2478,12 +2478,6 @@ body {
     display: block;
   }
 
-  /* Hide Admin Button in Top Header on Mobile/Tablet (Shown only in 3-line bar sidebar) */
-  .site-header .admin-btn,
-  .site-header #admin-btn {
-    display: none !important;
-  }
-
   /* Tablet Hanging Lanterns: Asymmetric Staggered 6-Lantern Arrangement (3 per side) */
   .lantern-pos-l4,
   .lantern-pos-r4 {
@@ -2574,55 +2568,6 @@ body {
   .mobile-nav-link:hover, .mobile-nav-link.active {
     background: var(--color-crimson-primary);
     color: #fff !important;
-  }
-
-  /* Mobile Drawer Footer with Admin Portal Button */
-  .mobile-drawer-footer {
-    margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .mobile-admin-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    text-decoration: none;
-    transition: transform var(--transition-smooth), filter var(--transition-smooth);
-    width: 100%;
-  }
-
-  .mobile-admin-btn:hover {
-    transform: translateY(-2px) scale(1.03);
-  }
-
-  .mobile-admin-btn:active {
-    transform: scale(0.97);
-  }
-
-  .mobile-admin-img {
-    height: 56px;
-    width: auto;
-    max-width: 220px;
-    object-fit: contain;
-    display: block;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
-  }
-
-  .mobile-drawer-copy {
-    font-size: 0.78rem;
-    color: #a38c94;
-    margin: 0;
-    letter-spacing: 0.03em;
   }
 
   .crowns-grid {

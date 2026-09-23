@@ -66,14 +66,10 @@
     });
   }
 
-  const mobileAdminBtn = document.getElementById('mobile-admin-btn');
-  const mobileDrawer = document.getElementById('mobile-drawer');
-
-  // Admin Open Handler (Works for both desktop header and mobile sidebar trigger)
-  function openAdminModal(e) {
-    if (e) e.preventDefault();
-    if (mobileDrawer) mobileDrawer.classList.remove('open');
-    if (adminModal) {
+  // Admin Open
+  if (adminBtn && adminModal) {
+    adminBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       adminModal.classList.add('open');
       if (sessionStorage.getItem('abhigraha_admin_logged') === 'true') {
         adminAuthCard.style.display = 'none';
@@ -83,14 +79,7 @@
         adminAuthCard.style.display = 'block';
         adminDashboard.style.display = 'none';
       }
-    }
-  }
-
-  if (adminBtn) {
-    adminBtn.addEventListener('click', openAdminModal);
-  }
-  if (mobileAdminBtn) {
-    mobileAdminBtn.addEventListener('click', openAdminModal);
+    });
   }
 
   // Admin Close
