@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="180" height="90" viewBox="0 0 180 90">
+  <defs>
+    <radialGradient id="waveGrad" cx="50%" cy="100%" r="100%">
+      <stop offset="0%" stop-color="#8a181c"/>
+      <stop offset="65%" stop-color="#731114"/>
+      <stop offset="100%" stop-color="#5a0b0e"/>
+    </radialGradient>
+
+    <!-- Concentric wave arches definition using Upper Semi-Circles -->
+    <g id="waveArch">
+      <!-- Ring 1 (Radius 90) -->
+      <path d="M -90,0 A 90,90 0 0,1 90,0 Z" fill="url(#waveGrad)" stroke="#380406" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M -89,0 A 89,89 0 0,1 89,0" fill="none" stroke="#a6262b" stroke-width="1.2" opacity="0.85"/>
+
+      <!-- Ring 2 (Radius 72) -->
+      <path d="M -72,0 A 72,72 0 0,1 72,0 Z" fill="url(#waveGrad)" stroke="#380406" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M -71,0 A 71,71 0 0,1 71,0" fill="none" stroke="#a6262b" stroke-width="1.2" opacity="0.85"/>
+
+      <!-- Ring 3 (Radius 54) -->
+      <path d="M -54,0 A 54,54 0 0,1 54,0 Z" fill="url(#waveGrad)" stroke="#380406" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M -53,0 A 53,53 0 0,1 53,0" fill="none" stroke="#a6262b" stroke-width="1.2" opacity="0.85"/>
+
+      <!-- Ring 4 (Radius 36) -->
+      <path d="M -36,0 A 36,36 0 0,1 36,0 Z" fill="url(#waveGrad)" stroke="#380406" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M -35,0 A 35,35 0 0,1 35,0" fill="none" stroke="#a6262b" stroke-width="1.2" opacity="0.85"/>
+
+      <!-- Ring 5 (Radius 18) -->
+      <path d="M -18,0 A 18,18 0 0,1 18,0 Z" fill="url(#waveGrad)" stroke="#380406" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M -17,0 A 17,17 0 0,1 17,0" fill="none" stroke="#a6262b" stroke-width="1.2" opacity="0.85"/>
+    </g>
+  </defs>
+
+  <!-- Deep Crimson Base -->
+  <rect width="180" height="90" fill="#5a0e10"/>
+
+  <!-- Row 1 (cy = 45): back layer -->
+  <use href="#waveArch" xlink:href="#waveArch" x="-90" y="45"/>
+  <use href="#waveArch" xlink:href="#waveArch" x="90" y="45"/>
+  <use href="#waveArch" xlink:href="#waveArch" x="270" y="45"/>
+
+  <!-- Row 2 (cy = 90): middle layer -->
+  <use href="#waveArch" xlink:href="#waveArch" x="0" y="90"/>
+  <use href="#waveArch" xlink:href="#waveArch" x="180" y="90"/>
+
+  <!-- Row 3 (cy = 135): front layer overlapping into bottom-middle -->
+  <use href="#waveArch" xlink:href="#waveArch" x="-90" y="135"/>
+  <use href="#waveArch" xlink:href="#waveArch" x="90" y="135"/>
+  <use href="#waveArch" xlink:href="#waveArch" x="270" y="135"/>
+</svg>
