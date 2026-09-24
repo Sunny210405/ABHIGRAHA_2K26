@@ -166,17 +166,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const regCloseBtn = document.getElementById('reg-modal-close');
   const regForm = document.getElementById('reg-form');
   const regEventSelect = document.getElementById('reg-event-select');
-  const regEventButtons = document.querySelectorAll('.event-register-btn');
-
-  regEventButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
+  // Global Event delegation for Event Registration & Merchandise Modals
+  document.addEventListener('click', (e) => {
+    const regBtn = e.target.closest('.event-register-btn');
+    if (regBtn) {
       e.preventDefault();
-      const eventName = btn.getAttribute('data-event') || 'Festival Participation';
+      const eventName = regBtn.getAttribute('data-event') || 'Festival Participation';
       if (regEventSelect) {
         regEventSelect.value = eventName;
       }
       if (regModal) regModal.classList.add('open');
-    });
+      return;
+    }
+
+    const merchBtn = e.target.closest('.merch-btn');
+    if (merchBtn) {
+      e.preventDefault();
+      const itemTitle = merchBtn.getAttribute('data-merch') || 'Official Merchandise';
+      const merchItemName = document.getElementById('merch-item-name');
+      if (merchItemName) merchItemName.textContent = itemTitle;
+      if (merchModal) merchModal.classList.add('open');
+      return;
+    }
   });
 
   if (regCloseBtn && regModal) {
@@ -232,18 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Merchandise Modal
   const merchModal = document.getElementById('merch-modal');
   const merchCloseBtn = document.getElementById('merch-modal-close');
-  const merchButtons = document.querySelectorAll('.merch-btn');
   const merchItemName = document.getElementById('merch-item-name');
   const merchForm = document.getElementById('merch-form');
-
-  merchButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const itemTitle = btn.getAttribute('data-merch') || 'Official Merchandise';
-      if (merchItemName) merchItemName.textContent = itemTitle;
-      if (merchModal) merchModal.classList.add('open');
-    });
-  });
 
   if (merchCloseBtn && merchModal) {
     merchCloseBtn.addEventListener('click', () => {

@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=61">
+  <link rel="stylesheet" href="./assets/css/style.css?v=64">
 </head>
 <body>
 
@@ -257,25 +257,9 @@
           <h2 class="section-title">Events & <span>Battles</span></h2>
         </div>
 
-        <!-- Only One Tile on Events Page: Grand Themed Coming Soon Tile -->
-        <div class="page-coming-soon-wrapper">
-          <div class="grand-coming-soon-tile">
-            <div class="coming-soon-badge-pill">
-              <span>🏮</span> ARENAS UNVEILING SOON
-            </div>
-            <div class="coming-soon-emblem-large">🐉</div>
-            <h3 class="grand-coming-soon-title">Festival Events & Battles <span>Coming Soon</span></h3>
-            <div class="grand-coming-soon-meta">
-              <span class="meta-pill">📍 Main Campus Arenas</span>
-              <span class="meta-pill">⚡ Registrations Opening Soon</span>
-              <span class="meta-pill">🏆 Trophies & Cash Prizes</span>
-            </div>
-            <div class="grand-coming-soon-action">
-              <a href="#schedule" class="cta-btn-primary" style="text-decoration: none;">
-                📅 Explore Schedule
-              </a>
-            </div>
-          </div>
+        <!-- Dynamic Events Container: Synchronized with Admin Portal -->
+        <div id="events-display-container">
+          <!-- Dynamically populated by admin.js -->
         </div>
       </div>
     </div>
@@ -612,7 +596,7 @@
         <div class="crowns-banner">
           <h2 class="section-title">Crowns of <span>2K26</span></h2>
 
-          <div class="crowns-grid">
+          <div class="crowns-grid" id="crowns-container">
             <div class="crown-card">
               <div class="crown-icon">🤴</div>
               <h3 class="crown-role">Mr. Freshers 2K26</h3>
@@ -656,7 +640,7 @@
           <h2 class="section-title">Official <span>Merchandise</span></h2>
         </div>
 
-        <div class="merch-grid">
+        <div class="merch-grid" id="merch-container">
           <!-- Merch 1 -->
           <div class="merch-card">
             <div class="merch-visual">
@@ -711,7 +695,7 @@
           <h2 class="section-title">Moments & <span>Memories</span></h2>
         </div>
 
-        <div class="gallery-grid">
+        <div class="gallery-grid" id="gallery-container">
           <div class="gallery-item">
             <img src="./assets/images/logo-crest.webp" alt="Imperial Welcome Gates" loading="lazy">
             <div class="gallery-overlay">
@@ -923,57 +907,333 @@
     </div>
   </div>
 
-  <!-- 3. Organizer Admin Portal Modal -->
+  <!-- 3. Organizer Admin Auth Modal (Authentication Prompt Only) -->
   <div class="modal-backdrop" id="admin-modal">
-    <div class="modal-window" style="max-width: 820px;">
+    <div class="modal-window admin-modal-window" style="max-width: 460px; text-align: center;">
       <button class="modal-close-btn" id="admin-modal-close" aria-label="Close Modal">✕</button>
 
       <!-- Auth Screen -->
       <div id="admin-auth-card">
-        <h3 class="modal-title">Festival Coordinator Portal</h3>
-        <p class="modal-subtitle">Authorized festival organizing committee login.</p>
-        <div class="form-group">
-          <label class="form-label" for="admin-passcode">Enter Committee Security Passcode</label>
-          <input type="password" class="form-input" id="admin-passcode" placeholder="Passcode (default: tnu2026)">
+        <span style="font-size: 2.6rem; display: block; margin-bottom: 8px;">🏮</span>
+        <h3 class="modal-title" style="margin-bottom: 6px;">Imperial Control Sanctuary</h3>
+        <p class="modal-subtitle" style="margin-bottom: 22px;">Authorized festival committee authentication.</p>
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label" for="admin-passcode">Security Key</label>
+          <input type="password" class="form-input" id="admin-passcode" placeholder="Enter security key..." autocomplete="off">
         </div>
-        <button type="button" class="form-submit-btn" id="admin-login-btn">Authenticate & Access Portal</button>
+        <button type="button" class="form-submit-btn" id="admin-login-btn">Authenticate & Enter Portal</button>
       </div>
+    </div>
+  </div>
 
-      <!-- Dashboard Screen -->
-      <div id="admin-dashboard" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
-          <div>
-            <h3 class="modal-title" style="font-size: 1.3rem; margin:0;">Live Registrations Overview</h3>
-            <span style="font-size: 0.85rem; color: var(--color-gold-bright);">Total Registrations: <strong id="admin-total-count">0</strong></span>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="cta-btn-primary" id="export-csv-btn" style="padding: 7px 16px; font-size: 0.78rem;">📥 Export CSV</button>
-            <button class="cta-btn-secondary" id="admin-logout-btn" style="padding: 7px 16px; font-size: 0.78rem;">Logout</button>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 14px;">
-          <input type="text" class="form-input" id="admin-search-input" placeholder="🔍 Search participant by name, event, or ID...">
-        </div>
-
-        <div style="max-height: 340px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
-          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem;">
-            <thead style="background: rgba(0,0,0,0.5); position: sticky; top: 0;">
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--color-gold-bright);">
-                <th style="padding: 10px 8px;">ID</th>
-                <th style="padding: 10px 8px;">Name</th>
-                <th style="padding: 10px 8px;">Dept</th>
-                <th style="padding: 10px 8px;">Event</th>
-                <th style="padding: 10px 8px;">Contact</th>
-                <th style="padding: 10px 8px;">Date</th>
-              </tr>
-            </thead>
-            <tbody id="admin-reg-list">
-              <!-- Dynamically populated by admin.js -->
-            </tbody>
-          </table>
+  <!-- 4. Full-Screen Imperial Admin Management Portal (Opens Full-Screen After Login) -->
+  <div id="admin-fullscreen-portal" class="admin-fullscreen-portal" aria-hidden="true">
+    <!-- Sticky Top Navigation Bar -->
+    <header class="admin-fs-topbar">
+      <div class="admin-fs-brand">
+        <img src="./assets/images/logo-crest.webp?v=4" alt="Crest" style="width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--color-gold-bright);">
+        <div class="admin-fs-title-wrap">
+          <h3>ABHIGRAHA 2K26</h3>
+          <span style="font-size: 0.78rem; color: var(--color-gold-bright); font-weight: 600;">Imperial Admin Management Sanctuary</span>
         </div>
       </div>
+      <div class="admin-fs-actions">
+        <span id="admin-cloud-sync-status" class="admin-session-pill" style="margin: 0; font-size: 0.78rem;">
+          <span class="session-dot"></span> Cloudflare KV Synced
+        </span>
+        <button class="admin-btn-sm admin-btn-gold" id="admin-view-site-btn" title="Exit to Public Website">🌐 View Public Site</button>
+        <button class="admin-btn-sm admin-btn-subtle" id="admin-logout-btn" title="Log out of Admin Sanctuary">🔒 Logout</button>
+      </div>
+    </header>
+
+    <!-- Main Full-Screen Portal Content Area -->
+    <div class="admin-fs-content">
+      <div class="admin-fs-header-row">
+        <div>
+          <h2 style="font-family: var(--font-serif); font-size: 1.8rem; margin: 0 0 6px; color: #fff;">Festival Content Management</h2>
+          <p style="color: var(--color-text-muted); font-size: 0.9rem; margin: 0;">Add, modify, or remove festival information across all official portals in real-time.</p>
+        </div>
+        <div class="admin-session-pill">
+          <span class="session-dot"></span> Live Admin Session
+        </div>
+      </div>
+
+      <!-- Admin Tab Navigation -->
+      <div class="admin-tab-nav" id="admin-tab-nav" style="margin-top: 20px;">
+        <button class="admin-tab-btn active" data-tab="events">🏮 Events & Battles</button>
+        <button class="admin-tab-btn" data-tab="schedule">📅 Schedule & Timeline</button>
+        <button class="admin-tab-btn" data-tab="crowns">👑 Crowns of 2K26</button>
+        <button class="admin-tab-btn" data-tab="merchandise">🛍️ Official Merchandise</button>
+        <button class="admin-tab-btn" data-tab="gallery">🖼️ Moments & Memories</button>
+      </div>
+
+        <!-- Tab 1: Events Management -->
+        <div class="admin-tab-pane active" id="pane-events">
+          <div class="admin-pane-header">
+            <div>
+              <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-events-count">0 Events</span>
+            </div>
+            <div class="admin-pane-actions">
+              <button class="admin-btn-sm admin-btn-gold" id="admin-add-event-btn">➕ Add New Event</button>
+              <button class="admin-btn-sm admin-btn-subtle" id="admin-reset-events-btn">↺ Reset Defaults</button>
+            </div>
+          </div>
+
+          <!-- Add / Edit Event Form Panel -->
+          <div class="admin-form-panel" id="admin-event-form-panel" style="display: none;">
+            <h4 id="admin-event-form-title" style="margin-bottom: 14px; color: var(--color-gold-bright);">➕ Add New Event</h4>
+            <form id="admin-event-form">
+              <input type="hidden" id="admin-event-edit-id">
+              <div class="admin-form-grid">
+                <div class="form-group">
+                  <label class="form-label">Event Title</label>
+                  <input type="text" class="form-input" id="admin-event-title" placeholder="e.g. Nrityotsav Dance Clash" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Category</label>
+                  <select class="form-select" id="admin-event-category">
+                    <option value="Cultural">Cultural</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Gaming">Gaming</option>
+                    <option value="Special">Special</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Prize / Awards</label>
+                  <input type="text" class="form-input" id="admin-event-prize" placeholder="e.g. ₹15,000 + Trophy">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status Tag / Badge</label>
+                  <input type="text" class="form-input" id="admin-event-tag" placeholder="e.g. Flagship, Star Clash">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Venue / Stage</label>
+                  <input type="text" class="form-input" id="admin-event-venue" placeholder="e.g. Amphitheatre Stage">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Day & Time</label>
+                  <input type="text" class="form-input" id="admin-event-time" placeholder="e.g. Day 1 | 02:00 PM">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description / Rules</label>
+                <textarea class="form-input" id="admin-event-desc" rows="3" placeholder="Brief overview of event and rules..." required></textarea>
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-event-cancel-btn">Cancel</button>
+                <button type="submit" class="admin-btn-sm admin-btn-gold">💾 Save Event</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="admin-items-list" id="admin-events-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Tab 3: Schedule Management -->
+        <div class="admin-tab-pane" id="pane-schedule">
+          <div class="admin-pane-header">
+            <div>
+              <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-schedule-count">0 Activities</span>
+            </div>
+            <div class="admin-pane-actions">
+              <button class="admin-btn-sm admin-btn-gold" id="admin-add-schedule-btn">➕ Add Timeline Activity</button>
+              <button class="admin-btn-sm admin-btn-subtle" id="admin-reset-schedule-btn">↺ Reset Defaults</button>
+            </div>
+          </div>
+
+          <!-- Add / Edit Schedule Form Panel -->
+          <div class="admin-form-panel" id="admin-schedule-form-panel" style="display: none;">
+            <h4 id="admin-schedule-form-title" style="margin-bottom: 14px; color: var(--color-gold-bright);">➕ Add Timeline Activity</h4>
+            <form id="admin-schedule-form">
+              <input type="hidden" id="admin-schedule-edit-id">
+              <div class="admin-form-grid">
+                <div class="form-group">
+                  <label class="form-label">Festival Day</label>
+                  <select class="form-select" id="admin-schedule-day">
+                    <option value="day1">Day 1: The Awakening</option>
+                    <option value="day2">Day 2: Imperial Finale</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Time Window</label>
+                  <input type="text" class="form-input" id="admin-schedule-time" placeholder="e.g. 10:00 AM - 11:30 AM" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Activity Title</label>
+                  <input type="text" class="form-input" id="admin-schedule-title" placeholder="e.g. Grand Inauguration" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Venue & Notes</label>
+                  <input type="text" class="form-input" id="admin-schedule-venue" placeholder="e.g. Central Auditorium | Keynote">
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-schedule-cancel-btn">Cancel</button>
+                <button type="submit" class="admin-btn-sm admin-btn-gold">💾 Save Activity</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="admin-items-list" id="admin-schedule-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Tab 4: Crowns Management -->
+        <div class="admin-tab-pane" id="pane-crowns">
+          <div class="admin-pane-header">
+            <div>
+              <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-crowns-count">0 Titles</span>
+            </div>
+            <div class="admin-pane-actions">
+              <button class="admin-btn-sm admin-btn-gold" id="admin-add-crown-btn">➕ Add Royal Crown Title</button>
+              <button class="admin-btn-sm admin-btn-subtle" id="admin-reset-crowns-btn">↺ Reset Defaults</button>
+            </div>
+          </div>
+
+          <!-- Add / Edit Crown Form Panel -->
+          <div class="admin-form-panel" id="admin-crown-form-panel" style="display: none;">
+            <h4 id="admin-crown-form-title" style="margin-bottom: 14px; color: var(--color-gold-bright);">➕ Add Royal Crown Title</h4>
+            <form id="admin-crown-form">
+              <input type="hidden" id="admin-crown-edit-id">
+              <div class="admin-form-grid">
+                <div class="form-group">
+                  <label class="form-label">Award Role / Designation</label>
+                  <input type="text" class="form-input" id="admin-crown-role" placeholder="e.g. Mr. Freshers 2K26" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Imperial Title / Theme</label>
+                  <input type="text" class="form-input" id="admin-crown-title" placeholder="e.g. The Dragon King" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Emblem Emoji</label>
+                  <input type="text" class="form-input" id="admin-crown-icon" placeholder="e.g. 🤴, 👸, 👑">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Registration Event Name</label>
+                  <input type="text" class="form-input" id="admin-crown-regevent" placeholder="e.g. Nomination: Mr. Freshers 2K26">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Judging & Evaluation Criteria (One per line)</label>
+                <textarea class="form-input" id="admin-crown-criteria" rows="4" placeholder="Round 1: Ethnic Runway Walk&#10;Round 2: Talent Showcase&#10;Round 3: Wit & Q&A"></textarea>
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-crown-cancel-btn">Cancel</button>
+                <button type="submit" class="admin-btn-sm admin-btn-gold">💾 Save Title</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="admin-items-list" id="admin-crowns-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Tab 5: Merchandise Management -->
+        <div class="admin-tab-pane" id="pane-merchandise">
+          <div class="admin-pane-header">
+            <div>
+              <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-merch-count">0 Items</span>
+            </div>
+            <div class="admin-pane-actions">
+              <button class="admin-btn-sm admin-btn-gold" id="admin-add-merch-btn">➕ Add Merchandise Item</button>
+              <button class="admin-btn-sm admin-btn-subtle" id="admin-reset-merch-btn">↺ Reset Defaults</button>
+            </div>
+          </div>
+
+          <!-- Add / Edit Merch Form Panel -->
+          <div class="admin-form-panel" id="admin-merch-form-panel" style="display: none;">
+            <h4 id="admin-merch-form-title" style="margin-bottom: 14px; color: var(--color-gold-bright);">➕ Add Merchandise Item</h4>
+            <form id="admin-merch-form">
+              <input type="hidden" id="admin-merch-edit-id">
+              <div class="admin-form-grid">
+                <div class="form-group">
+                  <label class="form-label">Item Title</label>
+                  <input type="text" class="form-input" id="admin-merch-title" placeholder="e.g. Imperial Festival Hoodie" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Price Tag</label>
+                  <input type="text" class="form-input" id="admin-merch-price" placeholder="e.g. ₹799" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Badge Tag</label>
+                  <input type="text" class="form-input" id="admin-merch-tag" placeholder="e.g. Popular, Limited">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Display Emoji / Icon</label>
+                  <input type="text" class="form-input" id="admin-merch-icon" placeholder="e.g. 🧥, 👕, 🎟️, 🧢">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Product Description</label>
+                <textarea class="form-input" id="admin-merch-desc" rows="2" placeholder="Fabric, design notes, and festival signatures..."></textarea>
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-merch-cancel-btn">Cancel</button>
+                <button type="submit" class="admin-btn-sm admin-btn-gold">💾 Save Merchandise</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="admin-items-list" id="admin-merch-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Tab 6: Gallery Management -->
+        <div class="admin-tab-pane" id="pane-gallery">
+          <div class="admin-pane-header">
+            <div>
+              <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-gallery-count">0 Moments</span>
+            </div>
+            <div class="admin-pane-actions">
+              <button class="admin-btn-sm admin-btn-gold" id="admin-add-gallery-btn">➕ Add Gallery Moment</button>
+              <button class="admin-btn-sm admin-btn-subtle" id="admin-reset-gallery-btn">↺ Reset Defaults</button>
+            </div>
+          </div>
+
+          <!-- Add / Edit Gallery Form Panel -->
+          <div class="admin-form-panel" id="admin-gallery-form-panel" style="display: none;">
+            <h4 id="admin-gallery-form-title" style="margin-bottom: 14px; color: var(--color-gold-bright);">➕ Add Gallery Moment</h4>
+            <form id="admin-gallery-form">
+              <input type="hidden" id="admin-gallery-edit-id">
+              <div class="admin-form-grid">
+                <div class="form-group">
+                  <label class="form-label">Visual Type</label>
+                  <select class="form-select" id="admin-gallery-type">
+                    <option value="img">Photo Image URL</option>
+                    <option value="emoji">Imperial Preset Emblem</option>
+                  </select>
+                </div>
+                <div class="form-group" id="admin-gallery-img-group">
+                  <label class="form-label">Image Path / URL</label>
+                  <input type="text" class="form-input" id="admin-gallery-src" placeholder="./assets/images/...">
+                </div>
+                <div class="form-group" id="admin-gallery-emoji-group" style="display: none;">
+                  <label class="form-label">Emblem Emojis & Gradient</label>
+                  <input type="text" class="form-input" id="admin-gallery-icon" placeholder="e.g. 🏮🏮🏮 or 🎸🔥🥁">
+                  <input type="text" class="form-input" id="admin-gallery-bg" placeholder="CSS Background (optional)" style="margin-top: 6px;">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Caption / Memory Name</label>
+                  <input type="text" class="form-input" id="admin-gallery-caption" placeholder="e.g. Illuminated Temple Lanterns Night" required>
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-gallery-cancel-btn">Cancel</button>
+                <button type="submit" class="admin-btn-sm admin-btn-gold">💾 Save Moment</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="admin-items-list" id="admin-gallery-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
     </div>
   </div>
 
@@ -1076,9 +1336,9 @@
 
   <!-- Core JavaScript Modules (No flying hearts/petals, clean and fast) -->
   <script src="./assets/js/countdown.js?v=2"></script>
-  <script src="./assets/js/admin.js"></script>
+  <script src="./assets/js/admin.js?v=5"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
-  <script src="./assets/js/main.js?v=8"></script>
+  <script src="./assets/js/main.js?v=9"></script>
 
 </body>
 </html>
