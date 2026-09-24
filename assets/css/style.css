@@ -109,7 +109,7 @@ body {
   width: calc(100% + 180px);
   height: calc(100% + 90px);
   background-color: #5a0e10;
-  background-image: url('../images/hero_seigaiha_pattern.svg');
+  background-image: url('../images/hero_seigaiha_pattern.svg?v=2');
   background-size: 180px 90px;
   background-repeat: repeat;
   pointer-events: none;
@@ -597,7 +597,7 @@ body {
   width: calc(100% + 180px);
   height: calc(100% + 90px);
   background-color: #5a0e10;
-  background-image: url('../images/hero_seigaiha_pattern.svg');
+  background-image: url('../images/hero_seigaiha_pattern.svg?v=2');
   background-size: 180px 90px;
   background-repeat: repeat;
   z-index: 1;
@@ -2610,6 +2610,8 @@ body {
     top: 0;
     width: calc(100% + 140px);
     height: calc(100% + 70px);
+    background-color: #5a0e10;
+    background-image: url('../images/hero_seigaiha_pattern.svg?v=2');
     background-size: 140px 70px;
     background-repeat: repeat;
     transform: translate3d(0, 0, 0);
@@ -2622,6 +2624,8 @@ body {
     top: 0;
     width: calc(100% + 140px);
     height: calc(100% + 70px);
+    background-color: #5a0e10;
+    background-image: url('../images/hero_seigaiha_pattern.svg?v=2');
     background-size: 140px 70px;
     background-repeat: repeat;
     transform: translate3d(0, 0, 0);
