@@ -2,6 +2,10 @@ name = "abhigraha-2k26"
 main = "worker.js"
 compatibility_date = "2024-09-01"
 
+[[kv_namespaces]]
+binding = "FESTIVAL_KV"
+id = "dce8ee745d00451b87eecb2b60af29e2"
+
 [assets]
 directory = "."
 binding = "ASSETS"
