@@ -826,7 +826,6 @@ body {
   gap: 24px;
   margin-top: -4px;
   flex-wrap: wrap;
-  transform: translateX(14px);
 }
 
 /* Hero CTA Image Buttons (Designs from Buttons folder with Identical Height) */
@@ -869,20 +868,12 @@ body {
   filter: drop-shadow(0 12px 32px rgba(220, 38, 38, 0.85)) drop-shadow(0 0 16px rgba(245, 158, 11, 0.5));
 }
 
-/* View Events specific size boost */
-#btn-view-events {
-  height: 76px;
-}
-#btn-view-events .hero-cta-img {
-  height: 76px;
-}
-
-/* Meet Team specific 10% size boost */
-#btn-meet-team {
-  height: 75px;
-}
+/* Matched CTA Button Heights (Desktop) */
+#btn-view-events,
+#btn-view-events .hero-cta-img,
+#btn-meet-team,
 #btn-meet-team .hero-cta-img {
-  height: 75px;
+  height: 72px;
 }
 
 .btn-icon {
@@ -2686,13 +2677,10 @@ body {
   }
 
   #btn-view-events,
-  #btn-view-events .hero-cta-img {
-    height: 68px;
-  }
-
+  #btn-view-events .hero-cta-img,
   #btn-meet-team,
   #btn-meet-team .hero-cta-img {
-    height: 67px;
+    height: 66px;
   }
 
   .admin-btn-img {
@@ -3011,13 +2999,10 @@ body {
   }
 
   #btn-view-events,
-  #btn-view-events .hero-cta-img {
-    height: 64px;
-  }
-
+  #btn-view-events .hero-cta-img,
   #btn-meet-team,
   #btn-meet-team .hero-cta-img {
-    height: 63px;
+    height: 60px;
   }
 
 
