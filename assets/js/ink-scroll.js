@@ -24,10 +24,10 @@
 
   // Load the two word images
   const imgWelcome = new Image();
-  imgWelcome.src = './assets/images/scroll_welcome_canvas.png?v=2';
+  imgWelcome.src = './assets/images/scroll_welcome_canvas.webp?v=3';
 
   const imgFreshers = new Image();
-  imgFreshers.src = './assets/images/scroll_freshers_canvas.png?v=2';
+  imgFreshers.src = './assets/images/scroll_freshers_canvas.webp?v=3';
 
   let imagesLoaded = 0;
   function onImageLoad() {
@@ -103,9 +103,33 @@
   window.addEventListener('resize', updateScrollStagePosition);
   window.addEventListener('orientationchange', updateScrollStagePosition);
 
+  let isRunning = false;
+  let rafId = null;
+  let pausedElapsed = 0;
+
+  function scheduleRender() {
+    if (!isRunning) {
+      isRunning = true;
+      stateStartTime = performance.now() - pausedElapsed;
+      rafId = requestAnimationFrame(render);
+    }
+  }
+
+  function pauseRender() {
+    if (isRunning) {
+      isRunning = false;
+      pausedElapsed = performance.now() - stateStartTime;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }
+  }
+
   // Animation Loop
   function render(now) {
-    requestAnimationFrame(render);
+    if (!isRunning) return;
+    rafId = requestAnimationFrame(render);
 
     const elapsed = now - stateStartTime;
     ctx.clearRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
@@ -238,8 +262,30 @@
     setTimeout(updateScrollStagePosition, 100);
     setTimeout(updateScrollStagePosition, 500);
     stateStartTime = performance.now();
-    requestAnimationFrame(render);
+    scheduleRender();
   }
+
+  // IntersectionObserver to pause rendering when scroll canvas is out of viewport
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && document.visibilityState !== 'hidden') {
+          scheduleRender();
+        } else {
+          pauseRender();
+        }
+      });
+    }, { threshold: 0.05 });
+    observer.observe(stage);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      pauseRender();
+    } else {
+      scheduleRender();
+    }
+  });
 
   // Initial trigger
   document.addEventListener('DOMContentLoaded', () => {

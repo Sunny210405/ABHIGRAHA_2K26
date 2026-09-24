@@ -297,11 +297,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Team Poster Lightbox Modal
+  const teamModal = document.getElementById('team-modal');
+  const teamModalClose = document.getElementById('team-modal-close');
+  const teamModalImg = document.getElementById('team-modal-img');
+  const teamModalTitle = document.getElementById('team-modal-title');
+  const teamModalNames = document.getElementById('team-modal-names');
+  const teamCards = document.querySelectorAll('.team-card[data-poster]');
+
+  teamCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const poster = card.getAttribute('data-poster');
+      const role = card.getAttribute('data-role') || 'Festival Leadership';
+      const names = card.getAttribute('data-names') || '';
+
+      if (teamModalImg && poster) teamModalImg.src = poster;
+      if (teamModalTitle) teamModalTitle.textContent = role;
+      if (teamModalNames) teamModalNames.textContent = names;
+      if (teamModal) teamModal.classList.add('open');
+    });
+  });
+
+  if (teamModalClose && teamModal) {
+    teamModalClose.addEventListener('click', () => {
+      teamModal.classList.remove('open');
+    });
+  }
+
   // Close modals on outside click
   window.addEventListener('click', (e) => {
     if (e.target === regModal) regModal.classList.remove('open');
     if (e.target === merchModal) merchModal.classList.remove('open');
     if (e.target === contactModal) contactModal.classList.remove('open');
+    if (e.target === teamModal) teamModal.classList.remove('open');
     const adminModal = document.getElementById('admin-modal');
     if (e.target === adminModal) adminModal.classList.remove('open');
   });
