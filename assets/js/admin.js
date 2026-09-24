@@ -576,6 +576,7 @@
         adminFullscreenPortal.setAttribute('aria-hidden', 'false');
       }
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
       renderAdminActiveTab();
       syncCloudContent();
     }
@@ -586,6 +587,7 @@
         adminFullscreenPortal.setAttribute('aria-hidden', 'true');
       }
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
 
     // Open Admin Modal / Launch Full-Screen Portal

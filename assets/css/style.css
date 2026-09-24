@@ -79,16 +79,21 @@ body {
   min-height: 100vh;
 }
 
-/* Scrollbar */
+/* Sleek, Modern Minimal Scrollbar */
 ::-webkit-scrollbar {
-  width: 9px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-darkest);
+  background: rgba(11, 2, 6, 0.4);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--color-crimson-primary), var(--color-gold-primary));
+  background: rgba(245, 158, 11, 0.35);
   border-radius: 99px;
+  transition: background var(--transition-fast);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.7);
 }
 
 /* Persistent Global Imperial Ambient Background (All Pages)
@@ -3053,6 +3058,20 @@ body {
   display: flex;
 }
 
+.admin-fullscreen-portal::-webkit-scrollbar {
+  width: 6px;
+}
+.admin-fullscreen-portal::-webkit-scrollbar-track {
+  background: rgba(11, 2, 6, 0.6);
+}
+.admin-fullscreen-portal::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.35);
+  border-radius: 99px;
+}
+.admin-fullscreen-portal::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.7);
+}
+
 .admin-fs-topbar {
   position: sticky;
   top: 0;
@@ -3283,10 +3302,10 @@ body {
 .admin-items-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: 420px;
-  overflow-y: auto;
-  padding-right: 4px;
+  gap: 12px;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-right: 0 !important;
 }
 
 .admin-item-card {
@@ -3495,7 +3514,8 @@ body {
   }
 
   .admin-items-list {
-    max-height: 55vh;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   .admin-item-card {
