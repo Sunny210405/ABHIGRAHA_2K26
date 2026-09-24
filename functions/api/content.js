@@ -7,7 +7,7 @@
 // SHA-256 digest of the authorized admin access key
 const AUTH_HASH = '7ba682d1dcfb5d93995134af9fce82b2bf9c0a365f4f29e7b3aac8e949f3297d';
 
-const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery'];
+const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility'];
 
 // Helper to compute SHA-256 in Cloudflare Workers environment
 async function computeSha256(str) {

@@ -155,7 +155,8 @@
     'abhigraha_schedule': 'schedule',
     'abhigraha_crowns': 'crowns',
     'abhigraha_merchandise': 'merchandise',
-    'abhigraha_gallery': 'gallery'
+    'abhigraha_gallery': 'gallery',
+    'abhigraha_visibility': 'visibility'
   };
 
   const REVERSE_KEY_MAPPING = {
@@ -163,7 +164,8 @@
     'schedule': 'abhigraha_schedule',
     'crowns': 'abhigraha_crowns',
     'merchandise': 'abhigraha_merchandise',
-    'gallery': 'abhigraha_gallery'
+    'gallery': 'abhigraha_gallery',
+    'visibility': 'abhigraha_visibility'
   };
 
   function updateCloudStatus(status, text) {
@@ -245,8 +247,16 @@
         }
       });
 
+      if (data && data.visibility && typeof data.visibility === 'object') {
+        localStorage.setItem('abhigraha_visibility', JSON.stringify(data.visibility));
+        updatedAny = true;
+      }
+
       if (updatedAny) {
         renderPublicContent();
+        if (typeof syncAdminVisibilityToggles === 'function') {
+          syncAdminVisibilityToggles();
+        }
         if (typeof renderAdminActiveTab === 'function') {
           renderAdminActiveTab();
         }
@@ -280,6 +290,21 @@
     }
   }
 
+  const DEFAULT_VISIBILITY = {
+    events_cs: false,
+    schedule_cs: false,
+    merchandise_cs: false,
+    gallery_cs: false
+  };
+
+  function getVisibility() {
+    return loadData('abhigraha_visibility', DEFAULT_VISIBILITY);
+  }
+
+  function saveVisibility(vis) {
+    saveData('abhigraha_visibility', vis);
+  }
+
   function getEvents() { return loadData('abhigraha_events', DEFAULT_EVENTS); }
   function getSchedule() { return loadData('abhigraha_schedule', DEFAULT_SCHEDULE); }
   function getCrowns() { return loadData('abhigraha_crowns', DEFAULT_CROWNS); }
@@ -309,13 +334,24 @@
 
   // 1. Events Page
   function renderPublicEvents() {
-    const container = document.getElementById('events-display-container');
-    if (!container) return;
+    const liveEl = document.getElementById('events-live-content');
+    const csEl = document.getElementById('events-cs-content');
+    if (!liveEl) return;
+
+    const vis = getVisibility();
+    if (vis.events_cs) {
+      liveEl.style.display = 'none';
+      if (csEl) csEl.style.display = 'block';
+      return;
+    }
+
+    liveEl.style.display = 'block';
+    if (csEl) csEl.style.display = 'none';
 
     const events = getEvents();
 
     if (events.length === 0) {
-      container.innerHTML = `
+      liveEl.innerHTML = `
         <div class="page-coming-soon-wrapper">
           <div class="grand-coming-soon-tile">
             <div class="coming-soon-badge-pill">
@@ -371,15 +407,15 @@
     });
     gridHtml += '</div>';
 
-    container.innerHTML = filterHtml + gridHtml;
+    liveEl.innerHTML = filterHtml + gridHtml;
 
     // Attach filter listeners
-    container.querySelectorAll('.filter-btn').forEach(btn => {
+    liveEl.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        liveEl.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const filter = btn.getAttribute('data-filter');
-        container.querySelectorAll('.event-card').forEach(card => {
+        liveEl.querySelectorAll('.event-card').forEach(card => {
           const cat = card.getAttribute('data-category');
           if (filter === 'all' || cat === filter) {
             card.style.display = 'flex';
@@ -393,8 +429,21 @@
 
   // 2. Schedule Page
   function renderPublicSchedule() {
+    const liveEl = document.getElementById('schedule-live-content');
+    const csEl = document.getElementById('schedule-cs-content');
     const day1Container = document.getElementById('timeline-day1');
     const day2Container = document.getElementById('timeline-day2');
+
+    const vis = getVisibility();
+    if (vis.schedule_cs) {
+      if (liveEl) liveEl.style.display = 'none';
+      if (csEl) csEl.style.display = 'block';
+      return;
+    }
+
+    if (liveEl) liveEl.style.display = 'block';
+    if (csEl) csEl.style.display = 'none';
+
     if (!day1Container || !day2Container) return;
 
     const list = getSchedule();
@@ -457,7 +506,20 @@
 
   // 4. Merchandise Page
   function renderPublicMerch() {
+    const liveEl = document.getElementById('merch-live-content');
+    const csEl = document.getElementById('merch-cs-content');
     const container = document.getElementById('merch-container');
+
+    const vis = getVisibility();
+    if (vis.merchandise_cs) {
+      if (liveEl) liveEl.style.display = 'none';
+      if (csEl) csEl.style.display = 'block';
+      return;
+    }
+
+    if (liveEl) liveEl.style.display = 'block';
+    if (csEl) csEl.style.display = 'none';
+
     if (!container) return;
 
     const merch = getMerch();
@@ -484,7 +546,20 @@
 
   // 5. Gallery Page
   function renderPublicGallery() {
+    const liveEl = document.getElementById('gallery-live-content');
+    const csEl = document.getElementById('gallery-cs-content');
     const container = document.getElementById('gallery-container');
+
+    const vis = getVisibility();
+    if (vis.gallery_cs) {
+      if (liveEl) liveEl.style.display = 'none';
+      if (csEl) csEl.style.display = 'block';
+      return;
+    }
+
+    if (liveEl) liveEl.style.display = 'block';
+    if (csEl) csEl.style.display = 'none';
+
     if (!container) return;
 
     const gallery = getGallery();
@@ -578,6 +653,7 @@
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       renderAdminActiveTab();
+      syncAdminVisibilityToggles();
       syncCloudContent();
     }
 
@@ -676,6 +752,57 @@
     initCrownsAdmin();
     initMerchAdmin();
     initGalleryAdmin();
+    initVisibilityToggles();
+  }
+
+  function syncAdminVisibilityToggles() {
+    const vis = getVisibility();
+    const configs = [
+      { id: 'toggle-cs-events', badgeId: 'badge-cs-events', key: 'events_cs' },
+      { id: 'toggle-cs-schedule', badgeId: 'badge-cs-schedule', key: 'schedule_cs' },
+      { id: 'toggle-cs-merchandise', badgeId: 'badge-cs-merchandise', key: 'merchandise_cs' },
+      { id: 'toggle-cs-gallery', badgeId: 'badge-cs-gallery', key: 'gallery_cs' }
+    ];
+
+    configs.forEach(cfg => {
+      const input = document.getElementById(cfg.id);
+      const badge = document.getElementById(cfg.badgeId);
+      const isCs = !!vis[cfg.key];
+      if (input) input.checked = isCs;
+      if (badge) {
+        if (isCs) {
+          badge.className = 'admin-cs-toggle-badge active';
+          badge.textContent = 'ON (Coming Soon)';
+        } else {
+          badge.className = 'admin-cs-toggle-badge inactive';
+          badge.textContent = 'OFF (Live)';
+        }
+      }
+    });
+  }
+
+  function initVisibilityToggles() {
+    const configs = [
+      { id: 'toggle-cs-events', badgeId: 'badge-cs-events', key: 'events_cs', name: 'Events' },
+      { id: 'toggle-cs-schedule', badgeId: 'badge-cs-schedule', key: 'schedule_cs', name: 'Schedule' },
+      { id: 'toggle-cs-merchandise', badgeId: 'badge-cs-merchandise', key: 'merchandise_cs', name: 'Merchandise' },
+      { id: 'toggle-cs-gallery', badgeId: 'badge-cs-gallery', key: 'gallery_cs', name: 'Gallery' }
+    ];
+
+    configs.forEach(cfg => {
+      const input = document.getElementById(cfg.id);
+      if (!input) return;
+      input.addEventListener('change', () => {
+        const vis = getVisibility();
+        vis[cfg.key] = input.checked;
+        saveVisibility(vis);
+        syncAdminVisibilityToggles();
+        renderPublicContent();
+        showToast(`${cfg.name} Coming Soon mode ${input.checked ? 'ENABLED' : 'DISABLED'}.`);
+      });
+    });
+
+    syncAdminVisibilityToggles();
   }
 
   function renderAdminActiveTab() {

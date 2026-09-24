@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=67">
+  <link rel="stylesheet" href="./assets/css/style.css?v=68">
 </head>
 <body>
 
@@ -259,7 +259,30 @@
 
         <!-- Dynamic Events Container: Synchronized with Admin Portal -->
         <div id="events-display-container">
-          <!-- Dynamically populated by admin.js -->
+          <div id="events-live-content">
+            <!-- Dynamically populated by admin.js -->
+          </div>
+          <div id="events-cs-content" style="display: none;">
+            <div class="page-coming-soon-wrapper">
+              <div class="grand-coming-soon-tile">
+                <div class="coming-soon-badge-pill">
+                  <span>🏮</span> ARENAS UNVEILING SOON
+                </div>
+                <div class="coming-soon-emblem-large">🐉</div>
+                <h3 class="grand-coming-soon-title">Festival Events & Battles <span>Coming Soon</span></h3>
+                <div class="grand-coming-soon-meta">
+                  <span class="meta-pill">📍 Main Campus Arenas</span>
+                  <span class="meta-pill">⚡ Registrations Opening Soon</span>
+                  <span class="meta-pill">🏆 Trophies & Cash Prizes</span>
+                </div>
+                <div class="grand-coming-soon-action">
+                  <a href="#schedule" class="cta-btn-primary" style="text-decoration: none;">
+                    📅 Explore Schedule
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -273,85 +296,42 @@
           <h2 class="section-title">Schedule & <span>Timeline</span></h2>
         </div>
 
-        <div class="schedule-tabs">
-          <button class="schedule-tab-btn active" data-day="day1">Day 1: The Awakening</button>
-          <button class="schedule-tab-btn" data-day="day2">Day 2: Imperial Finale</button>
-        </div>
+        <div id="schedule-display-container">
+          <div id="schedule-live-content">
+            <div class="schedule-tabs">
+              <button class="schedule-tab-btn active" data-day="day1">Day 1: The Awakening</button>
+              <button class="schedule-tab-btn" data-day="day2">Day 2: Imperial Finale</button>
+            </div>
 
-        <!-- Day 1 Timeline -->
-        <div class="timeline" id="timeline-day1">
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-time">10:00 AM - 11:30 AM</div>
-              <h4 class="timeline-title">Grand Inauguration & Lamp Lighting</h4>
-              <p class="timeline-venue">📍 Central Auditorium | Welcome Address by Vice Chancellor</p>
+            <!-- Day 1 Timeline -->
+            <div class="timeline" id="timeline-day1">
+              <!-- Dynamically populated by admin.js -->
+            </div>
+
+            <!-- Day 2 Timeline -->
+            <div class="timeline" id="timeline-day2" style="display: none;">
+              <!-- Dynamically populated by admin.js -->
             </div>
           </div>
-
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-time">11:30 AM - 01:30 PM</div>
-              <h4 class="timeline-title">Esports Preliminary Knockouts (Valorant / BGMI)</h4>
-              <p class="timeline-venue">📍 Tech Arena | LAN Setup</p>
-            </div>
-          </div>
-
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-time">02:00 PM - 04:30 PM</div>
-              <h4 class="timeline-title">Nrityotsav - Eastern & Western Dance Clash</h4>
-              <p class="timeline-venue">📍 Amphitheatre Stage</p>
-            </div>
-          </div>
-
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-time">05:00 PM - 08:30 PM</div>
-              <h4 class="timeline-title">Sur Tarang Live Band War & Rock Night</h4>
-              <p class="timeline-venue">📍 Main Ground Pavilion</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Day 2 Timeline -->
-        <div class="timeline" id="timeline-day2" style="display: none;">
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-time">10:30 AM - 12:30 PM</div>
-              <h4 class="timeline-title">Chanakya Neeti Mega Quiz & Street Drama</h4>
-              <p class="timeline-venue">📍 University Quadrangle</p>
-            </div>
-          </div>
-
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-time">01:30 PM - 03:00 PM</div>
-              <h4 class="timeline-title">Esports Grand Finals & Live Stream</h4>
-              <p class="timeline-venue">📍 Tech Arena Screen</p>
-            </div>
-          </div>
-
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-time">03:30 PM - 06:30 PM</div>
-              <h4 class="timeline-title">The Royal CROWNS Coronation (Mr. & Ms. Freshers)</h4>
-              <p class="timeline-venue">📍 Main Imperial Stage | Fashion & Talent Walk</p>
-            </div>
-          </div>
-
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-time">07:00 PM - 10:00 PM</div>
-              <h4 class="timeline-title">Celebrity DJ Night & Grand EDM Extravaganza</h4>
-              <p class="timeline-venue">📍 Main Festival Grounds</p>
+          <div id="schedule-cs-content" style="display: none;">
+            <div class="page-coming-soon-wrapper">
+              <div class="grand-coming-soon-tile">
+                <div class="coming-soon-badge-pill">
+                  <span>⏰</span> TIMELINE IN PREPARATION
+                </div>
+                <div class="coming-soon-emblem-large">📜</div>
+                <h3 class="grand-coming-soon-title">Festival Schedule & Timeline <span>Coming Soon</span></h3>
+                <div class="grand-coming-soon-meta">
+                  <span class="meta-pill">🗓️ Day 1: The Awakening</span>
+                  <span class="meta-pill">👑 Day 2: Imperial Finale</span>
+                  <span class="meta-pill">🔥 Stage & Arena Lineups</span>
+                </div>
+                <div class="grand-coming-soon-action">
+                  <a href="#events" class="cta-btn-primary" style="text-decoration: none;">
+                    ⚔️ Explore Events
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -640,46 +620,71 @@
           <h2 class="section-title">Official <span>Merchandise</span></h2>
         </div>
 
-        <div class="merch-grid" id="merch-container">
-          <!-- Merch 1 -->
-          <div class="merch-card">
-            <div class="merch-visual">
-              <span class="merch-icon-preview">🧥</span>
-              <span class="merch-tag">Best Seller</span>
-            </div>
-            <div class="merch-info">
-              <h4 class="merch-title">Dragon Edition Festival Hoodie</h4>
-              <div class="merch-price">₹799</div>
-              <p class="merch-desc">Heavyweight fleece hoodie in imperial obsidian black with crimson dragon embroidery and gold festival emblem.</p>
-              <button class="merch-btn" data-merch="Dragon Edition Festival Hoodie (₹799)">Pre-Order Now</button>
+        <div id="merch-display-container">
+          <div id="merch-live-content">
+            <div class="merch-grid" id="merch-container">
+              <!-- Merch 1 -->
+              <div class="merch-card">
+                <div class="merch-visual">
+                  <span class="merch-icon-preview">🧥</span>
+                  <span class="merch-tag">Best Seller</span>
+                </div>
+                <div class="merch-info">
+                  <h4 class="merch-title">Dragon Edition Festival Hoodie</h4>
+                  <div class="merch-price">₹799</div>
+                  <p class="merch-desc">Heavyweight fleece hoodie in imperial obsidian black with crimson dragon embroidery and gold festival emblem.</p>
+                  <button class="merch-btn" data-merch="Dragon Edition Festival Hoodie (₹799)">Pre-Order Now</button>
+                </div>
+              </div>
+
+              <!-- Merch 2 -->
+              <div class="merch-card">
+                <div class="merch-visual">
+                  <span class="merch-icon-preview">👕</span>
+                  <span class="merch-tag">Fresh Batch</span>
+                </div>
+                <div class="merch-info">
+                  <h4 class="merch-title">Abhigraha 2K26 Graphic T-Shirt</h4>
+                  <div class="merch-price">₹399</div>
+                  <p class="merch-desc">100% bio-washed cotton tee with glowing lantern screenprint and TNU official event signature.</p>
+                  <button class="merch-btn" data-merch="Abhigraha 2K26 Graphic T-Shirt (₹399)">Pre-Order Now</button>
+                </div>
+              </div>
+
+              <!-- Merch 3 -->
+              <div class="merch-card">
+                <div class="merch-visual">
+                  <span class="merch-icon-preview">🎟️</span>
+                  <span class="merch-tag">Limited</span>
+                </div>
+                <div class="merch-info">
+                  <h4 class="merch-title">VIP Access Pass + Glow Wristband</h4>
+                  <div class="merch-price">₹199</div>
+                  <p class="merch-desc">Front-row arena entry for celebrity star night, LED festival wristband, and holographic souvenir badge.</p>
+                  <button class="merch-btn" data-merch="VIP Access Pass + Glow Wristband (₹199)">Pre-Order Now</button>
+                </div>
+              </div>
             </div>
           </div>
-
-          <!-- Merch 2 -->
-          <div class="merch-card">
-            <div class="merch-visual">
-              <span class="merch-icon-preview">👕</span>
-              <span class="merch-tag">Fresh Batch</span>
-            </div>
-            <div class="merch-info">
-              <h4 class="merch-title">Abhigraha 2K26 Graphic T-Shirt</h4>
-              <div class="merch-price">₹399</div>
-              <p class="merch-desc">100% bio-washed cotton tee with glowing lantern screenprint and TNU official event signature.</p>
-              <button class="merch-btn" data-merch="Abhigraha 2K26 Graphic T-Shirt (₹399)">Pre-Order Now</button>
-            </div>
-          </div>
-
-          <!-- Merch 3 -->
-          <div class="merch-card">
-            <div class="merch-visual">
-              <span class="merch-icon-preview">🎟️</span>
-              <span class="merch-tag">Limited</span>
-            </div>
-            <div class="merch-info">
-              <h4 class="merch-title">VIP Access Pass + Glow Wristband</h4>
-              <div class="merch-price">₹199</div>
-              <p class="merch-desc">Front-row arena entry for celebrity star night, LED festival wristband, and holographic souvenir badge.</p>
-              <button class="merch-btn" data-merch="VIP Access Pass + Glow Wristband (₹199)">Pre-Order Now</button>
+          <div id="merch-cs-content" style="display: none;">
+            <div class="page-coming-soon-wrapper">
+              <div class="grand-coming-soon-tile">
+                <div class="coming-soon-badge-pill">
+                  <span>🛍️</span> IMPERIAL MERCHANDISE
+                </div>
+                <div class="coming-soon-emblem-large">🥋</div>
+                <h3 class="grand-coming-soon-title">Official Festival Merchandise <span>Coming Soon</span></h3>
+                <div class="grand-coming-soon-meta">
+                  <span class="meta-pill">🧥 Limited Dragon Hoodies</span>
+                  <span class="meta-pill">👕 Bio-Washed Official Tees</span>
+                  <span class="meta-pill">🎟️ VIP Wristbands & Souvenirs</span>
+                </div>
+                <div class="grand-coming-soon-action">
+                  <a href="#events" class="cta-btn-primary" style="text-decoration: none;">
+                    ⚔️ View Festival Arenas
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -695,29 +700,54 @@
           <h2 class="section-title">Moments & <span>Memories</span></h2>
         </div>
 
-        <div class="gallery-grid" id="gallery-container">
-          <div class="gallery-item">
-            <img src="./assets/images/logo-crest.webp" alt="Imperial Welcome Gates" loading="lazy">
-            <div class="gallery-overlay">
-              <span class="gallery-caption">The Imperial Dragon Gates of Abhigraha</span>
+        <div id="gallery-display-container">
+          <div id="gallery-live-content">
+            <div class="gallery-grid" id="gallery-container">
+              <div class="gallery-item">
+                <img src="./assets/images/logo-crest.webp" alt="Imperial Welcome Gates" loading="lazy">
+                <div class="gallery-overlay">
+                  <span class="gallery-caption">The Imperial Dragon Gates of Abhigraha</span>
+                </div>
+              </div>
+              <div class="gallery-item" style="background: radial-gradient(circle, #3b0914, #0b0306);">
+                <div style="font-size: 3rem;">🏮🏮🏮</div>
+                <div class="gallery-overlay" style="opacity: 1;">
+                  <span class="gallery-caption">Illuminated Temple Lanterns Night</span>
+                </div>
+              </div>
+              <div class="gallery-item" style="background: radial-gradient(circle, #54111f, #0b0306);">
+                <div style="font-size: 3rem;">🎸🔥🥁</div>
+                <div class="gallery-overlay" style="opacity: 1;">
+                  <span class="gallery-caption">Battle of Bands Rock Stage</span>
+                </div>
+              </div>
+              <div class="gallery-item" style="background: radial-gradient(circle, #441708, #0b0306);">
+                <div style="font-size: 3rem;">👑✨👗</div>
+                <div class="gallery-overlay" style="opacity: 1;">
+                  <span class="gallery-caption">Mr. & Ms. Freshers Runway Coronation</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="gallery-item" style="background: radial-gradient(circle, #3b0914, #0b0306);">
-            <div style="font-size: 3rem;">🏮🏮🏮</div>
-            <div class="gallery-overlay" style="opacity: 1;">
-              <span class="gallery-caption">Illuminated Temple Lanterns Night</span>
-            </div>
-          </div>
-          <div class="gallery-item" style="background: radial-gradient(circle, #54111f, #0b0306);">
-            <div style="font-size: 3rem;">🎸🔥🥁</div>
-            <div class="gallery-overlay" style="opacity: 1;">
-              <span class="gallery-caption">Battle of Bands Rock Stage</span>
-            </div>
-          </div>
-          <div class="gallery-item" style="background: radial-gradient(circle, #441708, #0b0306);">
-            <div style="font-size: 3rem;">👑✨👗</div>
-            <div class="gallery-overlay" style="opacity: 1;">
-              <span class="gallery-caption">Mr. & Ms. Freshers Runway Coronation</span>
+          <div id="gallery-cs-content" style="display: none;">
+            <div class="page-coming-soon-wrapper">
+              <div class="grand-coming-soon-tile">
+                <div class="coming-soon-badge-pill">
+                  <span>📸</span> MOMENTS & MEMORIES
+                </div>
+                <div class="coming-soon-emblem-large">🏮</div>
+                <h3 class="grand-coming-soon-title">Festival Gallery & Highlights <span>Coming Soon</span></h3>
+                <div class="grand-coming-soon-meta">
+                  <span class="meta-pill">📷 High-Res Official Captures</span>
+                  <span class="meta-pill">🎸 Rock Night & Stage Memories</span>
+                  <span class="meta-pill">👑 Coronation Highlights</span>
+                </div>
+                <div class="grand-coming-soon-action">
+                  <a href="#team" class="cta-btn-primary" style="text-decoration: none;">
+                    👥 Meet the Organizing Committee
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -949,8 +979,7 @@
     <div class="admin-fs-content">
       <div class="admin-fs-header-row">
         <div>
-          <h2 style="font-family: var(--font-serif); font-size: 1.8rem; margin: 0 0 6px; color: #fff;">Festival Content Management</h2>
-          <p style="color: var(--color-text-muted); font-size: 0.9rem; margin: 0;">Add, modify, or remove festival information across all official portals in real-time.</p>
+          <h2 style="font-family: var(--font-serif); font-size: 1.8rem; margin: 0; color: #fff;">Festival Content Management</h2>
         </div>
         <div class="admin-session-pill">
           <span class="session-dot"></span> Live Admin Session
@@ -969,8 +998,14 @@
         <!-- Tab 1: Events Management -->
         <div class="admin-tab-pane active" id="pane-events">
           <div class="admin-pane-header">
-            <div>
+            <div class="admin-pane-header-left">
               <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-events-count">0 Events</span>
+              <label class="admin-cs-toggle-wrap" title="Toggle Public Coming Soon Mode for Events">
+                <span class="admin-cs-toggle-title">Coming Soon:</span>
+                <input type="checkbox" id="toggle-cs-events" class="admin-cs-toggle-input">
+                <span class="admin-cs-toggle-switch"></span>
+                <span class="admin-cs-toggle-badge inactive" id="badge-cs-events">OFF (Live)</span>
+              </label>
             </div>
             <div class="admin-pane-actions">
               <button class="admin-btn-sm admin-btn-gold" id="admin-add-event-btn">➕ Add New Event</button>
@@ -1033,8 +1068,14 @@
         <!-- Tab 3: Schedule Management -->
         <div class="admin-tab-pane" id="pane-schedule">
           <div class="admin-pane-header">
-            <div>
+            <div class="admin-pane-header-left">
               <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-schedule-count">0 Activities</span>
+              <label class="admin-cs-toggle-wrap" title="Toggle Public Coming Soon Mode for Schedule">
+                <span class="admin-cs-toggle-title">Coming Soon:</span>
+                <input type="checkbox" id="toggle-cs-schedule" class="admin-cs-toggle-input">
+                <span class="admin-cs-toggle-switch"></span>
+                <span class="admin-cs-toggle-badge inactive" id="badge-cs-schedule">OFF (Live)</span>
+              </label>
             </div>
             <div class="admin-pane-actions">
               <button class="admin-btn-sm admin-btn-gold" id="admin-add-schedule-btn">➕ Add Timeline Activity</button>
@@ -1134,8 +1175,14 @@
         <!-- Tab 5: Merchandise Management -->
         <div class="admin-tab-pane" id="pane-merchandise">
           <div class="admin-pane-header">
-            <div>
+            <div class="admin-pane-header-left">
               <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-merch-count">0 Items</span>
+              <label class="admin-cs-toggle-wrap" title="Toggle Public Coming Soon Mode for Merchandise">
+                <span class="admin-cs-toggle-title">Coming Soon:</span>
+                <input type="checkbox" id="toggle-cs-merchandise" class="admin-cs-toggle-input">
+                <span class="admin-cs-toggle-switch"></span>
+                <span class="admin-cs-toggle-badge inactive" id="badge-cs-merchandise">OFF (Live)</span>
+              </label>
             </div>
             <div class="admin-pane-actions">
               <button class="admin-btn-sm admin-btn-gold" id="admin-add-merch-btn">➕ Add Merchandise Item</button>
@@ -1185,8 +1232,14 @@
         <!-- Tab 6: Gallery Management -->
         <div class="admin-tab-pane" id="pane-gallery">
           <div class="admin-pane-header">
-            <div>
+            <div class="admin-pane-header-left">
               <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-gallery-count">0 Moments</span>
+              <label class="admin-cs-toggle-wrap" title="Toggle Public Coming Soon Mode for Gallery">
+                <span class="admin-cs-toggle-title">Coming Soon:</span>
+                <input type="checkbox" id="toggle-cs-gallery" class="admin-cs-toggle-input">
+                <span class="admin-cs-toggle-switch"></span>
+                <span class="admin-cs-toggle-badge inactive" id="badge-cs-gallery">OFF (Live)</span>
+              </label>
             </div>
             <div class="admin-pane-actions">
               <button class="admin-btn-sm admin-btn-gold" id="admin-add-gallery-btn">➕ Add Gallery Moment</button>
@@ -1335,7 +1388,7 @@
 
   <!-- Core JavaScript Modules (No flying hearts/petals, clean and fast) -->
   <script src="./assets/js/countdown.js?v=2"></script>
-  <script src="./assets/js/admin.js?v=6"></script>
+  <script src="./assets/js/admin.js?v=7"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
   <script src="./assets/js/main.js?v=9"></script>
 
