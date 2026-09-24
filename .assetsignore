@@ -1,2 +1,1 @@
-_worker.js
-functions/
+# Allow _worker.js compilation for Cloudflare Pages
