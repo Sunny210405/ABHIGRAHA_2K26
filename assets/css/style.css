@@ -3163,7 +3163,7 @@ body {
   .footer-contact-pill {
     width: 100%;
     max-width: 310px;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 0 16px;
     height: 42px;
   }
