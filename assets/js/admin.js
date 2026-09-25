@@ -1080,35 +1080,25 @@
   function syncAdminVisibilityToggles() {
     const vis = getVisibility();
     const configs = [
-      { id: 'toggle-cs-events', badgeId: 'badge-cs-events', key: 'events_cs' },
-      { id: 'toggle-cs-schedule', badgeId: 'badge-cs-schedule', key: 'schedule_cs' },
-      { id: 'toggle-cs-merchandise', badgeId: 'badge-cs-merchandise', key: 'merchandise_cs' },
-      { id: 'toggle-cs-gallery', badgeId: 'badge-cs-gallery', key: 'gallery_cs' }
+      { id: 'toggle-cs-events', key: 'events_cs' },
+      { id: 'toggle-cs-schedule', key: 'schedule_cs' },
+      { id: 'toggle-cs-merchandise', key: 'merchandise_cs' },
+      { id: 'toggle-cs-gallery', key: 'gallery_cs' }
     ];
 
     configs.forEach(cfg => {
       const input = document.getElementById(cfg.id);
-      const badge = document.getElementById(cfg.badgeId);
       const isCs = !!vis[cfg.key];
       if (input) input.checked = isCs;
-      if (badge) {
-        if (isCs) {
-          badge.className = 'admin-cs-toggle-badge active';
-          badge.textContent = 'ON (Coming Soon)';
-        } else {
-          badge.className = 'admin-cs-toggle-badge inactive';
-          badge.textContent = 'OFF (Live)';
-        }
-      }
     });
   }
 
   function initVisibilityToggles() {
     const configs = [
-      { id: 'toggle-cs-events', badgeId: 'badge-cs-events', key: 'events_cs', name: 'Events' },
-      { id: 'toggle-cs-schedule', badgeId: 'badge-cs-schedule', key: 'schedule_cs', name: 'Schedule' },
-      { id: 'toggle-cs-merchandise', badgeId: 'badge-cs-merchandise', key: 'merchandise_cs', name: 'Merchandise' },
-      { id: 'toggle-cs-gallery', badgeId: 'badge-cs-gallery', key: 'gallery_cs', name: 'Gallery' }
+      { id: 'toggle-cs-events', key: 'events_cs', name: 'Events' },
+      { id: 'toggle-cs-schedule', key: 'schedule_cs', name: 'Schedule' },
+      { id: 'toggle-cs-merchandise', key: 'merchandise_cs', name: 'Merchandise' },
+      { id: 'toggle-cs-gallery', key: 'gallery_cs', name: 'Gallery' }
     ];
 
     configs.forEach(cfg => {
