@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=76">
+  <link rel="stylesheet" href="./assets/css/style.css?v=78">
 </head>
 <body>
 
@@ -791,31 +791,43 @@
        GLOBAL FOOTER
        ========================================================================== -->
   <footer class="site-footer">
-    <div class="container">
+    <div class="footer-glow-bar" aria-hidden="true"></div>
+    <div class="container footer-container">
       <div class="footer-compact-row">
         <!-- Left: Festival Branding & University Badge -->
         <div class="footer-brand-side">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <img src="./assets/images/logo-crest.webp?v=5" alt="Crest" style="width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid rgba(251, 191, 36, 0.85); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);">
-            <div style="background:#fff; border-radius: 6px; padding: 2px 6px; display:flex; align-items:center; height: 30px;">
-              <img src="./assets/images/logo-tnu.webp?v=5" alt="TNU" style="height: 22px;">
+          <div class="footer-badges-group">
+            <img src="./assets/images/logo-crest.webp?v=5" alt="Abhigraha Crest" class="footer-crest-img">
+            <div class="footer-tnu-badge" title="The Neotia University">
+              <img src="./assets/images/logo-tnu.webp?v=5" alt="TNU" class="footer-tnu-img">
             </div>
           </div>
           <div class="footer-brand-text">
-            <h4>ABHIGRAHA 2K26</h4>
+            <h4 class="footer-title">ABHIGRAHA 2K26</h4>
             <span class="footer-copy">&copy; 2026 The Neotia University</span>
           </div>
         </div>
 
         <!-- Middle: Official Email & Instagram Handle -->
         <div class="footer-middle-contacts">
-          <a href="mailto:abhigraha2k26@gmail.com" class="footer-contact-link" title="Official Festival Email: abhigraha2k26@gmail.com">
-            <span class="footer-icon">✉️</span>
-            <span>abhigraha2k26@gmail.com</span>
+          <a href="mailto:abhigraha2k26@gmail.com" class="footer-contact-pill" title="Official Festival Email: abhigraha2k26@gmail.com">
+            <span class="footer-pill-icon-box">
+              <svg class="footer-pill-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+            </span>
+            <span class="footer-pill-text">abhigraha2k26@gmail.com</span>
           </a>
-          <a href="https://www.instagram.com/abhigraha_official/" target="_blank" rel="noopener noreferrer" class="footer-contact-link" title="Follow @abhigraha_official on Instagram">
-            <span class="footer-icon">📸</span>
-            <span>@abhigraha_official</span>
+          <a href="https://www.instagram.com/abhigraha_official/" target="_blank" rel="noopener noreferrer" class="footer-contact-pill" title="Follow @abhigraha_official on Instagram">
+            <span class="footer-pill-icon-box">
+              <svg class="footer-pill-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+              </svg>
+            </span>
+            <span class="footer-pill-text">@abhigraha_official</span>
           </a>
         </div>
 
@@ -1295,29 +1307,49 @@
 
       <div class="contact-details-grid">
         <div class="contact-card-mini">
-          <span class="contact-icon">📍</span>
-          <div>
+          <span class="contact-icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-card-svg">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </span>
+          <div class="contact-card-info">
             <strong>Campus Location</strong>
             <p>The Neotia University, Sarisha, D.H. Road, 24 Parganas (S), WB 743368</p>
           </div>
         </div>
         <div class="contact-card-mini">
-          <span class="contact-icon">✉️</span>
-          <div>
+          <span class="contact-icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-card-svg">
+              <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+          </span>
+          <div class="contact-card-info">
             <strong>Official Email</strong>
-            <p><a href="mailto:abhigraha2k26@gmail.com" style="color: var(--color-gold-bright); text-decoration: none;">abhigraha2k26@gmail.com</a></p>
+            <p><a href="mailto:abhigraha2k26@gmail.com" class="contact-gold-link">abhigraha2k26@gmail.com</a></p>
           </div>
         </div>
         <div class="contact-card-mini">
-          <span class="contact-icon">📸</span>
-          <div>
+          <span class="contact-icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-card-svg">
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+            </svg>
+          </span>
+          <div class="contact-card-info">
             <strong>Instagram Handle</strong>
-            <p><a href="https://www.instagram.com/abhigraha_official/" target="_blank" rel="noopener noreferrer" style="color: var(--color-gold-bright); text-decoration: none;">@abhigraha_official</a></p>
+            <p><a href="https://www.instagram.com/abhigraha_official/" target="_blank" rel="noopener noreferrer" class="contact-gold-link">@abhigraha_official</a></p>
           </div>
         </div>
         <div class="contact-card-mini">
-          <span class="contact-icon">📞</span>
-          <div>
+          <span class="contact-icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-card-svg">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+          </span>
+          <div class="contact-card-info">
             <strong>Conveners Desk</strong>
             <p>+91 98765 43210 / +91 87654 32109</p>
           </div>
@@ -1338,7 +1370,7 @@
           <textarea id="contact-msg" class="form-input" rows="3" placeholder="Tell us how we can assist you..." style="resize: vertical;" required></textarea>
         </div>
         <button type="submit" class="form-submit-btn">
-          ✉️ Send Query
+          Send Query ➔
         </button>
       </form>
     </div>
