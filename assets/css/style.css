@@ -2692,11 +2692,12 @@ body {
     color: #fff !important;
   }
 
-  /* Mobile Drawer Footer: Simple Rounded Corners Admin Button */
-  .mobile-drawer-footer {
-    margin-top: auto;
-    padding-top: 16px;
+  /* Mobile Admin Item: Situated directly beneath Sponsors */
+  .mobile-admin-item {
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid rgba(251, 191, 36, 0.25);
+    list-style: none;
   }
 
   .mobile-drawer-admin-btn {
