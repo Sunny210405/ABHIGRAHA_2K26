@@ -7,8 +7,8 @@ desktop.ini
 *.log
 
 # Editor settings (optional / user-specific)
-.vscode/*
-!.vscode/settings.json
+.vscode/
+.idea/
 
 # Intermediate scratch files
 scratch/

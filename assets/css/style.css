@@ -2783,20 +2783,28 @@ body {
     padding: 10px 16px;
   }
   .tnu-badge-wrapper {
-    height: 36px;
-    padding: 2px 6px;
+    height: 38px;
+    padding: 2px 7px;
   }
   .tnu-badge {
-    height: 28px;
+    height: 30px;
   }
   .crest-badge {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
   .admin-btn {
     padding: 7px 16px;
     font-size: 0.8rem;
     letter-spacing: 0.04em;
+  }
+  .mobile-toggle {
+    width: 46px;
+    height: 46px;
+  }
+  .mobile-toggle-icon {
+    width: 22px;
+    height: 22px;
   }
 
   /* Hero Section Smartphone Optimization */
@@ -2831,7 +2839,7 @@ body {
   .hero-interactive-content {
     padding: 0 12px;
     gap: 0;
-    margin-top: 275px;
+    margin-top: 245px;
     margin-bottom: 16px;
   }
 
@@ -2982,6 +2990,7 @@ body {
   /* Countdown Button Section Mobile (Crisp Reduced Blur Shadows) */
   .countdown-section {
     padding: 8px 12px 28px;
+    margin-top: 30px;
   }
   .countdown-btn-wrapper {
     max-width: 100%;
@@ -3185,30 +3194,30 @@ body {
     padding: 8px 12px;
   }
   .header-logos {
-    gap: 8px;
+    gap: 9px;
   }
   .crest-badge {
-    width: 34px;
-    height: 34px;
+    width: 42px;
+    height: 42px;
   }
   .tnu-badge-wrapper {
-    height: 30px;
-    padding: 2px 5px;
+    height: 36px;
+    padding: 2px 7px;
   }
   .tnu-badge {
-    height: 22px;
+    height: 28px;
   }
   .admin-btn {
     padding: 6px 12px;
     font-size: 0.74rem;
   }
   .mobile-toggle {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
   .mobile-toggle-icon {
-    width: 18px;
-    height: 18px;
+    width: 21px;
+    height: 21px;
   }
 
   .hero-section {
@@ -3216,7 +3225,7 @@ body {
   }
 
   .hero-interactive-content {
-    margin-top: 230px;
+    margin-top: 195px;
   }
 
   .hero-dragon-wrap,
@@ -3259,6 +3268,10 @@ body {
   #btn-meet-team,
   #btn-meet-team .hero-cta-img {
     height: 60px;
+  }
+
+  .countdown-section {
+    margin-top: 35px;
   }
 
 
