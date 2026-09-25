@@ -12,3 +12,11 @@ desktop.ini
 
 # Intermediate scratch files
 scratch/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Cloudflare / Wrangler local runtime state
+.wrangler/
