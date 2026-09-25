@@ -18,6 +18,10 @@ async function computeSha256(str) {
     .join('');
 }
 
+// High-speed edge in-memory cache for instant zero-latency cross-worker reads
+const IN_MEMORY_CACHE = {};
+let IN_MEMORY_LAST_UPDATED = '0';
+
 // CORS Headers helper
 function corsHeaders() {
   return {
@@ -67,8 +71,15 @@ export async function onRequestGet(context) {
           headers: { 'Content-Type': 'application/json', ...corsHeaders() }
         });
       }
-      const raw = await env.FESTIVAL_KV.get(targetKey);
-      const data = raw ? JSON.parse(raw) : null;
+      let data = null;
+      if (targetKey === 'last_updated' && IN_MEMORY_LAST_UPDATED !== '0') {
+        data = IN_MEMORY_LAST_UPDATED;
+      } else if (IN_MEMORY_CACHE[targetKey] !== undefined) {
+        data = IN_MEMORY_CACHE[targetKey];
+      } else {
+        const raw = await env.FESTIVAL_KV.get(targetKey);
+        data = raw ? JSON.parse(raw) : null;
+      }
       return new Response(JSON.stringify({ [targetKey]: data }), {
         status: 200,
         headers: {
@@ -82,6 +93,12 @@ export async function onRequestGet(context) {
     // Fetch all keys in parallel
     const entries = await Promise.all(
       ALLOWED_KEYS.map(async (k) => {
+        if (k === 'last_updated' && IN_MEMORY_LAST_UPDATED !== '0') {
+          return [k, IN_MEMORY_LAST_UPDATED];
+        }
+        if (IN_MEMORY_CACHE[k] !== undefined) {
+          return [k, IN_MEMORY_CACHE[k]];
+        }
         const raw = await env.FESTIVAL_KV.get(k);
         return [k, raw ? JSON.parse(raw) : null];
       })
@@ -89,7 +106,7 @@ export async function onRequestGet(context) {
 
     const result = Object.fromEntries(entries);
     if (!result.last_updated) {
-      result.last_updated = '0';
+      result.last_updated = IN_MEMORY_LAST_UPDATED !== '0' ? IN_MEMORY_LAST_UPDATED : '0';
     }
 
     return new Response(JSON.stringify(result), {
@@ -97,6 +114,10 @@ export async function onRequestGet(context) {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Cloudflare-CDN-Cache-Control': 'no-store',
+        'Pragma': 'no-cache',
+        'Expires': '0',
         ...corsHeaders()
       }
     });
@@ -174,8 +195,11 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Save to Cloudflare KV
+    // Save to Cloudflare KV and fast edge in-memory cache
     const updateTimestamp = Date.now().toString();
+    IN_MEMORY_CACHE[key] = data;
+    IN_MEMORY_LAST_UPDATED = updateTimestamp;
+
     await env.FESTIVAL_KV.put(key, JSON.stringify(data));
     await env.FESTIVAL_KV.put('last_updated', JSON.stringify(updateTimestamp));
 

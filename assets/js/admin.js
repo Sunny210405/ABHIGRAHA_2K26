@@ -199,6 +199,8 @@
   // ==========================================================================
   const TAB_SESSION_ID = 'tab_' + Math.random().toString(36).slice(2, 9) + '_' + Date.now();
   let lastKnownVersion = localStorage.getItem('abhigraha_last_updated') || '0';
+  let lastHandledVersion = lastKnownVersion;
+  let lastKnownFingerprint = '';
   let isAutoUpdating = false;
   let isCheckingRemote = false;
   let festivalBroadcast = null;
@@ -211,6 +213,22 @@
         const payload = event.data;
         if (!payload || payload.originSession === TAB_SESSION_ID) return;
         if (payload.type === 'PORTAL_DETAILS_CHANGED') {
+          // If this tab already handled this timestamp, avoid duplicate runs
+          if (payload.timestamp && payload.timestamp === lastHandledVersion) return;
+          if (payload.timestamp) {
+            lastHandledVersion = payload.timestamp;
+            lastKnownFingerprint = payload.timestamp;
+            lastKnownVersion = payload.timestamp;
+            localStorage.setItem('abhigraha_last_updated', payload.timestamp);
+          }
+
+          // If the broadcast payload includes the actual data, write it to localStorage immediately in 0ms!
+          if (payload.key && payload.data !== undefined) {
+            try {
+              localStorage.setItem(payload.key, JSON.stringify(payload.data));
+            } catch (e) {}
+          }
+
           triggerAutoLoadingUpdate({
             key: payload.key,
             reason: 'cross_tab_admin_update',
@@ -224,12 +242,13 @@
     console.warn('BroadcastChannel initialization error:', e);
   }
 
-  function broadcastPortalChange(key, timestamp) {
+  function broadcastPortalChange(key, data, timestamp) {
     if (festivalBroadcast) {
       try {
         festivalBroadcast.postMessage({
           type: 'PORTAL_DETAILS_CHANGED',
           key,
+          data,
           originSession: TAB_SESSION_ID,
           timestamp
         });
@@ -240,77 +259,88 @@
   // Cross-tab storage fallback for browsers
   window.addEventListener('storage', (e) => {
     if (!e.key) return;
-    if (e.key === 'abhigraha_last_updated' || (e.key.startsWith('abhigraha_') && e.key !== 'abhigraha_registrations')) {
+    if (e.key === 'abhigraha_last_updated') {
+      const newVer = e.newValue ? String(e.newValue).replace(/"/g, '') : '';
+      if (newVer && newVer === lastHandledVersion) return;
+      if (newVer) {
+        lastHandledVersion = newVer;
+        lastKnownFingerprint = newVer;
+        lastKnownVersion = newVer;
+      }
       triggerAutoLoadingUpdate({
-        key: e.key,
         reason: 'storage_sync',
-        source: 'storage'
+        source: 'storage',
+        timestamp: newVer
       });
     }
   });
 
   // Background Cloud Poller for concurrent remote users across devices
-  let lastKnownFingerprint = '';
-
   async function checkRemoteFestivalVersion() {
     if (isCheckingRemote || isAutoUpdating) return;
+
+    // If admin portal is open on this tab, do not poll to avoid any interference
+    const fsPortal = document.getElementById('admin-fullscreen-portal');
+    if (fsPortal && fsPortal.classList.contains('open')) return;
+
     isCheckingRemote = true;
     try {
       const cacheBuster = Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-      let serverVersion = null;
-
-      // 1. First attempt: query last_updated with aggressive cache-busting
-      try {
-        const res = await fetch(`/api/content?key=last_updated&_cb=${cacheBuster}`, {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json && json.last_updated !== undefined && json.last_updated !== null) {
-            serverVersion = String(json.last_updated).replace(/"/g, '');
-          }
+      const res = await fetch(`/api/content?_cb=${cacheBuster}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
         }
-      } catch (err) {}
+      });
 
-      // 2. Fallback: if backend doesn't support 'last_updated' key query,
-      // fetch entire content payload and compute lightweight fingerprint
-      if (!serverVersion || serverVersion === '0') {
-        try {
-          const fullRes = await fetch(`/api/content?_cb=${cacheBuster}`, {
-            cache: 'no-store',
-            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-          });
-          if (fullRes.ok) {
-            const fullJson = await fullRes.json();
-            if (fullJson && fullJson.configured !== false) {
-              serverVersion = (fullJson.last_updated ? String(fullJson.last_updated) : '') + '_' +
-                (fullJson.events ? JSON.stringify(fullJson.events).length : 0) + '_' +
-                (fullJson.schedule ? JSON.stringify(fullJson.schedule).length : 0) + '_' +
-                (fullJson.merchandise ? JSON.stringify(fullJson.merchandise).length : 0) + '_' +
-                (fullJson.crowns ? JSON.stringify(fullJson.crowns).length : 0) + '_' +
-                JSON.stringify(fullJson.visibility || {});
+      if (res.ok) {
+        const fullJson = await res.json();
+        if (fullJson && fullJson.configured !== false) {
+          const serverVersion = String(fullJson.last_updated || '0').replace(/"/g, '');
+          const fingerprint = serverVersion + '_' +
+            (fullJson.events ? JSON.stringify(fullJson.events).length : 0) + '_' +
+            (fullJson.schedule ? JSON.stringify(fullJson.schedule).length : 0) + '_' +
+            (fullJson.merchandise ? JSON.stringify(fullJson.merchandise).length : 0) + '_' +
+            (fullJson.crowns ? JSON.stringify(fullJson.crowns).length : 0) + '_' +
+            JSON.stringify(fullJson.visibility || {});
+
+          if (!lastKnownFingerprint) {
+            // First run on page load: record baseline without showing modal
+            lastKnownFingerprint = fingerprint;
+            lastHandledVersion = serverVersion;
+            lastKnownVersion = serverVersion;
+            if (serverVersion !== '0') {
+              localStorage.setItem('abhigraha_last_updated', serverVersion);
             }
-          }
-        } catch (err) {}
-      }
+          } else if (fingerprint !== lastKnownFingerprint && serverVersion !== lastHandledVersion) {
+            console.log(`[AutoSync] Instant update detected! Version: ${serverVersion}`);
+            lastKnownFingerprint = fingerprint;
+            lastHandledVersion = serverVersion;
+            lastKnownVersion = serverVersion;
+            if (serverVersion !== '0') {
+              localStorage.setItem('abhigraha_last_updated', serverVersion);
+            }
 
-      if (serverVersion) {
-        if (!lastKnownFingerprint) {
-          // Initialize baseline version on first load without triggering prompt
-          lastKnownFingerprint = serverVersion;
-          lastKnownVersion = serverVersion;
-          localStorage.setItem('abhigraha_last_updated', serverVersion);
-        } else if (serverVersion !== lastKnownFingerprint) {
-          console.log(`[AutoSync] Instant update detected! Old: ${lastKnownFingerprint}, New: ${serverVersion}`);
-          lastKnownFingerprint = serverVersion;
-          lastKnownVersion = serverVersion;
-          localStorage.setItem('abhigraha_last_updated', serverVersion);
-          triggerAutoLoadingUpdate({
-            reason: 'remote_admin_update',
-            source: 'cloud',
-            version: serverVersion
-          });
+            // Immediately load data into localStorage from the current response (0ms latency, no second fetch!)
+            const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery'];
+            keys.forEach(k => {
+              if (Array.isArray(fullJson[k])) {
+                const localKey = REVERSE_KEY_MAPPING[k];
+                localStorage.setItem(localKey, JSON.stringify(fullJson[k]));
+              }
+            });
+            if (fullJson.visibility && typeof fullJson.visibility === 'object') {
+              localStorage.setItem('abhigraha_visibility', JSON.stringify(fullJson.visibility));
+            }
+
+            // Trigger the auto-loading screen immediately for this active user
+            triggerAutoLoadingUpdate({
+              reason: 'remote_admin_update',
+              source: 'cloud_ready',
+              version: serverVersion
+            });
+          }
         }
       }
     } catch (e) {
@@ -351,6 +381,14 @@
    * @param {Object} options - Sync options and metadata
    */
   function triggerAutoLoadingUpdate(options = {}) {
+    // 1. Guard: If admin is actively working inside the full-screen admin portal,
+    // update background DOM quietly without interrupting the admin interface
+    const fsPortal = document.getElementById('admin-fullscreen-portal');
+    if (fsPortal && fsPortal.classList.contains('open') && !options.isTest) {
+      renderPublicContent();
+      return;
+    }
+
     if (isAutoUpdating) return;
     isAutoUpdating = true;
 
@@ -361,75 +399,70 @@
     const card = screen ? screen.querySelector('.auto-sync-card') : null;
 
     if (!screen || !progressBar || !statusText) {
-      syncCloudContent().then(() => {
-        renderPublicContent();
-        showToast('✨ Festival details updated to latest version!');
-        isAutoUpdating = false;
-      });
+      renderPublicContent();
+      if (typeof syncRegistrationDropdown === 'function') syncRegistrationDropdown();
+      showToast('✨ Festival details updated to latest version!');
+      isAutoUpdating = false;
       return;
     }
 
     // Reset visual states & display loading screen immediately
     if (card) card.classList.remove('success');
     screen.classList.remove('fade-out');
-    progressBar.style.width = '22%';
+    progressBar.style.width = '25%';
     statusText.textContent = '✦ Festival updates detected. Connecting...';
     if (statusIcon) statusIcon.textContent = '✦';
 
     screen.setAttribute('aria-hidden', 'false');
     screen.classList.add('active');
 
-    // Phase 1: Fast initial sweep (at 120ms)
+    // Phase 1: Fast initial sweep (at 100ms)
     setTimeout(() => {
-      progressBar.style.width = '55%';
-      statusText.textContent = '✦ Downloading latest festival details & schedules...';
-    }, 120);
+      progressBar.style.width = '60%';
+      statusText.textContent = '✦ Refreshing festival arenas & stage timelines...';
+    }, 100);
 
-    // Phase 2: Synchronize and re-render DOM in background (at 320ms)
+    // Phase 2: Synchronize and re-render DOM in background (at 280ms)
     setTimeout(async () => {
       try {
-        progressBar.style.width = '88%';
-        statusText.textContent = '✦ Refreshing festival arenas & stage timelines...';
+        progressBar.style.width = '90%';
 
-        if (options.source === 'local_save' || options.source === 'storage' || options.source === 'broadcast') {
-          // Data already in localStorage; render immediately without network latency
-          renderPublicContent();
-          if (typeof syncAdminVisibilityToggles === 'function') syncAdminVisibilityToggles();
-          if (typeof renderAdminActiveTab === 'function') renderAdminActiveTab();
-          if (typeof syncRegistrationDropdown === 'function') syncRegistrationDropdown();
-        } else {
+        // In broadcast, storage, or cloud_ready modes, localStorage is ALREADY up-to-date!
+        // Only fetch from cloud if triggered from an unexpected source
+        if (options.source !== 'local_save' && options.source !== 'storage' && options.source !== 'broadcast' && options.source !== 'cloud_ready') {
           await syncCloudContent();
-          renderPublicContent();
-          if (typeof syncRegistrationDropdown === 'function') {
-            syncRegistrationDropdown();
-          }
         }
+
+        renderPublicContent();
+        if (typeof syncAdminVisibilityToggles === 'function') syncAdminVisibilityToggles();
+        if (typeof renderAdminActiveTab === 'function') renderAdminActiveTab();
+        if (typeof syncRegistrationDropdown === 'function') syncRegistrationDropdown();
       } catch (err) {
         console.warn('Auto-update sync warning:', err);
       }
 
-      // Phase 3: Success state (at 650ms)
+      // Phase 3: Success state (at 550ms)
       setTimeout(() => {
         progressBar.style.width = '100%';
         statusText.textContent = '✨ Festival details updated successfully!';
         if (statusIcon) statusIcon.textContent = '✓';
         if (card) card.classList.add('success');
 
-        // Phase 4: Smooth fade-out (at 920ms)
+        // Phase 4: Smooth fade-out (at 850ms)
         setTimeout(() => {
           screen.classList.add('fade-out');
 
-          // Phase 5: Complete and clean up (at 1200ms)
+          // Phase 5: Complete and clean up (at 1100ms)
           setTimeout(() => {
             screen.classList.remove('active', 'fade-out');
             if (card) card.classList.remove('success');
             screen.setAttribute('aria-hidden', 'true');
             isAutoUpdating = false;
             showToast('✨ Festival details have been updated to latest version!');
-          }, 280);
-        }, 320);
-      }, 330);
-    }, 320);
+          }, 250);
+        }, 300);
+      }, 270);
+    }, 280);
   }
 
   async function pushToCloud(key, data) {
@@ -453,8 +486,11 @@
           updateCloudStatus('pending', 'Saved Locally (KV Binding Pending)');
         } else {
           if (json.last_updated) {
-            lastKnownVersion = String(json.last_updated).replace(/"/g, '');
-            localStorage.setItem('abhigraha_last_updated', lastKnownVersion);
+            const sVer = String(json.last_updated).replace(/"/g, '');
+            lastHandledVersion = sVer;
+            lastKnownFingerprint = sVer;
+            lastKnownVersion = sVer;
+            localStorage.setItem('abhigraha_last_updated', sVer);
           }
           updateCloudStatus('synced', 'Cloudflare KV Synced');
         }
@@ -468,7 +504,11 @@
 
   async function syncCloudContent() {
     try {
-      const res = await fetch('/api/content', { cache: 'no-cache' });
+      const cacheBuster = Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+      const res = await fetch(`/api/content?_cb=${cacheBuster}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+      });
       if (!res.ok) {
         updateCloudStatus('pending', 'Local Storage Active');
         return false;
@@ -495,8 +535,11 @@
       }
 
       if (data && data.last_updated) {
-        lastKnownVersion = String(data.last_updated).replace(/"/g, '');
-        localStorage.setItem('abhigraha_last_updated', lastKnownVersion);
+        const sVer = String(data.last_updated).replace(/"/g, '');
+        lastHandledVersion = sVer;
+        lastKnownFingerprint = sVer;
+        lastKnownVersion = sVer;
+        localStorage.setItem('abhigraha_last_updated', sVer);
       }
 
       if (updatedAny) {
@@ -534,16 +577,24 @@
     try {
       localStorage.setItem(key, JSON.stringify(data));
       const nowTs = Date.now().toString();
+      lastHandledVersion = nowTs;
+      lastKnownFingerprint = nowTs;
       lastKnownVersion = nowTs;
       localStorage.setItem('abhigraha_last_updated', nowTs);
 
-      // Broadcast update across open tabs immediately
-      broadcastPortalChange(key, nowTs);
+      // 1. Broadcast update with the actual data payload across open tabs for 0ms instantaneous sync
+      broadcastPortalChange(key, data, nowTs);
 
-      // Trigger auto loading screen immediately so user sees update right away
-      triggerAutoLoadingUpdate({ key, reason: 'admin_portal_save', source: 'local_save' });
+      // 2. Update background public DOM on this admin tab immediately
+      renderPublicContent();
+      if (typeof syncAdminVisibilityToggles === 'function') syncAdminVisibilityToggles();
+      if (typeof renderAdminActiveTab === 'function') renderAdminActiveTab();
+      if (typeof syncRegistrationDropdown === 'function') syncRegistrationDropdown();
 
-      // Persist to Cloudflare KV
+      // Note: We do NOT trigger the visitor loading screen for the admin saving inside the portal!
+      // The admin gets the admin toast notification and table update.
+
+      // 3. Persist to Cloudflare KV in background
       pushToCloud(key, data);
     } catch (e) {
       console.error(`Failed to save ${key}`, e);
