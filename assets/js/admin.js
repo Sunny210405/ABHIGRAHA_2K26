@@ -1188,17 +1188,6 @@
       });
     }
 
-    // Test Auto-Sync Screen Preview Button
-    const adminTestSyncBtn = document.getElementById('admin-test-sync-btn');
-    if (adminTestSyncBtn) {
-      adminTestSyncBtn.addEventListener('click', () => {
-        closeFullscreenPortal();
-        setTimeout(() => {
-          triggerAutoLoadingUpdate({ isTest: true, reason: 'admin_preview' });
-        }, 180);
-      });
-    }
-
     // Logout Action
     if (adminLogoutBtn) {
       adminLogoutBtn.addEventListener('click', async () => {
