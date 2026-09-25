@@ -250,32 +250,67 @@
   });
 
   // Background Cloud Poller for concurrent remote users across devices
+  let lastKnownFingerprint = '';
+
   async function checkRemoteFestivalVersion() {
     if (isCheckingRemote || isAutoUpdating) return;
     isCheckingRemote = true;
     try {
-      const res = await fetch(`/api/content?key=last_updated&t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-      if (res.ok) {
-        const json = await res.json();
-        let serverVersion = json.last_updated;
-        if (serverVersion !== undefined && serverVersion !== null) {
-          serverVersion = String(serverVersion).replace(/"/g, '');
-          if (serverVersion !== '0' && lastKnownVersion !== '0' && serverVersion !== lastKnownVersion) {
-            console.log(`[AutoSync] Admin portal published new version: ${serverVersion} (local: ${lastKnownVersion})`);
-            lastKnownVersion = serverVersion;
-            localStorage.setItem('abhigraha_last_updated', serverVersion);
-            triggerAutoLoadingUpdate({
-              reason: 'remote_admin_update',
-              source: 'cloud',
-              version: serverVersion
-            });
-          } else if (lastKnownVersion === '0' && serverVersion !== '0') {
-            lastKnownVersion = serverVersion;
-            localStorage.setItem('abhigraha_last_updated', serverVersion);
+      const cacheBuster = Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+      let serverVersion = null;
+
+      // 1. First attempt: query last_updated with aggressive cache-busting
+      try {
+        const res = await fetch(`/api/content?key=last_updated&_cb=${cacheBuster}`, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.last_updated !== undefined && json.last_updated !== null) {
+            serverVersion = String(json.last_updated).replace(/"/g, '');
           }
+        }
+      } catch (err) {}
+
+      // 2. Fallback: if backend doesn't support 'last_updated' key query,
+      // fetch entire content payload and compute lightweight fingerprint
+      if (!serverVersion || serverVersion === '0') {
+        try {
+          const fullRes = await fetch(`/api/content?_cb=${cacheBuster}`, {
+            cache: 'no-store',
+            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+          });
+          if (fullRes.ok) {
+            const fullJson = await fullRes.json();
+            if (fullJson && fullJson.configured !== false) {
+              serverVersion = (fullJson.last_updated ? String(fullJson.last_updated) : '') + '_' +
+                (fullJson.events ? JSON.stringify(fullJson.events).length : 0) + '_' +
+                (fullJson.schedule ? JSON.stringify(fullJson.schedule).length : 0) + '_' +
+                (fullJson.merchandise ? JSON.stringify(fullJson.merchandise).length : 0) + '_' +
+                (fullJson.crowns ? JSON.stringify(fullJson.crowns).length : 0) + '_' +
+                JSON.stringify(fullJson.visibility || {});
+            }
+          }
+        } catch (err) {}
+      }
+
+      if (serverVersion) {
+        if (!lastKnownFingerprint) {
+          // Initialize baseline version on first load without triggering prompt
+          lastKnownFingerprint = serverVersion;
+          lastKnownVersion = serverVersion;
+          localStorage.setItem('abhigraha_last_updated', serverVersion);
+        } else if (serverVersion !== lastKnownFingerprint) {
+          console.log(`[AutoSync] Instant update detected! Old: ${lastKnownFingerprint}, New: ${serverVersion}`);
+          lastKnownFingerprint = serverVersion;
+          lastKnownVersion = serverVersion;
+          localStorage.setItem('abhigraha_last_updated', serverVersion);
+          triggerAutoLoadingUpdate({
+            reason: 'remote_admin_update',
+            source: 'cloud',
+            version: serverVersion
+          });
         }
       }
     } catch (e) {
@@ -288,14 +323,14 @@
   let pollerInterval = null;
   function startAutoSyncPoller() {
     if (pollerInterval) clearInterval(pollerInterval);
-    // Poll every 5 seconds when tab is active
+    // Poll every 1.5 seconds when tab is active for instant real-time response
     pollerInterval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         checkRemoteFestivalVersion();
       }
-    }, 5000);
+    }, 1500);
 
-    // Instant verification when user returns to the tab or refocuses
+    // Instant verification when user returns to tab or window refocuses
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         checkRemoteFestivalVersion();
@@ -317,15 +352,6 @@
    */
   function triggerAutoLoadingUpdate(options = {}) {
     if (isAutoUpdating) return;
-
-    // If admin is currently typing inside the full-screen portal in this window,
-    // update quietly without interrupting the open editing form
-    const fsPortal = document.getElementById('admin-fullscreen-portal');
-    if (fsPortal && fsPortal.classList.contains('open') && !options.isTest) {
-      syncCloudContent();
-      return;
-    }
-
     isAutoUpdating = true;
 
     const screen = document.getElementById('festival-auto-sync-screen');
@@ -343,59 +369,67 @@
       return;
     }
 
-    // Reset visual states & display loading screen
+    // Reset visual states & display loading screen immediately
     if (card) card.classList.remove('success');
     screen.classList.remove('fade-out');
-    progressBar.style.width = '16%';
+    progressBar.style.width = '22%';
     statusText.textContent = '✦ Festival updates detected. Connecting...';
     if (statusIcon) statusIcon.textContent = '✦';
 
     screen.setAttribute('aria-hidden', 'false');
     screen.classList.add('active');
 
-    // Phase 1: Rapid handshake (at 200ms)
+    // Phase 1: Fast initial sweep (at 120ms)
     setTimeout(() => {
-      progressBar.style.width = '48%';
+      progressBar.style.width = '55%';
       statusText.textContent = '✦ Downloading latest festival details & schedules...';
-    }, 200);
+    }, 120);
 
-    // Phase 2: Synchronize and re-render DOM in background (at 520ms)
+    // Phase 2: Synchronize and re-render DOM in background (at 320ms)
     setTimeout(async () => {
       try {
-        progressBar.style.width = '84%';
+        progressBar.style.width = '88%';
         statusText.textContent = '✦ Refreshing festival arenas & stage timelines...';
 
-        await syncCloudContent();
-        renderPublicContent();
-        if (typeof syncRegistrationDropdown === 'function') {
-          syncRegistrationDropdown();
+        if (options.source === 'local_save' || options.source === 'storage' || options.source === 'broadcast') {
+          // Data already in localStorage; render immediately without network latency
+          renderPublicContent();
+          if (typeof syncAdminVisibilityToggles === 'function') syncAdminVisibilityToggles();
+          if (typeof renderAdminActiveTab === 'function') renderAdminActiveTab();
+          if (typeof syncRegistrationDropdown === 'function') syncRegistrationDropdown();
+        } else {
+          await syncCloudContent();
+          renderPublicContent();
+          if (typeof syncRegistrationDropdown === 'function') {
+            syncRegistrationDropdown();
+          }
         }
       } catch (err) {
         console.warn('Auto-update sync warning:', err);
       }
 
-      // Phase 3: Success state (at 1020ms)
+      // Phase 3: Success state (at 650ms)
       setTimeout(() => {
         progressBar.style.width = '100%';
         statusText.textContent = '✨ Festival details updated successfully!';
         if (statusIcon) statusIcon.textContent = '✓';
         if (card) card.classList.add('success');
 
-        // Phase 4: Smooth fade-out (at 1480ms)
+        // Phase 4: Smooth fade-out (at 920ms)
         setTimeout(() => {
           screen.classList.add('fade-out');
 
-          // Phase 5: Complete and clean up (at 1820ms)
+          // Phase 5: Complete and clean up (at 1200ms)
           setTimeout(() => {
             screen.classList.remove('active', 'fade-out');
             if (card) card.classList.remove('success');
             screen.setAttribute('aria-hidden', 'true');
             isAutoUpdating = false;
             showToast('✨ Festival details have been updated to latest version!');
-          }, 340);
-        }, 460);
-      }, 500);
-    }, 520);
+          }, 280);
+        }, 320);
+      }, 330);
+    }, 320);
   }
 
   async function pushToCloud(key, data) {
@@ -505,6 +539,9 @@
 
       // Broadcast update across open tabs immediately
       broadcastPortalChange(key, nowTs);
+
+      // Trigger auto loading screen immediately so user sees update right away
+      triggerAutoLoadingUpdate({ key, reason: 'admin_portal_save', source: 'local_save' });
 
       // Persist to Cloudflare KV
       pushToCloud(key, data);
@@ -952,22 +989,6 @@
         setTimeout(() => {
           triggerAutoLoadingUpdate({ isTest: true, reason: 'admin_preview' });
         }, 180);
-      });
-    }
-
-    // Dismiss Button for Auto-Sync Screen
-    const autoSyncDismissBtn = document.getElementById('auto-sync-dismiss-btn');
-    if (autoSyncDismissBtn) {
-      autoSyncDismissBtn.addEventListener('click', () => {
-        const screen = document.getElementById('festival-auto-sync-screen');
-        if (screen) {
-          screen.classList.add('fade-out');
-          setTimeout(() => {
-            screen.classList.remove('active', 'fade-out');
-            screen.setAttribute('aria-hidden', 'true');
-            isAutoUpdating = false;
-          }, 350);
-        }
       });
     }
 

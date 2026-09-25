@@ -3711,12 +3711,12 @@ body {
   position: relative;
   z-index: 2;
   width: 90%;
-  max-width: 490px;
+  max-width: 440px;
   background: linear-gradient(145deg, rgba(30, 11, 18, 0.96), rgba(15, 5, 9, 0.99));
   border: 1.5px solid rgba(212, 175, 55, 0.45);
   box-shadow: 0 0 60px rgba(212, 175, 55, 0.22), 0 25px 65px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   border-radius: 22px;
-  padding: 38px 30px;
+  padding: 34px 28px;
   text-align: center;
   transform: scale(0.92) translateY(14px);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
@@ -3833,18 +3833,8 @@ body {
   font-size: 1.55rem;
   font-weight: 800;
   color: #fff;
-  margin: 0 0 8px;
+  margin: 0 0 20px;
   letter-spacing: 0.5px;
-}
-
-.auto-sync-subtitle {
-  font-size: 0.88rem;
-  color: #cbd5e1;
-  line-height: 1.55;
-  margin: 0 0 22px;
-  max-width: 420px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* Progress Track */
@@ -3894,27 +3884,6 @@ body {
 .auto-sync-icon {
   font-size: 0.95rem;
   animation: syncIconPulse 1.4s ease-in-out infinite;
-}
-
-/* Dismiss button */
-.auto-sync-dismiss-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #94a3b8;
-  font-size: 0.76rem;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 6px 14px;
-  cursor: pointer;
-  margin-top: 18px;
-  transition: all 0.2s ease;
-  letter-spacing: 0.5px;
-}
-
-.auto-sync-dismiss-btn:hover {
-  color: #fff;
-  border-color: rgba(212, 175, 55, 0.5);
-  background: rgba(212, 175, 55, 0.08);
 }
 
 /* Keyframe Animations */
