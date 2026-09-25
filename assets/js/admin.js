@@ -17,6 +17,20 @@
   // Cryptographic SHA-256 hash for authorized portal access
   const ACCESS_HASH = '7ba682d1dcfb5d93995134af9fce82b2bf9c0a365f4f29e7b3aac8e949f3297d';
 
+  // Custom SVG Icons for Admin Portal Buttons and Interactive Headings
+  const ADMIN_ICONS = {
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
+    delete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+    moveUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><polyline points="18 15 12 9 6 15"></polyline></svg>',
+    moveDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><polyline points="6 9 12 15 18 9"></polyline></svg>'
+  };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   // ==========================================================================
   // DEFAULT FESTIVAL DATASETS
   // ==========================================================================
@@ -29,7 +43,8 @@
       tag: 'Flagship',
       desc: 'Eastern and Western solo & group dance choreography clash on the imperial amphitheatre stage.',
       venue: 'Amphitheatre Stage',
-      time: 'Day 1 | 02:00 PM'
+      time: 'Day 1 | 02:00 PM',
+      formUrl: 'https://forms.gle/abhigraha2k26-nrityotsav'
     },
     {
       id: 'evt-2',
@@ -39,60 +54,60 @@
       tag: 'Star Clash',
       desc: 'High-voltage live rock and fusion band showdown featuring collegiate bands across the region.',
       venue: 'Main Ground Pavilion',
-      time: 'Day 1 | 05:00 PM'
-    },
-    {
-      id: 'evt-3',
-      title: 'Imperial Esports (Valorant & BGMI)',
-      category: 'Gaming',
-      prize: '₹12,000 + Badges',
-      tag: 'Esports',
-      desc: 'High-intensity tactical multiplayer tournament played on high-refresh LAN setup with live streaming.',
-      venue: 'Tech Arena',
-      time: 'Day 1 & Day 2'
-    },
-    {
-      id: 'evt-4',
-      title: 'Ramp of Radiance (CROWNS)',
-      category: 'Cultural',
-      prize: 'Imperial Titles + Cash',
-      tag: 'Coronation',
-      desc: 'The signature fashion, runway, and charisma contest crowning Mr. & Ms. Freshers 2K26.',
-      venue: 'Main Imperial Stage',
-      time: 'Day 2 | 03:30 PM'
-    },
-    {
-      id: 'evt-5',
-      title: 'Chanakya Neeti Mega Quiz',
-      category: 'Technical',
-      prize: '₹8,000 + Certificates',
-      tag: 'Intellect',
-      desc: 'Challenging multi-tier quiz testing general intellect, pop culture, history, science, and strategy.',
-      venue: 'Quadrangle',
-      time: 'Day 2 | 10:30 AM'
-    },
-    {
-      id: 'evt-6',
-      title: 'Street Beats - Nukkad Natak',
-      category: 'Special',
-      prize: '₹10,000 + Trophy',
-      tag: 'Drama',
-      desc: 'Powerful theatrical street plays bringing social messages to life with authentic beats and energy.',
-      venue: 'Central Courtyard',
-      time: 'Day 2 | 11:30 AM'
+      time: 'Day 1 | 05:00 PM',
+      formUrl: 'https://forms.gle/abhigraha2k26-surtarang'
     }
   ];
 
   const DEFAULT_SCHEDULE = [
     { id: 'sch-1', day: 'day1', time: '10:00 AM - 11:30 AM', title: 'Grand Inauguration & Lamp Lighting', venue: 'Central Auditorium | Welcome Address by Vice Chancellor' },
-    { id: 'sch-2', day: 'day1', time: '11:30 AM - 01:30 PM', title: 'Esports Preliminary Knockouts (Valorant / BGMI)', venue: 'Tech Arena | LAN Setup' },
-    { id: 'sch-3', day: 'day1', time: '02:00 PM - 04:30 PM', title: 'Nrityotsav - Eastern & Western Dance Clash', venue: 'Amphitheatre Stage' },
-    { id: 'sch-4', day: 'day1', time: '05:00 PM - 08:30 PM', title: 'Sur Tarang Live Band War & Rock Night', venue: 'Main Ground Pavilion' },
-    { id: 'sch-5', day: 'day2', time: '10:30 AM - 12:30 PM', title: 'Chanakya Neeti Mega Quiz & Street Drama', venue: 'University Quadrangle' },
-    { id: 'sch-6', day: 'day2', time: '01:30 PM - 03:00 PM', title: 'Esports Grand Finals & Live Stream', venue: 'Tech Arena Screen' },
-    { id: 'sch-7', day: 'day2', time: '03:30 PM - 06:30 PM', title: 'The Royal CROWNS Coronation (Mr. & Ms. Freshers)', venue: 'Main Imperial Stage | Fashion & Talent Walk' },
-    { id: 'sch-8', day: 'day2', time: '07:00 PM - 10:00 PM', title: 'Celebrity DJ Night & Grand EDM Extravaganza', venue: 'Main Festival Grounds' }
+    { id: 'sch-2', day: 'day1', time: '05:00 PM - 08:30 PM', title: 'Sur Tarang Live Band War & Rock Night', venue: 'Main Ground Pavilion | Live Rock & Fusion Night' },
+    { id: 'sch-3', day: 'day2', time: '03:30 PM - 06:30 PM', title: 'The Royal CROWNS Coronation (Mr. & Ms. Freshers)', venue: 'Main Imperial Stage | Fashion & Talent Walk' },
+    { id: 'sch-4', day: 'day2', time: '07:00 PM - 10:00 PM', title: 'Celebrity DJ Night & Grand EDM Extravaganza', venue: 'Main Festival Grounds | Star EDM Finale' }
   ];
+
+  // Auto-align default datasets for clean initial display (2 events, 2 Day 1 activities, 2 Day 2 activities)
+  (function migrateDefaults() {
+    const DATASET_REV = 'rev_2evt_4sch_formurls_v2';
+    if (localStorage.getItem('abhigraha_defaults_rev') !== DATASET_REV) {
+      try {
+        const existingEvts = JSON.parse(localStorage.getItem('abhigraha_events') || 'null');
+        if (!existingEvts || (Array.isArray(existingEvts) && existingEvts.length === 6 && existingEvts[0]?.id === 'evt-1')) {
+          localStorage.setItem('abhigraha_events', JSON.stringify(DEFAULT_EVENTS));
+        } else if (Array.isArray(existingEvts)) {
+          const enriched = existingEvts.map((e, idx) => ({
+            ...e,
+            formUrl: e.formUrl || (DEFAULT_EVENTS[idx] ? DEFAULT_EVENTS[idx].formUrl : 'https://forms.gle/abhigraha2k26-registration')
+          }));
+          localStorage.setItem('abhigraha_events', JSON.stringify(enriched));
+        }
+
+        const existingSch = JSON.parse(localStorage.getItem('abhigraha_schedule') || 'null');
+        if (!existingSch || (Array.isArray(existingSch) && existingSch.length === 8 && existingSch[0]?.id === 'sch-1')) {
+          localStorage.setItem('abhigraha_schedule', JSON.stringify(DEFAULT_SCHEDULE));
+        }
+
+        const existingCrowns = JSON.parse(localStorage.getItem('abhigraha_crowns') || 'null');
+        if (existingCrowns && Array.isArray(existingCrowns)) {
+          const enrichedCrowns = existingCrowns.map((c, idx) => ({
+            ...c,
+            formUrl: c.formUrl || (DEFAULT_CROWNS[idx] ? DEFAULT_CROWNS[idx].formUrl : 'https://forms.gle/abhigraha2k26-crowns')
+          }));
+          localStorage.setItem('abhigraha_crowns', JSON.stringify(enrichedCrowns));
+        }
+
+        const existingMerch = JSON.parse(localStorage.getItem('abhigraha_merchandise') || 'null');
+        if (existingMerch && Array.isArray(existingMerch)) {
+          const enrichedMerch = existingMerch.map((m, idx) => ({
+            ...m,
+            formUrl: m.formUrl || (DEFAULT_MERCH[idx] ? DEFAULT_MERCH[idx].formUrl : 'https://forms.gle/abhigraha2k26-merch')
+          }));
+          localStorage.setItem('abhigraha_merchandise', JSON.stringify(enrichedMerch));
+        }
+      } catch (e) {}
+      localStorage.setItem('abhigraha_defaults_rev', DATASET_REV);
+    }
+  })();
 
   const DEFAULT_CROWNS = [
     {
@@ -101,7 +116,8 @@
       title: 'The Dragon King',
       icon: '🤴',
       criteria: '✦ Round 1: Ethnic & Theme Runway Walk\n✦ Round 2: On-stage Talent Showcase\n✦ Round 3: Wit, Intellect & Judges Q&A\n✦ Live Audience Popular Choice Voting',
-      regEvent: 'Nomination: Mr. Freshers 2K26'
+      regEvent: 'Nomination: Mr. Freshers 2K26',
+      formUrl: 'https://forms.gle/abhigraha2k26-mrfreshers'
     },
     {
       id: 'crw-2',
@@ -109,7 +125,8 @@
       title: 'The Imperial Empress',
       icon: '👸',
       criteria: '✦ Round 1: Oriental Fusion Fashion Runway\n✦ Round 2: Individual Performance & Passion\n✦ Round 3: Wit, Spontaneity & Final Pitch\n✦ Live Audience Popular Choice Voting',
-      regEvent: 'Nomination: Ms. Freshers 2K26'
+      regEvent: 'Nomination: Ms. Freshers 2K26',
+      formUrl: 'https://forms.gle/abhigraha2k26-msfreshers'
     }
   ];
 
@@ -120,7 +137,8 @@
       price: '₹799',
       tag: 'Popular',
       desc: 'Premium oriental embroidered heavyweight hoodie with gold foil dragon iconography.',
-      icon: '👘'
+      icon: '👘',
+      formUrl: 'https://forms.gle/abhigraha2k26-hoodie'
     },
     {
       id: 'mrc-2',
@@ -128,7 +146,8 @@
       price: '₹399',
       tag: 'Trending',
       desc: '100% bio-washed cotton tee with glowing lantern screenprint and TNU official event signature.',
-      icon: '👕'
+      icon: '👕',
+      formUrl: 'https://forms.gle/abhigraha2k26-tshirt'
     },
     {
       id: 'mrc-3',
@@ -136,7 +155,8 @@
       price: '₹199',
       tag: 'Limited',
       desc: 'Front-row arena entry for celebrity star night, LED festival wristband, and holographic souvenir badge.',
-      icon: '🎟️'
+      icon: '🎟️',
+      formUrl: 'https://forms.gle/abhigraha2k26-vippass'
     }
   ];
 
@@ -845,7 +865,7 @@
             <span class="event-meta-item">📍 ${evt.venue || 'Campus Stage'}</span>
             <span class="event-meta-item">⏰ ${evt.time || 'Festival Days'}</span>
           </div>
-          <button class="event-register-btn" data-event="${evt.title}">
+          <button class="event-register-btn" data-event="${escapeHtml(evt.title)}" data-form-url="${escapeHtml(evt.formUrl || '')}">
             ⚡ Register Now
           </button>
         </div>
@@ -942,8 +962,8 @@
           <ul class="crown-criteria">
             ${criteriaList}
           </ul>
-          <button class="cta-btn-primary event-register-btn" data-event="${c.regEvent || ('Nomination: ' + c.role)}" style="margin-top: 10px;">
-            Nominate for ${c.role.split(' ')[0]}
+          <button class="cta-btn-primary event-register-btn" data-event="${escapeHtml(c.regEvent || ('Nomination: ' + c.role))}" data-form-url="${escapeHtml(c.formUrl || '')}" style="margin-top: 10px;">
+            Nominate for ${escapeHtml(c.role.split(' ')[0])}
           </button>
         </div>
       `;
@@ -984,7 +1004,7 @@
           <h4 class="merch-title">${m.title}</h4>
           <div class="merch-price">${m.price}</div>
           <p class="merch-desc">${m.desc}</p>
-          <button class="merch-btn" data-merch="${m.title} (${m.price})">Pre-Order Now</button>
+          <button class="merch-btn" data-merch="${escapeHtml(m.title)} (${escapeHtml(m.price)})" data-form-url="${escapeHtml(m.formUrl || '')}">Pre-Order Now</button>
         </div>
       </div>
     `).join('');
@@ -1301,7 +1321,9 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-event-edit-id').value = '';
-        document.getElementById('admin-event-form-title').textContent = '➕ Add New Festival Event';
+        const formUrlInput = document.getElementById('admin-event-form-url');
+        if (formUrlInput) formUrlInput.value = '';
+        document.getElementById('admin-event-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add New Festival Event</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -1335,6 +1357,7 @@
         const tag = document.getElementById('admin-event-tag').value.trim();
         const venue = document.getElementById('admin-event-venue').value.trim();
         const time = document.getElementById('admin-event-time').value.trim();
+        const formUrl = (document.getElementById('admin-event-form-url')?.value || '').trim();
         const desc = document.getElementById('admin-event-desc').value.trim();
 
         if (!title || !desc) {
@@ -1347,13 +1370,13 @@
           // Edit
           const idx = list.findIndex(item => item.id === editId);
           if (idx !== -1) {
-            list[idx] = { ...list[idx], title, category, prize, tag, venue, time, desc };
+            list[idx] = { ...list[idx], title, category, prize, tag, venue, time, desc, formUrl };
           }
           showToast(`Event "${title}" updated!`);
         } else {
           // Add
           const newId = 'evt-' + Date.now();
-          list.push({ id: newId, title, category, prize, tag, venue, time, desc });
+          list.push({ id: newId, title, category, prize, tag, venue, time, desc, formUrl });
           showToast(`New Event "${title}" added!`);
         }
 
@@ -1379,24 +1402,71 @@
       return;
     }
 
-    container.innerHTML = list.map(evt => `
+    container.innerHTML = list.map((evt, idx) => `
       <div class="admin-item-card">
+        <div class="admin-item-order-corner">
+          <button type="button" class="btn-order-circle" data-order-up-evt="${evt.id}" title="Move Up in Website Order" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveUp}
+          </button>
+          <button type="button" class="btn-order-circle" data-order-down-evt="${evt.id}" title="Move Down in Website Order" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveDown}
+          </button>
+        </div>
         <div class="admin-item-main">
           <div class="admin-item-title">
-            <span>${evt.title}</span>
-            <span class="admin-topbar-badge">${evt.category || 'General'}</span>
-            <span style="font-size:0.75rem; color:#f59e0b;">🏆 ${evt.prize}</span>
+            <span class="admin-order-badge">#${idx + 1}</span>
+            <span>${escapeHtml(evt.title)}</span>
+            <span class="admin-topbar-badge">${escapeHtml(evt.category || 'General')}</span>
+            <span style="font-size:0.75rem; color:#f59e0b;">🏆 ${escapeHtml(evt.prize || '')}</span>
           </div>
           <div class="admin-item-meta">
-            📍 ${evt.venue || 'Campus Arena'} &nbsp;|&nbsp; ⏰ ${evt.time || 'Schedule Tab'} &nbsp;|&nbsp; Tag: ${evt.tag || '-'}
+            📍 ${escapeHtml(evt.venue || 'Campus Arena')} &nbsp;|&nbsp; ⏰ ${escapeHtml(evt.time || 'Schedule Tab')} &nbsp;|&nbsp; Tag: ${escapeHtml(evt.tag || '-')}
+            ${evt.formUrl ? ` &nbsp;|&nbsp; <a href="${escapeHtml(evt.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Form Link</a>` : ''}
           </div>
         </div>
         <div class="admin-item-actions">
-          <button class="btn-action-edit" data-edit-evt="${evt.id}">✏️ Edit</button>
-          <button class="btn-action-delete" data-del-evt="${evt.id}">🗑️ Delete</button>
+          <button class="btn-action-edit" data-edit-evt="${evt.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+          <button class="btn-action-delete" data-del-evt="${evt.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
         </div>
       </div>
     `).join('');
+
+    // Attach Reorder Listeners
+    container.querySelectorAll('[data-order-up-evt]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-up-evt');
+        const evts = getEvents();
+        const idx = evts.findIndex(e => e.id === id);
+        if (idx > 0) {
+          const temp = evts[idx];
+          evts[idx] = evts[idx - 1];
+          evts[idx - 1] = temp;
+          saveData('abhigraha_events', evts);
+          renderPublicEvents();
+          renderAdminEventsList();
+          syncRegistrationDropdown();
+          showToast(`Event "${temp.title}" moved up to #${idx}.`);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-order-down-evt]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-down-evt');
+        const evts = getEvents();
+        const idx = evts.findIndex(e => e.id === id);
+        if (idx !== -1 && idx < evts.length - 1) {
+          const temp = evts[idx];
+          evts[idx] = evts[idx + 1];
+          evts[idx + 1] = temp;
+          saveData('abhigraha_events', evts);
+          renderPublicEvents();
+          renderAdminEventsList();
+          syncRegistrationDropdown();
+          showToast(`Event "${temp.title}" moved down to #${idx + 2}.`);
+        }
+      });
+    });
 
     // Attach Edit & Delete Listeners
     container.querySelectorAll('[data-edit-evt]').forEach(btn => {
@@ -1413,8 +1483,10 @@
         document.getElementById('admin-event-tag').value = evt.tag || '';
         document.getElementById('admin-event-venue').value = evt.venue || '';
         document.getElementById('admin-event-time').value = evt.time || '';
+        const formUrlInput = document.getElementById('admin-event-form-url');
+        if (formUrlInput) formUrlInput.value = evt.formUrl || '';
         document.getElementById('admin-event-desc').value = evt.desc || '';
-        document.getElementById('admin-event-form-title').textContent = `✏️ Edit Event: ${evt.title}`;
+        document.getElementById('admin-event-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Event: ${escapeHtml(evt.title)}</span>`;
 
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
@@ -1451,7 +1523,7 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-schedule-edit-id').value = '';
-        document.getElementById('admin-schedule-form-title').textContent = '➕ Add Timeline Activity';
+        document.getElementById('admin-schedule-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Timeline Activity</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -1512,32 +1584,105 @@
     if (!container) return;
 
     const list = getSchedule();
-    if (countEl) countEl.textContent = `${list.length} Items`;
+    if (countEl) countEl.textContent = `${list.length} Activities`;
 
     if (list.length === 0) {
       container.innerHTML = '<p style="color:#a38c94; text-align:center; padding:16px;">No schedule items listed.</p>';
       return;
     }
 
-    container.innerHTML = list.map(item => `
-      <div class="admin-item-card">
-        <div class="admin-item-main">
-          <div class="admin-item-title">
-            <span>${item.title}</span>
-            <span class="admin-topbar-badge">${item.day === 'day1' ? 'Day 1' : 'Day 2'}</span>
-            <span style="font-size:0.75rem; color:#fde68a;">⏰ ${item.time}</span>
-          </div>
-          <div class="admin-item-meta">
-            📍 ${item.venue}
-          </div>
-        </div>
-        <div class="admin-item-actions">
-          <button class="btn-action-edit" data-edit-sch="${item.id}">✏️ Edit</button>
-          <button class="btn-action-delete" data-del-sch="${item.id}">🗑️ Delete</button>
-        </div>
-      </div>
-    `).join('');
+    const day1Items = list.filter(i => i.day === 'day1');
+    const day2Items = list.filter(i => i.day === 'day2');
 
+    container.innerHTML = list.map(item => {
+      const isDay1 = item.day === 'day1';
+      const dayList = isDay1 ? day1Items : day2Items;
+      const dayIdx = dayList.findIndex(i => i.id === item.id);
+      const isFirstInDay = dayIdx === 0;
+      const isLastInDay = dayIdx === dayList.length - 1;
+      const dayLabel = isDay1 ? 'Day 1' : 'Day 2';
+
+      return `
+        <div class="admin-item-card" data-schedule-id="${item.id}">
+          <div class="admin-item-order-corner">
+            <button type="button" class="btn-order-circle" data-order-up-sch="${item.id}" title="Move Up in ${dayLabel} Order" aria-label="Move Up" ${isFirstInDay ? 'disabled' : ''}>
+              ${ADMIN_ICONS.moveUp}
+            </button>
+            <button type="button" class="btn-order-circle" data-order-down-sch="${item.id}" title="Move Down in ${dayLabel} Order" aria-label="Move Down" ${isLastInDay ? 'disabled' : ''}>
+              ${ADMIN_ICONS.moveDown}
+            </button>
+          </div>
+          <div class="admin-item-main">
+            <div class="admin-item-title">
+              <span class="admin-order-badge">${dayLabel} #${dayIdx + 1}</span>
+              <span>${escapeHtml(item.title)}</span>
+              <span class="admin-topbar-badge">${dayLabel}</span>
+              <span style="font-size:0.75rem; color:#fde68a;">⏰ ${escapeHtml(item.time)}</span>
+            </div>
+            <div class="admin-item-meta">
+              📍 ${escapeHtml(item.venue)}
+            </div>
+          </div>
+          <div class="admin-item-actions">
+            <button class="btn-action-edit" data-edit-sch="${item.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+            <button class="btn-action-delete" data-del-sch="${item.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach Reorder Listeners for Schedule
+    container.querySelectorAll('[data-order-up-sch]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-up-sch');
+        const schList = getSchedule();
+        const item = schList.find(i => i.id === id);
+        if (!item) return;
+
+        const dayList = schList.filter(i => i.day === item.day);
+        const dayIdx = dayList.findIndex(i => i.id === id);
+        if (dayIdx > 0) {
+          const prevItem = dayList[dayIdx - 1];
+          const idxA = schList.findIndex(i => i.id === item.id);
+          const idxB = schList.findIndex(i => i.id === prevItem.id);
+          const temp = schList[idxA];
+          schList[idxA] = schList[idxB];
+          schList[idxB] = temp;
+
+          saveData('abhigraha_schedule', schList);
+          renderPublicSchedule();
+          renderAdminScheduleList();
+          showToast(`Activity "${temp.title}" moved up to #${dayIdx} in ${item.day === 'day1' ? 'Day 1' : 'Day 2'}.`);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-order-down-sch]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-down-sch');
+        const schList = getSchedule();
+        const item = schList.find(i => i.id === id);
+        if (!item) return;
+
+        const dayList = schList.filter(i => i.day === item.day);
+        const dayIdx = dayList.findIndex(i => i.id === id);
+        if (dayIdx !== -1 && dayIdx < dayList.length - 1) {
+          const nextItem = dayList[dayIdx + 1];
+          const idxA = schList.findIndex(i => i.id === item.id);
+          const idxB = schList.findIndex(i => i.id === nextItem.id);
+          const temp = schList[idxA];
+          schList[idxA] = schList[idxB];
+          schList[idxB] = temp;
+
+          saveData('abhigraha_schedule', schList);
+          renderPublicSchedule();
+          renderAdminScheduleList();
+          showToast(`Activity "${temp.title}" moved down to #${dayIdx + 2} in ${item.day === 'day1' ? 'Day 1' : 'Day 2'}.`);
+        }
+      });
+    });
+
+    // Attach Edit & Delete Listeners
     container.querySelectorAll('[data-edit-sch]').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-edit-sch');
@@ -1550,7 +1695,7 @@
         document.getElementById('admin-schedule-time').value = item.time;
         document.getElementById('admin-schedule-title').value = item.title;
         document.getElementById('admin-schedule-venue').value = item.venue;
-        document.getElementById('admin-schedule-form-title').textContent = `✏️ Edit Activity: ${item.title}`;
+        document.getElementById('admin-schedule-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Activity: ${escapeHtml(item.title)}</span>`;
 
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
@@ -1586,7 +1731,9 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-crown-edit-id').value = '';
-        document.getElementById('admin-crown-form-title').textContent = '➕ Add Royal Crown Title';
+        const formUrlInput = document.getElementById('admin-crown-form-url');
+        if (formUrlInput) formUrlInput.value = '';
+        document.getElementById('admin-crown-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Royal Crown Title</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -1619,6 +1766,7 @@
         const icon = document.getElementById('admin-crown-icon').value.trim() || '👑';
         const criteria = document.getElementById('admin-crown-criteria').value.trim();
         const regEvent = document.getElementById('admin-crown-regevent').value.trim() || ('Nomination: ' + role);
+        const formUrl = (document.getElementById('admin-crown-form-url')?.value || '').trim();
 
         if (!role || !title) {
           alert('Please enter Role and Theme Title.');
@@ -1628,10 +1776,10 @@
         const list = getCrowns();
         if (editId) {
           const idx = list.findIndex(i => i.id === editId);
-          if (idx !== -1) list[idx] = { id: editId, role, title, icon, criteria, regEvent };
+          if (idx !== -1) list[idx] = { id: editId, role, title, icon, criteria, regEvent, formUrl };
           showToast(`Crown "${role}" updated!`);
         } else {
-          list.push({ id: 'crw-' + Date.now(), role, title, icon, criteria, regEvent });
+          list.push({ id: 'crw-' + Date.now(), role, title, icon, criteria, regEvent, formUrl });
           showToast(`Crown "${role}" added!`);
         }
 
@@ -1657,24 +1805,70 @@
       return;
     }
 
-    container.innerHTML = list.map(c => `
+    container.innerHTML = list.map((c, idx) => `
       <div class="admin-item-card">
+        <div class="admin-item-order-corner">
+          <button type="button" class="btn-order-circle" data-order-up-crw="${c.id}" title="Move Up" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveUp}
+          </button>
+          <button type="button" class="btn-order-circle" data-order-down-crw="${c.id}" title="Move Down" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveDown}
+          </button>
+        </div>
         <div class="admin-item-main">
           <div class="admin-item-title">
+            <span class="admin-order-badge">#${idx + 1}</span>
             <span style="font-size:1.3rem;">${c.icon}</span>
             <span>${c.role}</span>
             <span style="color:#ffd899; font-weight:600;">(${c.title})</span>
           </div>
           <div class="admin-item-meta">
             Registration Nomination: ${c.regEvent}
+            ${c.formUrl ? ` &nbsp;|&nbsp; <a href="${escapeHtml(c.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Nomination Form</a>` : ''}
           </div>
         </div>
         <div class="admin-item-actions">
-          <button class="btn-action-edit" data-edit-crw="${c.id}">✏️ Edit</button>
-          <button class="btn-action-delete" data-del-crw="${c.id}">🗑️ Delete</button>
+          <button class="btn-action-edit" data-edit-crw="${c.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+          <button class="btn-action-delete" data-del-crw="${c.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
         </div>
       </div>
     `).join('');
+
+    container.querySelectorAll('[data-order-up-crw]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-up-crw');
+        const cList = getCrowns();
+        const idx = cList.findIndex(i => i.id === id);
+        if (idx > 0) {
+          const temp = cList[idx];
+          cList[idx] = cList[idx - 1];
+          cList[idx - 1] = temp;
+          saveData('abhigraha_crowns', cList);
+          renderPublicCrowns();
+          renderAdminCrownsList();
+          syncRegistrationDropdown();
+          showToast(`Crown "${temp.role}" moved up to #${idx}.`);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-order-down-crw]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-down-crw');
+        const cList = getCrowns();
+        const idx = cList.findIndex(i => i.id === id);
+        if (idx !== -1 && idx < cList.length - 1) {
+          const temp = cList[idx];
+          cList[idx] = cList[idx + 1];
+          cList[idx + 1] = temp;
+          saveData('abhigraha_crowns', cList);
+          renderPublicCrowns();
+          renderAdminCrownsList();
+          syncRegistrationDropdown();
+          showToast(`Crown "${temp.role}" moved down to #${idx + 2}.`);
+        }
+      });
+    });
 
     container.querySelectorAll('[data-edit-crw]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1689,7 +1883,9 @@
         document.getElementById('admin-crown-icon').value = c.icon;
         document.getElementById('admin-crown-criteria').value = c.criteria;
         document.getElementById('admin-crown-regevent').value = c.regEvent || '';
-        document.getElementById('admin-crown-form-title').textContent = `✏️ Edit Crown: ${c.role}`;
+        const formUrlInput = document.getElementById('admin-crown-form-url');
+        if (formUrlInput) formUrlInput.value = c.formUrl || '';
+        document.getElementById('admin-crown-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Crown: ${escapeHtml(c.role)}</span>`;
 
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
@@ -1726,7 +1922,9 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-merch-edit-id').value = '';
-        document.getElementById('admin-merch-form-title').textContent = '➕ Add Merchandise Gear';
+        const formUrlInput = document.getElementById('admin-merch-form-url');
+        if (formUrlInput) formUrlInput.value = '';
+        document.getElementById('admin-merch-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Merchandise Gear</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -1757,6 +1955,7 @@
         const price = document.getElementById('admin-merch-price').value.trim();
         const tag = document.getElementById('admin-merch-tag').value.trim();
         const icon = document.getElementById('admin-merch-icon').value.trim() || '🛍️';
+        const formUrl = (document.getElementById('admin-merch-form-url')?.value || '').trim();
         const desc = document.getElementById('admin-merch-desc').value.trim();
 
         if (!title || !price) {
@@ -1767,10 +1966,10 @@
         const list = getMerch();
         if (editId) {
           const idx = list.findIndex(i => i.id === editId);
-          if (idx !== -1) list[idx] = { id: editId, title, price, tag, icon, desc };
+          if (idx !== -1) list[idx] = { id: editId, title, price, tag, icon, desc, formUrl };
           showToast(`Merchandise "${title}" updated!`);
         } else {
-          list.push({ id: 'mrc-' + Date.now(), title, price, tag, icon, desc });
+          list.push({ id: 'mrc-' + Date.now(), title, price, tag, icon, desc, formUrl });
           showToast(`Merchandise "${title}" added!`);
         }
 
@@ -1795,25 +1994,69 @@
       return;
     }
 
-    container.innerHTML = list.map(m => `
+    container.innerHTML = list.map((m, idx) => `
       <div class="admin-item-card">
+        <div class="admin-item-order-corner">
+          <button type="button" class="btn-order-circle" data-order-up-mrc="${m.id}" title="Move Up" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveUp}
+          </button>
+          <button type="button" class="btn-order-circle" data-order-down-mrc="${m.id}" title="Move Down" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveDown}
+          </button>
+        </div>
         <div class="admin-item-main">
           <div class="admin-item-title">
+            <span class="admin-order-badge">#${idx + 1}</span>
             <span style="font-size:1.3rem;">${m.icon}</span>
-            <span>${m.title}</span>
-            <span class="admin-topbar-badge">${m.price}</span>
-            <span style="font-size:0.75rem; color:#fde68a;">[${m.tag}]</span>
+            <span>${escapeHtml(m.title)}</span>
+            <span class="admin-topbar-badge">${escapeHtml(m.price)}</span>
+            <span style="font-size:0.75rem; color:#fde68a;">[${escapeHtml(m.tag || '-')}]</span>
           </div>
           <div class="admin-item-meta">
-            ${m.desc}
+            ${escapeHtml(m.desc || '')}
+            ${m.formUrl ? `<div style="margin-top: 5px;"><a href="${escapeHtml(m.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Order Form: ${escapeHtml(m.formUrl)}</a></div>` : ''}
           </div>
         </div>
         <div class="admin-item-actions">
-          <button class="btn-action-edit" data-edit-mrc="${m.id}">✏️ Edit</button>
-          <button class="btn-action-delete" data-del-mrc="${m.id}">🗑️ Delete</button>
+          <button class="btn-action-edit" data-edit-mrc="${m.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+          <button class="btn-action-delete" data-del-mrc="${m.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
         </div>
       </div>
     `).join('');
+
+    container.querySelectorAll('[data-order-up-mrc]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-up-mrc');
+        const mList = getMerch();
+        const idx = mList.findIndex(i => i.id === id);
+        if (idx > 0) {
+          const temp = mList[idx];
+          mList[idx] = mList[idx - 1];
+          mList[idx - 1] = temp;
+          saveData('abhigraha_merchandise', mList);
+          renderPublicMerch();
+          renderAdminMerchList();
+          showToast(`Merchandise "${temp.title}" moved up to #${idx}.`);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-order-down-mrc]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-down-mrc');
+        const mList = getMerch();
+        const idx = mList.findIndex(i => i.id === id);
+        if (idx !== -1 && idx < mList.length - 1) {
+          const temp = mList[idx];
+          mList[idx] = mList[idx + 1];
+          mList[idx + 1] = temp;
+          saveData('abhigraha_merchandise', mList);
+          renderPublicMerch();
+          renderAdminMerchList();
+          showToast(`Merchandise "${temp.title}" moved down to #${idx + 2}.`);
+        }
+      });
+    });
 
     container.querySelectorAll('[data-edit-mrc]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1827,8 +2070,10 @@
         document.getElementById('admin-merch-price').value = m.price;
         document.getElementById('admin-merch-tag').value = m.tag || '';
         document.getElementById('admin-merch-icon').value = m.icon || '🛍️';
+        const formUrlInput = document.getElementById('admin-merch-form-url');
+        if (formUrlInput) formUrlInput.value = m.formUrl || '';
         document.getElementById('admin-merch-desc').value = m.desc || '';
-        document.getElementById('admin-merch-form-title').textContent = `✏️ Edit Merch: ${m.title}`;
+        document.getElementById('admin-merch-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Merch: ${escapeHtml(m.title)}</span>`;
 
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
@@ -1875,7 +2120,7 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-gallery-edit-id').value = '';
-        document.getElementById('admin-gallery-form-title').textContent = '➕ Add Gallery Memory';
+        document.getElementById('admin-gallery-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Gallery Memory</span>`;
         if (typeSelect) typeSelect.dispatchEvent(new Event('change'));
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
@@ -1945,24 +2190,67 @@
       return;
     }
 
-    container.innerHTML = list.map(g => `
+    container.innerHTML = list.map((g, idx) => `
       <div class="admin-item-card">
+        <div class="admin-item-order-corner">
+          <button type="button" class="btn-order-circle" data-order-up-gal="${g.id}" title="Move Up" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveUp}
+          </button>
+          <button type="button" class="btn-order-circle" data-order-down-gal="${g.id}" title="Move Down" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveDown}
+          </button>
+        </div>
         <div class="admin-item-main">
           <div class="admin-item-title">
+            <span class="admin-order-badge">#${idx + 1}</span>
             <span style="font-size:1.2rem;">${g.type === 'img' ? '🖼️' : (g.icon || '🏮')}</span>
-            <span>${g.caption}</span>
+            <span>${escapeHtml(g.caption)}</span>
             <span class="admin-topbar-badge">${g.type === 'img' ? 'Photo Asset' : 'Imperial Preset'}</span>
           </div>
           <div class="admin-item-meta">
-            ${g.type === 'img' ? (g.src || 'Image Path') : ('Icon: ' + (g.icon || '-') + ' | Background: ' + (g.bg || '-'))}
+            ${g.type === 'img' ? escapeHtml(g.src || 'Image Path') : ('Icon: ' + escapeHtml(g.icon || '-') + ' | Background: ' + escapeHtml(g.bg || '-'))}
           </div>
         </div>
         <div class="admin-item-actions">
-          <button class="btn-action-edit" data-edit-gal="${g.id}">✏️ Edit</button>
-          <button class="btn-action-delete" data-del-gal="${g.id}">🗑️ Delete</button>
+          <button class="btn-action-edit" data-edit-gal="${g.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+          <button class="btn-action-delete" data-del-gal="${g.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
         </div>
       </div>
     `).join('');
+
+    container.querySelectorAll('[data-order-up-gal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-up-gal');
+        const gList = getGallery();
+        const idx = gList.findIndex(i => i.id === id);
+        if (idx > 0) {
+          const temp = gList[idx];
+          gList[idx] = gList[idx - 1];
+          gList[idx - 1] = temp;
+          saveData('abhigraha_gallery', gList);
+          renderPublicGallery();
+          renderAdminGalleryList();
+          showToast(`Gallery moment "${temp.caption}" moved up to #${idx}.`);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-order-down-gal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-down-gal');
+        const gList = getGallery();
+        const idx = gList.findIndex(i => i.id === id);
+        if (idx !== -1 && idx < gList.length - 1) {
+          const temp = gList[idx];
+          gList[idx] = gList[idx + 1];
+          gList[idx + 1] = temp;
+          saveData('abhigraha_gallery', gList);
+          renderPublicGallery();
+          renderAdminGalleryList();
+          showToast(`Gallery moment "${temp.caption}" moved down to #${idx + 2}.`);
+        }
+      });
+    });
 
     container.querySelectorAll('[data-edit-gal]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1980,7 +2268,7 @@
         document.getElementById('admin-gallery-icon').value = g.icon || '';
         document.getElementById('admin-gallery-bg').value = g.bg || '';
         document.getElementById('admin-gallery-caption').value = g.caption || '';
-        document.getElementById('admin-gallery-form-title').textContent = `✏️ Edit Moment: ${g.caption}`;
+        document.getElementById('admin-gallery-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Moment: ${escapeHtml(g.caption)}</span>`;
 
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });

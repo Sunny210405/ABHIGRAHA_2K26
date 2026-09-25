@@ -176,11 +176,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const regCloseBtn = document.getElementById('reg-modal-close');
   const regForm = document.getElementById('reg-form');
   const regEventSelect = document.getElementById('reg-event-select');
-  // Global Event delegation for Event Registration & Merchandise Modals
+  // Global Event delegation for Event Registration & Merchandise Modals / Google Forms
   document.addEventListener('click', (e) => {
     const regBtn = e.target.closest('.event-register-btn');
     if (regBtn) {
       e.preventDefault();
+      const formUrl = regBtn.getAttribute('data-form-url');
+      if (formUrl && formUrl.trim().length > 0 && /^https?:\/\//i.test(formUrl.trim())) {
+        window.open(formUrl.trim(), '_blank', 'noopener,noreferrer');
+        return;
+      }
       const eventName = regBtn.getAttribute('data-event') || 'Festival Participation';
       if (regEventSelect) {
         regEventSelect.value = eventName;
@@ -192,9 +197,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const merchBtn = e.target.closest('.merch-btn');
     if (merchBtn) {
       e.preventDefault();
+      const formUrl = merchBtn.getAttribute('data-form-url');
+      if (formUrl && formUrl.trim().length > 0 && /^https?:\/\//i.test(formUrl.trim())) {
+        window.open(formUrl.trim(), '_blank', 'noopener,noreferrer');
+        return;
+      }
       const itemTitle = merchBtn.getAttribute('data-merch') || 'Official Merchandise';
       const merchItemName = document.getElementById('merch-item-name');
       if (merchItemName) merchItemName.textContent = itemTitle;
+      const merchModal = document.getElementById('merch-modal');
       if (merchModal) merchModal.classList.add('open');
       return;
     }
