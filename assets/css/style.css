@@ -136,7 +136,7 @@ body {
   animation: heroAtmosphereBreathe 8s ease-in-out infinite alternate;
 }
 
-.page-view:not(#page-home) {
+.page-view {
   position: relative;
   min-height: 100vh;
   background-color: transparent;
@@ -594,24 +594,13 @@ body {
   padding-top: 100px;
   padding-bottom: 30px;
   overflow: hidden;
-  background: #000;
+  background: transparent;
 }
 
-/* Recreated Imperial Japanese Seigaiha Wave Pattern Vector Background with Hardware-Accelerated GPU Drift */
-.hero-bg-layer {
-  position: absolute;
-  top: 0;
-  left: -180px;
-  width: calc(100% + 180px);
-  height: calc(100% + 90px);
-  background-color: #5a0e10;
-  background-image: url('../images/hero_seigaiha_pattern.svg?v=2');
-  background-size: 180px 90px;
-  background-repeat: repeat;
-  z-index: 1;
-  transform: translate3d(0, 0, 0);
-  animation: seigaihaGpuDrift 14s linear infinite;
-  will-change: transform;
+/* Local hero background deactivated in favor of persistent global ambient background */
+.hero-bg-layer,
+.hero-overlay {
+  display: none !important;
 }
 
 @keyframes seigaihaGpuDrift {
