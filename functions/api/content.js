@@ -7,7 +7,7 @@
 // SHA-256 digest of the authorized admin access key
 const AUTH_HASH = '7ba682d1dcfb5d93995134af9fce82b2bf9c0a365f4f29e7b3aac8e949f3297d';
 
-const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility'];
+const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'last_updated'];
 
 // Helper to compute SHA-256 in Cloudflare Workers environment
 async function computeSha256(str) {
@@ -73,7 +73,7 @@ export async function onRequestGet(context) {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=15, stale-while-revalidate=60',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
           ...corsHeaders()
         }
       });
@@ -88,12 +88,15 @@ export async function onRequestGet(context) {
     );
 
     const result = Object.fromEntries(entries);
+    if (!result.last_updated) {
+      result.last_updated = '0';
+    }
 
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=15, stale-while-revalidate=60',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
         ...corsHeaders()
       }
     });
@@ -172,15 +175,22 @@ export async function onRequestPost(context) {
     }
 
     // Save to Cloudflare KV
+    const updateTimestamp = Date.now().toString();
     await env.FESTIVAL_KV.put(key, JSON.stringify(data));
+    await env.FESTIVAL_KV.put('last_updated', JSON.stringify(updateTimestamp));
 
     return new Response(JSON.stringify({
       success: true,
       key,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      last_updated: updateTimestamp
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        ...corsHeaders()
+      }
     });
   } catch (err) {
     return new Response(JSON.stringify({ error: 'Failed to write to Cloudflare KV', details: err.message }), {

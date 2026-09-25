@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=68">
+  <link rel="stylesheet" href="./assets/css/style.css?v=69">
 </head>
 <body>
 
@@ -970,6 +970,7 @@
         <span id="admin-cloud-sync-status" class="admin-session-pill" style="margin: 0; font-size: 0.78rem;">
           <span class="session-dot"></span> Cloudflare KV Synced
         </span>
+        <button class="admin-btn-sm" id="admin-test-sync-btn" title="Preview Auto Loading Screen for users" style="background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.4); color: #f9d371;">⚡ Test Auto-Sync Screen</button>
         <button class="admin-btn-sm admin-btn-gold" id="admin-view-site-btn" title="Exit to Public Website">🌐 View Public Site</button>
         <button class="admin-btn-sm admin-logout-btn" id="admin-logout-btn" title="Log out">🔒 Logout</button>
       </div>
@@ -1380,6 +1381,40 @@
     </ul>
   </div>
 
+  <!-- ==========================================================================
+       IMPERIAL FESTIVAL AUTO-SYNC & LIVE UPDATE LOADING SCREEN
+       Triggered in real-time when changes are published from the Admin Portal
+       ========================================================================== -->
+  <div id="festival-auto-sync-screen" class="festival-auto-sync-screen" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Festival Live Updates Loading Screen">
+    <div class="auto-sync-backdrop"></div>
+    <div class="auto-sync-card">
+      <div class="auto-sync-crest-glow">
+        <div class="auto-sync-ring ring-1"></div>
+        <div class="auto-sync-ring ring-2"></div>
+        <div class="auto-sync-ring ring-3"></div>
+        <img src="./assets/images/logo-crest.webp?v=4" alt="Abhigraha Imperial Crest" class="auto-sync-crest-img">
+      </div>
+      <div class="auto-sync-badge">
+        <span class="auto-sync-badge-dot"></span> LIVE UPDATE DETECTED
+      </div>
+      <h2 class="auto-sync-title">Festival Arenas Updating</h2>
+      <p class="auto-sync-subtitle">The administration portal has published new festival announcements & details. Refreshing festival arenas in real-time...</p>
+      
+      <div class="auto-sync-progress-track">
+        <div class="auto-sync-progress-bar" id="auto-sync-progress-bar"></div>
+      </div>
+      
+      <div class="auto-sync-status-row">
+        <span class="auto-sync-icon" id="auto-sync-icon">✦</span>
+        <span class="auto-sync-status-text" id="auto-sync-status-text">Synchronizing latest events & schedule...</span>
+      </div>
+      
+      <button type="button" class="auto-sync-dismiss-btn" id="auto-sync-dismiss-btn" aria-label="Dismiss and continue">
+        Continue Browsing
+      </button>
+    </div>
+  </div>
+
   <!-- Toast Notification Container (100% hidden unless triggered) -->
   <div class="toast-msg" id="toast-msg">
     <span id="toast-icon">✨</span>
@@ -1388,7 +1423,7 @@
 
   <!-- Core JavaScript Modules (No flying hearts/petals, clean and fast) -->
   <script src="./assets/js/countdown.js?v=2"></script>
-  <script src="./assets/js/admin.js?v=7"></script>
+  <script src="./assets/js/admin.js?v=8"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
   <script src="./assets/js/main.js?v=9"></script>
 

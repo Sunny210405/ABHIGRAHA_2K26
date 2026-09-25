@@ -194,6 +194,210 @@
     }
   }
 
+  // ==========================================================================
+  // REAL-TIME BROADCAST & AUTO-SYNC SYNCHRONIZATION LOGIC
+  // ==========================================================================
+  const TAB_SESSION_ID = 'tab_' + Math.random().toString(36).slice(2, 9) + '_' + Date.now();
+  let lastKnownVersion = localStorage.getItem('abhigraha_last_updated') || '0';
+  let isAutoUpdating = false;
+  let isCheckingRemote = false;
+  let festivalBroadcast = null;
+
+  // Initialize browser BroadcastChannel for zero-latency multi-tab sync
+  try {
+    if ('BroadcastChannel' in window) {
+      festivalBroadcast = new BroadcastChannel('abhigraha_realtime_updates');
+      festivalBroadcast.onmessage = (event) => {
+        const payload = event.data;
+        if (!payload || payload.originSession === TAB_SESSION_ID) return;
+        if (payload.type === 'PORTAL_DETAILS_CHANGED') {
+          triggerAutoLoadingUpdate({
+            key: payload.key,
+            reason: 'cross_tab_admin_update',
+            source: 'broadcast',
+            timestamp: payload.timestamp
+          });
+        }
+      };
+    }
+  } catch (e) {
+    console.warn('BroadcastChannel initialization error:', e);
+  }
+
+  function broadcastPortalChange(key, timestamp) {
+    if (festivalBroadcast) {
+      try {
+        festivalBroadcast.postMessage({
+          type: 'PORTAL_DETAILS_CHANGED',
+          key,
+          originSession: TAB_SESSION_ID,
+          timestamp
+        });
+      } catch (e) {}
+    }
+  }
+
+  // Cross-tab storage fallback for browsers
+  window.addEventListener('storage', (e) => {
+    if (!e.key) return;
+    if (e.key === 'abhigraha_last_updated' || (e.key.startsWith('abhigraha_') && e.key !== 'abhigraha_registrations')) {
+      triggerAutoLoadingUpdate({
+        key: e.key,
+        reason: 'storage_sync',
+        source: 'storage'
+      });
+    }
+  });
+
+  // Background Cloud Poller for concurrent remote users across devices
+  async function checkRemoteFestivalVersion() {
+    if (isCheckingRemote || isAutoUpdating) return;
+    isCheckingRemote = true;
+    try {
+      const res = await fetch(`/api/content?key=last_updated&t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        let serverVersion = json.last_updated;
+        if (serverVersion !== undefined && serverVersion !== null) {
+          serverVersion = String(serverVersion).replace(/"/g, '');
+          if (serverVersion !== '0' && lastKnownVersion !== '0' && serverVersion !== lastKnownVersion) {
+            console.log(`[AutoSync] Admin portal published new version: ${serverVersion} (local: ${lastKnownVersion})`);
+            lastKnownVersion = serverVersion;
+            localStorage.setItem('abhigraha_last_updated', serverVersion);
+            triggerAutoLoadingUpdate({
+              reason: 'remote_admin_update',
+              source: 'cloud',
+              version: serverVersion
+            });
+          } else if (lastKnownVersion === '0' && serverVersion !== '0') {
+            lastKnownVersion = serverVersion;
+            localStorage.setItem('abhigraha_last_updated', serverVersion);
+          }
+        }
+      }
+    } catch (e) {
+      // Offline or local preview
+    } finally {
+      isCheckingRemote = false;
+    }
+  }
+
+  let pollerInterval = null;
+  function startAutoSyncPoller() {
+    if (pollerInterval) clearInterval(pollerInterval);
+    // Poll every 5 seconds when tab is active
+    pollerInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        checkRemoteFestivalVersion();
+      }
+    }, 5000);
+
+    // Instant verification when user returns to the tab or refocuses
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        checkRemoteFestivalVersion();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      checkRemoteFestivalVersion();
+    });
+
+    window.addEventListener('online', () => {
+      checkRemoteFestivalVersion();
+    });
+  }
+
+  /**
+   * Prompts and executes the Imperial Auto-Sync Loading Screen for active users
+   * @param {Object} options - Sync options and metadata
+   */
+  function triggerAutoLoadingUpdate(options = {}) {
+    if (isAutoUpdating) return;
+
+    // If admin is currently typing inside the full-screen portal in this window,
+    // update quietly without interrupting the open editing form
+    const fsPortal = document.getElementById('admin-fullscreen-portal');
+    if (fsPortal && fsPortal.classList.contains('open') && !options.isTest) {
+      syncCloudContent();
+      return;
+    }
+
+    isAutoUpdating = true;
+
+    const screen = document.getElementById('festival-auto-sync-screen');
+    const progressBar = document.getElementById('auto-sync-progress-bar');
+    const statusText = document.getElementById('auto-sync-status-text');
+    const statusIcon = document.getElementById('auto-sync-icon');
+    const card = screen ? screen.querySelector('.auto-sync-card') : null;
+
+    if (!screen || !progressBar || !statusText) {
+      syncCloudContent().then(() => {
+        renderPublicContent();
+        showToast('✨ Festival details updated to latest version!');
+        isAutoUpdating = false;
+      });
+      return;
+    }
+
+    // Reset visual states & display loading screen
+    if (card) card.classList.remove('success');
+    screen.classList.remove('fade-out');
+    progressBar.style.width = '16%';
+    statusText.textContent = '✦ Festival updates detected. Connecting...';
+    if (statusIcon) statusIcon.textContent = '✦';
+
+    screen.setAttribute('aria-hidden', 'false');
+    screen.classList.add('active');
+
+    // Phase 1: Rapid handshake (at 200ms)
+    setTimeout(() => {
+      progressBar.style.width = '48%';
+      statusText.textContent = '✦ Downloading latest festival details & schedules...';
+    }, 200);
+
+    // Phase 2: Synchronize and re-render DOM in background (at 520ms)
+    setTimeout(async () => {
+      try {
+        progressBar.style.width = '84%';
+        statusText.textContent = '✦ Refreshing festival arenas & stage timelines...';
+
+        await syncCloudContent();
+        renderPublicContent();
+        if (typeof syncRegistrationDropdown === 'function') {
+          syncRegistrationDropdown();
+        }
+      } catch (err) {
+        console.warn('Auto-update sync warning:', err);
+      }
+
+      // Phase 3: Success state (at 1020ms)
+      setTimeout(() => {
+        progressBar.style.width = '100%';
+        statusText.textContent = '✨ Festival details updated successfully!';
+        if (statusIcon) statusIcon.textContent = '✓';
+        if (card) card.classList.add('success');
+
+        // Phase 4: Smooth fade-out (at 1480ms)
+        setTimeout(() => {
+          screen.classList.add('fade-out');
+
+          // Phase 5: Complete and clean up (at 1820ms)
+          setTimeout(() => {
+            screen.classList.remove('active', 'fade-out');
+            if (card) card.classList.remove('success');
+            screen.setAttribute('aria-hidden', 'true');
+            isAutoUpdating = false;
+            showToast('✨ Festival details have been updated to latest version!');
+          }, 340);
+        }, 460);
+      }, 500);
+    }, 520);
+  }
+
   async function pushToCloud(key, data) {
     const cloudKey = KEY_MAPPING[key];
     if (!cloudKey) return;
@@ -214,6 +418,10 @@
         if (json.configured === false) {
           updateCloudStatus('pending', 'Saved Locally (KV Binding Pending)');
         } else {
+          if (json.last_updated) {
+            lastKnownVersion = String(json.last_updated).replace(/"/g, '');
+            localStorage.setItem('abhigraha_last_updated', lastKnownVersion);
+          }
           updateCloudStatus('synced', 'Cloudflare KV Synced');
         }
       } else {
@@ -229,12 +437,12 @@
       const res = await fetch('/api/content', { cache: 'no-cache' });
       if (!res.ok) {
         updateCloudStatus('pending', 'Local Storage Active');
-        return;
+        return false;
       }
       const data = await res.json();
       if (!data || data.configured === false) {
         updateCloudStatus('pending', 'KV Namespace Pending');
-        return;
+        return false;
       }
 
       let updatedAny = false;
@@ -252,6 +460,11 @@
         updatedAny = true;
       }
 
+      if (data && data.last_updated) {
+        lastKnownVersion = String(data.last_updated).replace(/"/g, '');
+        localStorage.setItem('abhigraha_last_updated', lastKnownVersion);
+      }
+
       if (updatedAny) {
         renderPublicContent();
         if (typeof syncAdminVisibilityToggles === 'function') {
@@ -262,8 +475,10 @@
         }
       }
       updateCloudStatus('synced', 'Cloudflare KV Live');
+      return updatedAny;
     } catch (e) {
       updateCloudStatus('pending', 'Local Storage Active');
+      return false;
     }
   }
 
@@ -284,6 +499,14 @@
   function saveData(key, data) {
     try {
       localStorage.setItem(key, JSON.stringify(data));
+      const nowTs = Date.now().toString();
+      lastKnownVersion = nowTs;
+      localStorage.setItem('abhigraha_last_updated', nowTs);
+
+      // Broadcast update across open tabs immediately
+      broadcastPortalChange(key, nowTs);
+
+      // Persist to Cloudflare KV
       pushToCloud(key, data);
     } catch (e) {
       console.error(`Failed to save ${key}`, e);
@@ -718,6 +941,33 @@
       adminViewSiteBtn.addEventListener('click', () => {
         closeFullscreenPortal();
         showToast('Viewing public festival site. Click Admin button to return.');
+      });
+    }
+
+    // Test Auto-Sync Screen Preview Button
+    const adminTestSyncBtn = document.getElementById('admin-test-sync-btn');
+    if (adminTestSyncBtn) {
+      adminTestSyncBtn.addEventListener('click', () => {
+        closeFullscreenPortal();
+        setTimeout(() => {
+          triggerAutoLoadingUpdate({ isTest: true, reason: 'admin_preview' });
+        }, 180);
+      });
+    }
+
+    // Dismiss Button for Auto-Sync Screen
+    const autoSyncDismissBtn = document.getElementById('auto-sync-dismiss-btn');
+    if (autoSyncDismissBtn) {
+      autoSyncDismissBtn.addEventListener('click', () => {
+        const screen = document.getElementById('festival-auto-sync-screen');
+        if (screen) {
+          screen.classList.add('fade-out');
+          setTimeout(() => {
+            screen.classList.remove('active', 'fade-out');
+            screen.setAttribute('aria-hidden', 'true');
+            isAutoUpdating = false;
+          }, 350);
+        }
       });
     }
 
@@ -1544,11 +1794,14 @@
     initAdminPortal();
     // Fetch live Cloudflare KV content asynchronously
     syncCloudContent();
+    // Start real-time remote cloud & cross-device auto-sync polling
+    startAutoSyncPoller();
   });
 
   // Expose global interface if needed
   window.AbhigrahaAdmin = {
     renderPublicContent,
+    triggerAutoLoadingUpdate,
     getEvents,
     getSchedule,
     getCrowns,

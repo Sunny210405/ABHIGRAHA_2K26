@@ -6,7 +6,7 @@
 
 // Cryptographic SHA-256 digest of authorized admin key (zero plaintext password exposure)
 const AUTH_HASH = '7ba682d1dcfb5d93995134af9fce82b2bf9c0a365f4f29e7b3aac8e949f3297d';
-const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility'];
+const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'last_updated'];
 
 function corsHeaders() {
   return {
@@ -72,7 +72,7 @@ export default {
               status: 200,
               headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'public, max-age=15, stale-while-revalidate=60',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
                 ...corsHeaders()
               }
             });
@@ -84,11 +84,15 @@ export default {
               return [k, raw ? JSON.parse(raw) : null];
             })
           );
-          return new Response(JSON.stringify(Object.fromEntries(entries)), {
+          const result = Object.fromEntries(entries);
+          if (!result.last_updated) {
+            result.last_updated = '0';
+          }
+          return new Response(JSON.stringify(result), {
             status: 200,
             headers: {
               'Content-Type': 'application/json',
-              'Cache-Control': 'public, max-age=15, stale-while-revalidate=60',
+              'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
               ...corsHeaders()
             }
           });
@@ -145,10 +149,21 @@ export default {
             });
           }
 
+          const updateTimestamp = Date.now().toString();
           await env.FESTIVAL_KV.put(key, JSON.stringify(data));
-          return new Response(JSON.stringify({ success: true, key, timestamp: new Date().toISOString() }), {
+          await env.FESTIVAL_KV.put('last_updated', JSON.stringify(updateTimestamp));
+          return new Response(JSON.stringify({
+            success: true,
+            key,
+            timestamp: new Date().toISOString(),
+            last_updated: updateTimestamp
+          }), {
             status: 200,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+              ...corsHeaders()
+            }
           });
         } catch (err) {
           return new Response(JSON.stringify({ error: 'KV Write Error', details: err.message }), {

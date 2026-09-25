@@ -3670,3 +3670,312 @@ body {
   }
 }
 
+/* ==========================================================================
+   IMPERIAL FESTIVAL AUTO-SYNC & LIVE UPDATE LOADING SCREEN
+   High-performance real-time loading screen for concurrent users
+   ========================================================================== */
+.festival-auto-sync-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
+}
+
+.festival-auto-sync-screen.active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.festival-auto-sync-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.auto-sync-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(42, 10, 20, 0.92) 0%, rgba(12, 4, 7, 0.96) 70%, rgba(5, 1, 3, 0.98) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.auto-sync-card {
+  position: relative;
+  z-index: 2;
+  width: 90%;
+  max-width: 490px;
+  background: linear-gradient(145deg, rgba(30, 11, 18, 0.96), rgba(15, 5, 9, 0.99));
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  box-shadow: 0 0 60px rgba(212, 175, 55, 0.22), 0 25px 65px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  padding: 38px 30px;
+  text-align: center;
+  transform: scale(0.92) translateY(14px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.festival-auto-sync-screen.active .auto-sync-card {
+  transform: scale(1) translateY(0);
+}
+
+.auto-sync-card.success {
+  border-color: rgba(52, 211, 153, 0.75);
+  box-shadow: 0 0 60px rgba(52, 211, 153, 0.28), 0 25px 65px rgba(0, 0, 0, 0.9);
+}
+
+/* Emblem & Concentric Glowing Rings */
+.auto-sync-crest-glow {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auto-sync-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.auto-sync-ring.ring-1 {
+  inset: -10px;
+  border: 1.5px dashed rgba(212, 175, 55, 0.6);
+  animation: syncRotateClockwise 12s linear infinite;
+}
+
+.auto-sync-ring.ring-2 {
+  inset: -2px;
+  border: 2px solid transparent;
+  border-top-color: var(--color-gold-bright);
+  border-bottom-color: rgba(212, 175, 55, 0.3);
+  animation: syncRotateCounter 3s linear infinite;
+}
+
+.auto-sync-ring.ring-3 {
+  inset: -18px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  animation: syncPulseWave 2.2s ease-in-out infinite;
+}
+
+.auto-sync-card.success .auto-sync-ring.ring-1,
+.auto-sync-card.success .auto-sync-ring.ring-2 {
+  border-color: rgba(52, 211, 153, 0.8);
+  border-top-color: #34d399;
+}
+
+.auto-sync-crest-img {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  border: 2px solid var(--color-gold-bright);
+  box-shadow: 0 0 24px rgba(212, 175, 55, 0.5);
+  position: relative;
+  z-index: 3;
+  animation: syncCrestFloat 2.6s ease-in-out infinite;
+}
+
+.auto-sync-card.success .auto-sync-crest-img {
+  border-color: #34d399;
+  box-shadow: 0 0 28px rgba(52, 211, 153, 0.65);
+}
+
+/* Badge */
+.auto-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(212, 175, 55, 0.14);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 30px;
+  padding: 5px 16px;
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-gold-bright);
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.auto-sync-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+  animation: syncDotBlink 1.2s ease-in-out infinite;
+}
+
+.auto-sync-card.success .auto-sync-badge {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(52, 211, 153, 0.5);
+  color: #34d399;
+}
+
+.auto-sync-card.success .auto-sync-badge-dot {
+  background: #10b981;
+  box-shadow: 0 0 12px #34d399;
+}
+
+/* Typography */
+.auto-sync-title {
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 8px;
+  letter-spacing: 0.5px;
+}
+
+.auto-sync-subtitle {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.55;
+  margin: 0 0 22px;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Progress Track */
+.auto-sync-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  position: relative;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.auto-sync-progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #b8860b 0%, #fef08a 50%, #d4af37 100%);
+  box-shadow: 0 0 14px rgba(254, 240, 138, 0.75);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.auto-sync-card.success .auto-sync-progress-bar {
+  background: linear-gradient(90deg, #059669 0%, #34d399 50%, #10b981 100%);
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.85);
+}
+
+/* Status Row */
+.auto-sync-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #f9d371;
+  font-weight: 600;
+  min-height: 24px;
+}
+
+.auto-sync-card.success .auto-sync-status-row {
+  color: #34d399;
+}
+
+.auto-sync-icon {
+  font-size: 0.95rem;
+  animation: syncIconPulse 1.4s ease-in-out infinite;
+}
+
+/* Dismiss button */
+.auto-sync-dismiss-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #94a3b8;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  margin-top: 18px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.auto-sync-dismiss-btn:hover {
+  color: #fff;
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+/* Keyframe Animations */
+@keyframes syncRotateClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes syncRotateCounter {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes syncPulseWave {
+  0%, 100% {
+    transform: scale(0.96);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.7;
+  }
+}
+
+@keyframes syncCrestFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes syncDotBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+@keyframes syncIconPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .auto-sync-card {
+    padding: 28px 18px;
+  }
+  .auto-sync-title {
+    font-size: 1.3rem;
+  }
+  .auto-sync-subtitle {
+    font-size: 0.82rem;
+  }
+  .auto-sync-crest-glow {
+    width: 80px;
+    height: 80px;
+  }
+  .auto-sync-crest-img {
+    width: 54px;
+    height: 54px;
+  }
+}
+
+
