@@ -1082,6 +1082,7 @@
   // ==========================================================================
   function initAdminPortal() {
     const adminBtn = document.getElementById('admin-btn');
+    const mobileAdminBtn = document.getElementById('mobile-drawer-admin-btn');
     const adminAuthModal = document.getElementById('admin-modal');
     const adminCloseBtn = document.getElementById('admin-modal-close');
     const adminFullscreenPortal = document.getElementById('admin-fullscreen-portal');
@@ -1126,21 +1127,29 @@
     }
 
     // Open Admin Modal / Launch Full-Screen Portal
-    if (adminBtn) {
-      adminBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (sessionStorage.getItem('abhigraha_admin_logged') === 'true') {
-          openFullscreenPortal();
-        } else {
-          if (adminAuthModal) {
-            adminAuthModal.classList.add('open');
-            if (adminPasscode) {
-              adminPasscode.value = '';
-              setTimeout(() => adminPasscode.focus(), 150);
-            }
+    function handleAdminOpen(e) {
+      if (e) e.preventDefault();
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      if (mobileDrawer) mobileDrawer.classList.remove('open');
+
+      if (sessionStorage.getItem('abhigraha_admin_logged') === 'true') {
+        openFullscreenPortal();
+      } else {
+        if (adminAuthModal) {
+          adminAuthModal.classList.add('open');
+          if (adminPasscode) {
+            adminPasscode.value = '';
+            setTimeout(() => adminPasscode.focus(), 150);
           }
         }
-      });
+      }
+    }
+
+    if (adminBtn) {
+      adminBtn.addEventListener('click', handleAdminOpen);
+    }
+    if (mobileAdminBtn) {
+      mobileAdminBtn.addEventListener('click', handleAdminOpen);
     }
 
     // Close Auth Modal

@@ -103,6 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const mobileAdminBtn = document.getElementById('mobile-drawer-admin-btn');
+  if (mobileAdminBtn) {
+    mobileAdminBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (mobileDrawer) mobileDrawer.classList.remove('open');
+      const adminBtn = document.getElementById('admin-btn');
+      if (adminBtn) adminBtn.click();
+    });
+  }
+
   // Event Filter Tabs
   const filterBtns = document.querySelectorAll('.filter-btn');
   const eventCards = document.querySelectorAll('.event-card');

@@ -2630,6 +2630,11 @@ body {
   }
   
   /* Mobile Navigation Drawer: Active ONLY on screens <= 1080px */
+  .site-header .admin-btn,
+  .header-actions .admin-btn {
+    display: none !important;
+  }
+
   .mobile-drawer {
     display: flex;
     position: fixed;
@@ -2665,6 +2670,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    flex: 1;
+    overflow-y: auto;
   }
 
   .mobile-nav-link {
@@ -2683,6 +2690,50 @@ body {
   .mobile-nav-link:hover, .mobile-nav-link.active {
     background: var(--color-crimson-primary);
     color: #fff !important;
+  }
+
+  /* Mobile Drawer Footer: Simple Rounded Corners Admin Button */
+  .mobile-drawer-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid rgba(251, 191, 36, 0.25);
+  }
+
+  .mobile-drawer-admin-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.28) 0%, rgba(185, 28, 28, 0.45) 100%);
+    border: 1.5px solid rgba(251, 191, 36, 0.55);
+    border-radius: 8px; /* Simple rounded corners for mobile */
+    color: #fde047;
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(245, 158, 11, 0.15);
+    transition: all var(--transition-fast);
+  }
+
+  .mobile-drawer-admin-btn:hover,
+  .mobile-drawer-admin-btn:active {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.5) 0%, rgba(185, 28, 28, 0.7) 100%);
+    border-color: #fbbf24;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.5), 0 0 12px rgba(251, 191, 36, 0.4);
+  }
+
+  .mobile-admin-btn-icon {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    flex-shrink: 0;
   }
 
   .crowns-grid {
