@@ -803,9 +803,6 @@
       liveEl.innerHTML = `
         <div class="page-coming-soon-wrapper">
           <div class="grand-coming-soon-tile">
-            <div class="coming-soon-badge-pill">
-              <span>🏮</span> ARENAS UNVEILING SOON
-            </div>
             <div class="coming-soon-emblem-large">🐉</div>
             <h3 class="grand-coming-soon-title">Festival Events & Battles <span>Coming Soon</span></h3>
             <div class="grand-coming-soon-meta">
