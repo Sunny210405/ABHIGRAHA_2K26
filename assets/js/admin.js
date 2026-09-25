@@ -465,6 +465,139 @@
     }, 280);
   }
 
+  // ==========================================================================
+  // PENDING DRAFT STAGING & BATCH PUBLISH TO CLOUDFLARE KV
+  // Optimizes KV write limits (free tier: 1k writes/day) and avoids frequent auto-reloads
+  // ==========================================================================
+  const pendingKeys = new Set();
+  let isPublishing = false;
+
+  function loadPendingKeys() {
+    try {
+      const stored = localStorage.getItem('abhigraha_pending_keys');
+      if (stored) {
+        const arr = JSON.parse(stored);
+        if (Array.isArray(arr)) {
+          arr.forEach(k => pendingKeys.add(k));
+        }
+      }
+    } catch (e) {}
+    updatePublishButtonState();
+  }
+
+  function savePendingKeys() {
+    try {
+      localStorage.setItem('abhigraha_pending_keys', JSON.stringify(Array.from(pendingKeys)));
+    } catch (e) {}
+  }
+
+  function markKeyPending(key) {
+    const cloudKey = KEY_MAPPING[key] || key;
+    pendingKeys.add(cloudKey);
+    savePendingKeys();
+    updatePublishButtonState();
+  }
+
+  function clearPendingKeys() {
+    pendingKeys.clear();
+    try {
+      localStorage.removeItem('abhigraha_pending_keys');
+    } catch (e) {}
+    updatePublishButtonState();
+  }
+
+  function updatePublishButtonState() {
+    const publishBtn = document.getElementById('admin-publish-btn');
+    const counter = document.getElementById('admin-publish-counter');
+    if (!publishBtn) return;
+
+    const count = pendingKeys.size;
+    if (count > 0) {
+      publishBtn.classList.add('has-pending');
+      if (counter) {
+        counter.textContent = count;
+        counter.style.display = 'inline-flex';
+      }
+      publishBtn.title = `${count} draft change(s) ready. Click to publish live to Cloudflare KV and active visitors.`;
+      updateCloudStatus('pending', `● ${count} Draft Change${count > 1 ? 's' : ''} (Unpublished)`);
+    } else {
+      publishBtn.classList.remove('has-pending');
+      if (counter) {
+        counter.style.display = 'none';
+      }
+      publishBtn.title = 'Publish all festival changes live to Cloudflare KV.';
+    }
+  }
+
+  async function publishAllChanges() {
+    if (isPublishing) return;
+    const publishBtn = document.getElementById('admin-publish-btn');
+    const btnText = publishBtn ? publishBtn.querySelector('.publish-btn-text') : null;
+
+    isPublishing = true;
+    if (publishBtn) publishBtn.classList.add('publishing');
+    if (btnText) btnText.textContent = 'Publishing...';
+    updateCloudStatus('syncing', 'Publishing to Cloudflare KV...');
+
+    try {
+      const batch = {
+        events: getEvents(),
+        schedule: getSchedule(),
+        crowns: getCrowns(),
+        merchandise: getMerch(),
+        gallery: getGallery(),
+        visibility: getVisibility()
+      };
+
+      const res = await fetch('/api/content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ACCESS_HASH}`
+        },
+        body: JSON.stringify({ batch })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const updateTs = json.last_updated || Date.now().toString();
+
+        lastHandledVersion = updateTs;
+        lastKnownFingerprint = updateTs;
+        lastKnownVersion = updateTs;
+        localStorage.setItem('abhigraha_last_updated', updateTs);
+
+        clearPendingKeys();
+        updateCloudStatus('synced', 'Cloudflare KV Synced');
+
+        // Broadcast to all visitor tabs so their Imperial Auto-Sync screen activates smoothly
+        if (festivalBroadcast) {
+          try {
+            festivalBroadcast.postMessage({
+              type: 'PORTAL_DETAILS_CHANGED',
+              originSession: TAB_SESSION_ID,
+              timestamp: updateTs
+            });
+          } catch (e) {}
+        }
+
+        showToast('🚀 All changes published live! Active visitors have received the update.');
+      } else {
+        updateCloudStatus('error', 'Publish failed (Drafts saved locally)');
+        showToast('⚠️ Cloud publish failed. Your draft changes remain safely saved locally.');
+      }
+    } catch (err) {
+      console.error('Publish error:', err);
+      updateCloudStatus('pending', 'Saved Locally (Offline)');
+      showToast('⚠️ Network error. Changes are saved locally on this device.');
+    } finally {
+      isPublishing = false;
+      if (publishBtn) publishBtn.classList.remove('publishing');
+      if (btnText) btnText.textContent = 'Publish Changes';
+      updatePublishButtonState();
+    }
+  }
+
   async function pushToCloud(key, data) {
     const cloudKey = KEY_MAPPING[key];
     if (!cloudKey) return;
@@ -522,19 +655,25 @@
       let updatedAny = false;
       const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery'];
       keys.forEach(k => {
+        const localKey = REVERSE_KEY_MAPPING[k];
+        // Do not overwrite local keys that have pending draft changes!
+        if (pendingKeys.has(k) || pendingKeys.has(localKey)) {
+          return;
+        }
         if (data && Array.isArray(data[k])) {
-          const localKey = REVERSE_KEY_MAPPING[k];
           localStorage.setItem(localKey, JSON.stringify(data[k]));
           updatedAny = true;
         }
       });
 
-      if (data && data.visibility && typeof data.visibility === 'object') {
-        localStorage.setItem('abhigraha_visibility', JSON.stringify(data.visibility));
-        updatedAny = true;
+      if (!pendingKeys.has('visibility') && !pendingKeys.has('abhigraha_visibility')) {
+        if (data && data.visibility && typeof data.visibility === 'object') {
+          localStorage.setItem('abhigraha_visibility', JSON.stringify(data.visibility));
+          updatedAny = true;
+        }
       }
 
-      if (data && data.last_updated) {
+      if (data && data.last_updated && pendingKeys.size === 0) {
         const sVer = String(data.last_updated).replace(/"/g, '');
         lastHandledVersion = sVer;
         lastKnownFingerprint = sVer;
@@ -551,10 +690,19 @@
           renderAdminActiveTab();
         }
       }
-      updateCloudStatus('synced', 'Cloudflare KV Live');
+
+      if (pendingKeys.size > 0) {
+        updateCloudStatus('pending', `● ${pendingKeys.size} Draft Change${pendingKeys.size > 1 ? 's' : ''} (Unpublished)`);
+      } else {
+        updateCloudStatus('synced', 'Cloudflare KV Live');
+      }
       return updatedAny;
     } catch (e) {
-      updateCloudStatus('pending', 'Local Storage Active');
+      if (pendingKeys.size > 0) {
+        updateCloudStatus('pending', `● ${pendingKeys.size} Draft Change${pendingKeys.size > 1 ? 's' : ''} (Unpublished)`);
+      } else {
+        updateCloudStatus('pending', 'Local Storage Active');
+      }
       return false;
     }
   }
@@ -575,27 +723,17 @@
 
   function saveData(key, data) {
     try {
+      // 1. Stage changes into local storage immediately (draft preserved)
       localStorage.setItem(key, JSON.stringify(data));
-      const nowTs = Date.now().toString();
-      lastHandledVersion = nowTs;
-      lastKnownFingerprint = nowTs;
-      lastKnownVersion = nowTs;
-      localStorage.setItem('abhigraha_last_updated', nowTs);
 
-      // 1. Broadcast update with the actual data payload across open tabs for 0ms instantaneous sync
-      broadcastPortalChange(key, data, nowTs);
+      // 2. Mark this key as pending publication
+      markKeyPending(key);
 
-      // 2. Update background public DOM on this admin tab immediately
+      // 3. Update background public DOM on this admin tab immediately
       renderPublicContent();
       if (typeof syncAdminVisibilityToggles === 'function') syncAdminVisibilityToggles();
       if (typeof renderAdminActiveTab === 'function') renderAdminActiveTab();
       if (typeof syncRegistrationDropdown === 'function') syncRegistrationDropdown();
-
-      // Note: We do NOT trigger the visitor loading screen for the admin saving inside the portal!
-      // The admin gets the admin toast notification and table update.
-
-      // 3. Persist to Cloudflare KV in background
-      pushToCloud(key, data);
     } catch (e) {
       console.error(`Failed to save ${key}`, e);
     }
@@ -963,9 +1101,14 @@
       }
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
+      loadPendingKeys();
       renderAdminActiveTab();
       syncAdminVisibilityToggles();
-      syncCloudContent();
+      if (pendingKeys.size === 0) {
+        syncCloudContent();
+      } else {
+        updateCloudStatus('pending', `● ${pendingKeys.size} Draft Change${pendingKeys.size > 1 ? 's' : ''} (Unpublished)`);
+      }
     }
 
     function closeFullscreenPortal() {
@@ -975,6 +1118,14 @@
       }
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+    }
+
+    // Publish Changes Button (Batch sync to Cloudflare KV & Active Visitors)
+    const adminPublishBtn = document.getElementById('admin-publish-btn');
+    if (adminPublishBtn) {
+      adminPublishBtn.addEventListener('click', () => {
+        publishAllChanges();
+      });
     }
 
     // Open Admin Modal / Launch Full-Screen Portal
@@ -1026,7 +1177,12 @@
 
     // View Public Site Action (Minimizes full screen portal while keeping session)
     if (adminViewSiteBtn) {
-      adminViewSiteBtn.addEventListener('click', () => {
+      adminViewSiteBtn.addEventListener('click', async () => {
+        if (pendingKeys.size > 0) {
+          if (confirm(`You have ${pendingKeys.size} unpublished draft change(s). Would you like to publish them live before viewing the public site?`)) {
+            await publishAllChanges();
+          }
+        }
         closeFullscreenPortal();
         showToast('Viewing public festival site. Click Admin button to return.');
       });
@@ -1045,7 +1201,12 @@
 
     // Logout Action
     if (adminLogoutBtn) {
-      adminLogoutBtn.addEventListener('click', () => {
+      adminLogoutBtn.addEventListener('click', async () => {
+        if (pendingKeys.size > 0) {
+          if (confirm(`You have ${pendingKeys.size} unpublished draft change(s). Would you like to publish them live before logging out?`)) {
+            await publishAllChanges();
+          }
+        }
         sessionStorage.removeItem('abhigraha_admin_logged');
         closeFullscreenPortal();
         showToast('🔒 Logged out of Admin Portal.');
@@ -1852,8 +2013,9 @@
   document.addEventListener('DOMContentLoaded', () => {
     // Render public content immediately from local cache / defaults
     renderPublicContent();
-    // Initialize Admin controls
+    // Initialize Admin controls and load pending draft states
     initAdminPortal();
+    loadPendingKeys();
     // Fetch live Cloudflare KV content asynchronously
     syncCloudContent();
     // Start real-time remote cloud & cross-device auto-sync polling

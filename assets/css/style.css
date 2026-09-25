@@ -3382,6 +3382,77 @@ body {
   transform: translateY(-1px);
 }
 
+/* Imperial Publish Changes Button */
+.admin-publish-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1.5px solid rgba(52, 211, 153, 0.4);
+  color: #a7f3d0;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  user-select: none;
+}
+
+.admin-publish-btn:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #34d399;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+/* Pulsing Golden Glow State when Unsaved Draft Changes Exist */
+.admin-publish-btn.has-pending {
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #fef08a !important;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.65), 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+  animation: publishGlowPulse 2.2s infinite ease-in-out;
+}
+
+.admin-publish-btn.has-pending:hover {
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.9), 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+  transform: translateY(-1.5px) scale(1.02);
+}
+
+.admin-publish-btn.publishing {
+  opacity: 0.75;
+  pointer-events: none;
+  cursor: wait;
+}
+
+.publish-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #92400e;
+  font-weight: 800;
+  border-radius: 99px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 0.7rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes publishGlowPulse {
+  0% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(251, 191, 36, 0.9), 0 4px 14px rgba(245, 158, 11, 0.4);
+    border-color: #ffffff;
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
 .admin-items-list {
   display: flex;
   flex-direction: column;

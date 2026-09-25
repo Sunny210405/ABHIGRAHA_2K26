@@ -154,6 +154,42 @@ export default {
 
         try {
           const body = await request.json();
+
+          // Batch Publish: saves multiple modified sections in 1 single network request and 1 last_updated write
+          if (body.batch && typeof body.batch === 'object') {
+            const batchKeys = Object.keys(body.batch).filter(k => ALLOWED_KEYS.includes(k));
+            if (batchKeys.length === 0) {
+              return new Response(JSON.stringify({ error: 'No valid keys provided in batch payload' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+              });
+            }
+
+            const updateTimestamp = Date.now().toString();
+            await Promise.all(
+              batchKeys.map(async (k) => {
+                IN_MEMORY_CACHE[k] = body.batch[k];
+                await env.FESTIVAL_KV.put(k, JSON.stringify(body.batch[k]));
+              })
+            );
+            IN_MEMORY_LAST_UPDATED = updateTimestamp;
+            await env.FESTIVAL_KV.put('last_updated', JSON.stringify(updateTimestamp));
+
+            return new Response(JSON.stringify({
+              success: true,
+              batch: batchKeys,
+              timestamp: new Date().toISOString(),
+              last_updated: updateTimestamp
+            }), {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+                ...corsHeaders()
+              }
+            });
+          }
+
           const { key, data } = body;
 
           if (!key || !ALLOWED_KEYS.includes(key)) {

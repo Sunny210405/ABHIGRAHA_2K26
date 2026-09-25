@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=72">
+  <link rel="stylesheet" href="./assets/css/style.css?v=73">
 </head>
 <body>
 
@@ -969,6 +969,9 @@
         <span id="admin-cloud-sync-status" class="admin-session-pill" style="margin: 0; font-size: 0.78rem;">
           <span class="session-dot"></span> Cloudflare KV Synced
         </span>
+        <button class="admin-btn-sm admin-publish-btn" id="admin-publish-btn" title="Publish all draft changes live to Cloudflare KV and active visitors">
+          <span class="publish-btn-icon">🚀</span> <span class="publish-btn-text">Publish Changes</span> <span id="admin-publish-counter" class="publish-counter" style="display:none;">0</span>
+        </button>
         <button class="admin-btn-sm" id="admin-test-sync-btn" title="Preview Auto Loading Screen for users" style="background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.4); color: #f9d371;">⚡ Test Auto-Sync Screen</button>
         <button class="admin-btn-sm admin-btn-gold" id="admin-view-site-btn" title="Exit to Public Website">🌐 View Public Site</button>
         <button class="admin-btn-sm admin-logout-btn" id="admin-logout-btn" title="Log out">🔒 Logout</button>
@@ -1413,7 +1416,7 @@
 
   <!-- Core JavaScript Modules (No flying hearts/petals, clean and fast) -->
   <script src="./assets/js/countdown.js?v=2"></script>
-  <script src="./assets/js/admin.js?v=12"></script>
+  <script src="./assets/js/admin.js?v=13"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
   <script src="./assets/js/main.js?v=9"></script>
 
