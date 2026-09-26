@@ -167,6 +167,23 @@
     { id: 'gal-4', type: 'emoji', src: '', icon: '👑✨👗', bg: 'radial-gradient(circle, #441708, #0b0306)', caption: 'Mr. & Ms. Freshers Runway Coronation' }
   ];
 
+  const DEFAULT_CONTACTS = [
+    {
+      id: 'cnt-1',
+      name: 'Subhadeep Nandy',
+      designation: 'Lead Student Coordinator',
+      phone: '+91 98765 43210',
+      email: 'abhigraha2k26@gmail.com'
+    },
+    {
+      id: 'cnt-2',
+      name: 'Sambit Bhattacharya',
+      designation: 'Festival Co-Coordinator',
+      phone: '+91 87654 32109',
+      email: 'abhigraha2k26@gmail.com'
+    }
+  ];
+
   // ==========================================================================
   // STORAGE & CLOUD PERSISTENCE (CLOUDFLARE KV + LOCALSTORAGE HYBRID)
   // ==========================================================================
@@ -176,6 +193,7 @@
     'abhigraha_crowns': 'crowns',
     'abhigraha_merchandise': 'merchandise',
     'abhigraha_gallery': 'gallery',
+    'abhigraha_contacts': 'contacts',
     'abhigraha_visibility': 'visibility'
   };
 
@@ -185,6 +203,7 @@
     'crowns': 'abhigraha_crowns',
     'merchandise': 'abhigraha_merchandise',
     'gallery': 'abhigraha_gallery',
+    'contacts': 'abhigraha_contacts',
     'visibility': 'abhigraha_visibility'
   };
 
@@ -323,6 +342,7 @@
             (fullJson.schedule ? JSON.stringify(fullJson.schedule).length : 0) + '_' +
             (fullJson.merchandise ? JSON.stringify(fullJson.merchandise).length : 0) + '_' +
             (fullJson.crowns ? JSON.stringify(fullJson.crowns).length : 0) + '_' +
+            (fullJson.contacts ? JSON.stringify(fullJson.contacts).length : 0) + '_' +
             JSON.stringify(fullJson.visibility || {});
 
           if (!lastKnownFingerprint) {
@@ -343,7 +363,7 @@
             }
 
             // Immediately load data into localStorage from the current response (0ms latency, no second fetch!)
-            const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery'];
+            const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
             keys.forEach(k => {
               if (Array.isArray(fullJson[k])) {
                 const localKey = REVERSE_KEY_MAPPING[k];
@@ -566,6 +586,7 @@
         crowns: getCrowns(),
         merchandise: getMerch(),
         gallery: getGallery(),
+        contacts: getContacts(),
         visibility: getVisibility()
       };
 
@@ -673,7 +694,7 @@
       }
 
       let updatedAny = false;
-      const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery'];
+      const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
       keys.forEach(k => {
         const localKey = REVERSE_KEY_MAPPING[k];
         // Do not overwrite local keys that have pending draft changes!
@@ -779,6 +800,7 @@
   function getCrowns() { return loadData('abhigraha_crowns', DEFAULT_CROWNS); }
   function getMerch() { return loadData('abhigraha_merchandise', DEFAULT_MERCH); }
   function getGallery() { return loadData('abhigraha_gallery', DEFAULT_GALLERY); }
+  function getContacts() { return loadData('abhigraha_contacts', DEFAULT_CONTACTS); }
 
   function showToast(msg) {
     const toast = document.getElementById('toast-msg');
@@ -798,6 +820,7 @@
     renderPublicCrowns();
     renderPublicMerch();
     renderPublicGallery();
+    renderPublicContacts();
     syncRegistrationDropdown();
   }
 
@@ -1056,6 +1079,49 @@
     }).join('');
   }
 
+  // 6. Public Contact Us Representatives
+  function renderPublicContacts() {
+    const container = document.getElementById('contact-representatives-container');
+    if (!container) return;
+
+    const contacts = getContacts();
+    if (!contacts || contacts.length === 0) {
+      container.innerHTML = '<div class="contact-empty-state"><p>Official representative contacts will be announced shortly.</p></div>';
+      return;
+    }
+
+    container.innerHTML = contacts.map(c => {
+      const initial = (c.name || 'C').charAt(0).toUpperCase();
+      const cleanPhone = (c.phone || '').replace(/[^\d+]/g, '');
+      return `
+        <div class="contact-representative-card">
+          <div class="contact-rep-header">
+            <div class="contact-rep-avatar">${escapeHtml(initial)}</div>
+            <div class="contact-rep-info">
+              <h4 class="contact-rep-name">${escapeHtml(c.name)}</h4>
+              <span class="contact-rep-role">${escapeHtml(c.designation)}</span>
+            </div>
+          </div>
+          <div class="contact-rep-channels">
+            <a href="mailto:${encodeURIComponent(c.email)}" class="contact-channel-pill" title="Email ${escapeHtml(c.name)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+              <span class="contact-channel-text">${escapeHtml(c.email)}</span>
+            </a>
+            <a href="tel:${escapeHtml(cleanPhone)}" class="contact-channel-pill" title="Call ${escapeHtml(c.name)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              <span class="contact-channel-text">${escapeHtml(c.phone)}</span>
+            </a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   // Sync Event Names into Registration Select Box
   function syncRegistrationDropdown() {
     const select = document.getElementById('reg-event-select');
@@ -1250,6 +1316,7 @@
     initCrownsAdmin();
     initMerchAdmin();
     initGalleryAdmin();
+    initContactsAdmin();
     initVisibilityToggles();
   }
 
@@ -1305,6 +1372,7 @@
     else if (tab === 'crowns') renderAdminCrownsList();
     else if (tab === 'merchandise') renderAdminMerchList();
     else if (tab === 'gallery') renderAdminGalleryList();
+    else if (tab === 'contacts') renderAdminContactsList();
   }
 
   // ==========================================================================
@@ -2291,6 +2359,194 @@
   }
 
   // ==========================================================================
+  // TAB 7: CONTACTS MANAGEMENT (ADD, EDIT, REMOVE, REORDER)
+  // ==========================================================================
+  function initContactsAdmin() {
+    const addBtn = document.getElementById('admin-add-contact-btn');
+    const resetBtn = document.getElementById('admin-reset-contacts-btn');
+    const formPanel = document.getElementById('admin-contact-form-panel');
+    const form = document.getElementById('admin-contact-form');
+    const cancelBtn = document.getElementById('admin-contact-cancel-btn');
+
+    if (addBtn && formPanel) {
+      addBtn.addEventListener('click', () => {
+        form.reset();
+        document.getElementById('admin-contact-edit-id').value = '';
+        document.getElementById('admin-contact-form-title').innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+          <span>Add New Contact Person</span>
+        `;
+        formPanel.style.display = 'block';
+        formPanel.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    if (cancelBtn && formPanel) {
+      cancelBtn.addEventListener('click', () => {
+        formPanel.style.display = 'none';
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (confirm('Reset contact representatives back to defaults?')) {
+          saveData('abhigraha_contacts', DEFAULT_CONTACTS);
+          renderPublicContacts();
+          renderAdminContactsList();
+          showToast('Contacts reset to defaults.');
+        }
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('admin-contact-edit-id').value;
+        const name = document.getElementById('admin-contact-name').value.trim();
+        const designation = document.getElementById('admin-contact-role').value.trim();
+        const email = document.getElementById('admin-contact-email').value.trim();
+        const phone = document.getElementById('admin-contact-phone').value.trim();
+
+        if (!name || !designation || !email || !phone) {
+          alert('Please fill in all contact details.');
+          return;
+        }
+
+        const list = getContacts();
+        if (editId) {
+          const idx = list.findIndex(c => c.id === editId);
+          if (idx !== -1) {
+            list[idx] = { id: editId, name, designation, email, phone };
+          }
+          showToast(`Contact "${name}" updated!`);
+        } else {
+          list.push({
+            id: 'cnt-' + Date.now(),
+            name,
+            designation,
+            email,
+            phone
+          });
+          showToast(`Contact "${name}" added!`);
+        }
+
+        saveData('abhigraha_contacts', list);
+        formPanel.style.display = 'none';
+        renderPublicContacts();
+        renderAdminContactsList();
+      });
+    }
+  }
+
+  function renderAdminContactsList() {
+    const container = document.getElementById('admin-contacts-list');
+    const countEl = document.getElementById('admin-contacts-count');
+    if (!container) return;
+
+    const list = getContacts();
+    if (countEl) countEl.textContent = `${list.length} Contact${list.length !== 1 ? 's' : ''}`;
+
+    if (list.length === 0) {
+      container.innerHTML = '<p style="color:#a38c94; text-align:center; padding:16px;">No contact representatives added yet.</p>';
+      return;
+    }
+
+    container.innerHTML = list.map((c, idx) => `
+      <div class="admin-item-card">
+        <div class="admin-item-order-corner">
+          <button type="button" class="btn-order-circle" data-order-up-cnt="${c.id}" title="Move Up" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveUp}
+          </button>
+          <button type="button" class="btn-order-circle" data-order-down-cnt="${c.id}" title="Move Down" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveDown}
+          </button>
+        </div>
+        <div class="admin-item-main">
+          <div class="admin-item-title">
+            <span class="admin-order-badge">#${idx + 1}</span>
+            <span style="font-weight:700; color:#fff4db;">${escapeHtml(c.name)}</span>
+            <span class="admin-topbar-badge">${escapeHtml(c.designation)}</span>
+          </div>
+          <div class="admin-item-meta">
+            <span>✉️ ${escapeHtml(c.email)}</span> &bull; <span>📞 ${escapeHtml(c.phone)}</span>
+          </div>
+        </div>
+        <div class="admin-item-actions">
+          <button class="btn-action-edit" data-edit-cnt="${c.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+          <button class="btn-action-delete" data-del-cnt="${c.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('[data-order-up-cnt]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-up-cnt');
+        const cList = getContacts();
+        const idx = cList.findIndex(c => c.id === id);
+        if (idx > 0) {
+          const temp = cList[idx];
+          cList[idx] = cList[idx - 1];
+          cList[idx - 1] = temp;
+          saveData('abhigraha_contacts', cList);
+          renderPublicContacts();
+          renderAdminContactsList();
+          showToast(`Contact "${temp.name}" moved up.`);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-order-down-cnt]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-down-cnt');
+        const cList = getContacts();
+        const idx = cList.findIndex(c => c.id === id);
+        if (idx !== -1 && idx < cList.length - 1) {
+          const temp = cList[idx];
+          cList[idx] = cList[idx + 1];
+          cList[idx + 1] = temp;
+          saveData('abhigraha_contacts', cList);
+          renderPublicContacts();
+          renderAdminContactsList();
+          showToast(`Contact "${temp.name}" moved down.`);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-edit-cnt]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-edit-cnt');
+        const c = getContacts().find(item => item.id === id);
+        if (!c) return;
+
+        const formPanel = document.getElementById('admin-contact-form-panel');
+        document.getElementById('admin-contact-edit-id').value = c.id;
+        document.getElementById('admin-contact-name').value = c.name || '';
+        document.getElementById('admin-contact-role').value = c.designation || '';
+        document.getElementById('admin-contact-email').value = c.email || '';
+        document.getElementById('admin-contact-phone').value = c.phone || '';
+        document.getElementById('admin-contact-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Contact: ${escapeHtml(c.name)}</span>`;
+
+        formPanel.style.display = 'block';
+        formPanel.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    container.querySelectorAll('[data-del-cnt]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-del-cnt');
+        const c = getContacts().find(item => item.id === id);
+        if (confirm(`Remove representative "${c ? c.name : id}"?`)) {
+          const updated = getContacts().filter(item => item.id !== id);
+          saveData('abhigraha_contacts', updated);
+          renderPublicContacts();
+          renderAdminContactsList();
+          showToast('Contact deleted.');
+        }
+      });
+    });
+  }
+
+  // ==========================================================================
   // INITIALIZATION ON LOAD
   // ==========================================================================
   document.addEventListener('DOMContentLoaded', () => {
@@ -2313,6 +2569,7 @@
     getSchedule,
     getCrowns,
     getMerch,
-    getGallery
+    getGallery,
+    getContacts
   };
 })();
