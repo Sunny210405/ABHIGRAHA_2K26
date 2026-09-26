@@ -167,6 +167,17 @@
     { id: 'gal-4', type: 'emoji', src: '', icon: '👑✨👗', bg: 'radial-gradient(circle, #441708, #0b0306)', caption: 'Mr. & Ms. Freshers Runway Coronation' }
   ];
 
+  const DEFAULT_CONTACTS = [
+    {
+      id: 'cnt-1',
+      name: 'Subhadeep Nandy',
+      designation: 'Festival Lead Coordinator',
+      phone: '+91 98765 43210',
+      email: 'abhigraha2k26@gmail.com'
+    }
+  ];
+  const DEFAULT_CONTACT = DEFAULT_CONTACTS[0];
+
   // ==========================================================================
   // STORAGE & CLOUD PERSISTENCE (CLOUDFLARE KV + LOCALSTORAGE HYBRID)
   // ==========================================================================
@@ -176,7 +187,8 @@
     'abhigraha_crowns': 'crowns',
     'abhigraha_merchandise': 'merchandise',
     'abhigraha_gallery': 'gallery',
-    'abhigraha_visibility': 'visibility'
+    'abhigraha_visibility': 'visibility',
+    'abhigraha_contact': 'contact'
   };
 
   const REVERSE_KEY_MAPPING = {
@@ -185,8 +197,37 @@
     'crowns': 'abhigraha_crowns',
     'merchandise': 'abhigraha_merchandise',
     'gallery': 'abhigraha_gallery',
-    'visibility': 'abhigraha_visibility'
+    'visibility': 'abhigraha_visibility',
+    'contact': 'abhigraha_contact'
   };
+
+  function getContacts() {
+    try {
+      const saved = localStorage.getItem('abhigraha_contact');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (parsed && typeof parsed === 'object' && parsed.name) {
+          return [{ id: 'cnt-1', ...parsed }];
+        }
+      }
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_CONTACTS));
+  }
+
+  function getContact() {
+    const list = getContacts();
+    return list.length > 0 ? list[0] : DEFAULT_CONTACT;
+  }
+
+  function setContacts(data) {
+    localStorage.setItem('abhigraha_contact', JSON.stringify(data));
+    broadcastPortalChange('abhigraha_contact', data, Date.now().toString());
+  }
+
+  function setContact(data) {
+    setContacts(Array.isArray(data) ? data : [data]);
+  }
 
   function updateCloudStatus(status, text) {
     const el = document.getElementById('admin-cloud-sync-status');
@@ -352,6 +393,9 @@
             });
             if (fullJson.visibility && typeof fullJson.visibility === 'object') {
               localStorage.setItem('abhigraha_visibility', JSON.stringify(fullJson.visibility));
+            }
+            if (fullJson.contact && typeof fullJson.contact === 'object') {
+              localStorage.setItem('abhigraha_contact', JSON.stringify(fullJson.contact));
             }
 
             // Trigger the auto-loading screen immediately for this active user
@@ -566,7 +610,8 @@
         crowns: getCrowns(),
         merchandise: getMerch(),
         gallery: getGallery(),
-        visibility: getVisibility()
+        visibility: getVisibility(),
+        contact: getContact()
       };
 
       const res = await fetch('/api/content', {
@@ -693,6 +738,13 @@
         }
       }
 
+      if (!pendingKeys.has('contact') && !pendingKeys.has('abhigraha_contact')) {
+        if (data && data.contact && typeof data.contact === 'object') {
+          localStorage.setItem('abhigraha_contact', JSON.stringify(data.contact));
+          updatedAny = true;
+        }
+      }
+
       if (data && data.last_updated && pendingKeys.size === 0) {
         const sVer = String(data.last_updated).replace(/"/g, '');
         lastHandledVersion = sVer;
@@ -798,6 +850,7 @@
     renderPublicCrowns();
     renderPublicMerch();
     renderPublicGallery();
+    renderPublicContact();
     syncRegistrationDropdown();
   }
 
@@ -1250,6 +1303,7 @@
     initCrownsAdmin();
     initMerchAdmin();
     initGalleryAdmin();
+    initContactAdmin();
     initVisibilityToggles();
   }
 
@@ -1305,6 +1359,7 @@
     else if (tab === 'crowns') renderAdminCrownsList();
     else if (tab === 'merchandise') renderAdminMerchList();
     else if (tab === 'gallery') renderAdminGalleryList();
+    else if (tab === 'contact') renderAdminContact();
   }
 
   // ==========================================================================
@@ -2291,6 +2346,270 @@
   }
 
   // ==========================================================================
+  // TAB 7: CONTACT INFORMATION MANAGEMENT
+  // ==========================================================================
+  function renderPublicContact() {
+    const container = document.getElementById('contact-representatives-container');
+    if (!container) return;
+
+    const contacts = getContacts();
+    if (!contacts || contacts.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 24px 16px; color: #a38c94; background: rgba(255, 255, 255, 0.02); border-radius: 14px; border: 1px dashed rgba(251, 191, 36, 0.2);">
+          <p style="margin: 0; font-size: 0.9rem;">Festival contact representatives will be announced shortly.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = contacts.map(c => `
+      <div class="contact-representative-card">
+        <div class="contact-rep-header">
+          <div class="contact-rep-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-rep-avatar-icon">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div class="contact-rep-titles">
+            <h4 class="contact-rep-name">${escapeHtml(c.name || '')}</h4>
+            <span class="contact-rep-role">${escapeHtml(c.designation || '')}</span>
+          </div>
+        </div>
+
+        <div class="contact-rep-channels">
+          <a href="tel:${escapeHtml((c.phone || '').replace(/\s+/g, ''))}" class="contact-channel-pill" title="Call directly">
+            <span class="contact-channel-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+            </span>
+            <div class="contact-channel-text">
+              <small>Phone Number</small>
+              <strong>${escapeHtml(c.phone || '')}</strong>
+            </div>
+          </a>
+
+          <a href="mailto:${escapeHtml(c.email || '')}" class="contact-channel-pill" title="Email directly">
+            <span class="contact-channel-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+            </span>
+            <div class="contact-channel-text">
+              <small>Email Address</small>
+              <strong>${escapeHtml(c.email || '')}</strong>
+            </div>
+          </a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderAdminContactList() {
+    const container = document.getElementById('admin-contact-list');
+    const countEl = document.getElementById('admin-contact-count');
+    if (!container) return;
+
+    const list = getContacts();
+    if (countEl) countEl.textContent = `${list.length} ${list.length === 1 ? 'Person' : 'Persons'}`;
+
+    if (list.length === 0) {
+      container.innerHTML = '<p style="color:#a38c94; text-align:center; padding:16px;">No contact persons added yet. Click "+ Add Contact" above.</p>';
+      return;
+    }
+
+    container.innerHTML = list.map((c, idx) => `
+      <div class="admin-item-card">
+        <div class="admin-item-order-corner">
+          <button type="button" class="btn-order-circle" data-order-up-contact="${c.id}" title="Move Up" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveUp}
+          </button>
+          <button type="button" class="btn-order-circle" data-order-down-contact="${c.id}" title="Move Down" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveDown}
+          </button>
+        </div>
+        <div class="admin-item-main">
+          <div class="admin-item-title">
+            <span class="admin-order-badge">#${idx + 1}</span>
+            <span style="font-size:1.15rem;">👤</span>
+            <span>${escapeHtml(c.name)}</span>
+            <span class="admin-topbar-badge">${escapeHtml(c.designation)}</span>
+          </div>
+          <div class="admin-item-meta" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 14px;">
+            <span>📞 <strong>${escapeHtml(c.phone)}</strong></span>
+            <span>✉️ <strong>${escapeHtml(c.email)}</strong></span>
+          </div>
+        </div>
+        <div class="admin-item-actions">
+          <button class="btn-action-edit" data-edit-contact="${c.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+          <button class="btn-action-delete" data-del-contact="${c.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
+        </div>
+      </div>
+    `).join('');
+
+    // Reorder UP
+    container.querySelectorAll('[data-order-up-contact]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-up-contact');
+        const cList = getContacts();
+        const idx = cList.findIndex(i => i.id === id);
+        if (idx > 0) {
+          const temp = cList[idx];
+          cList[idx] = cList[idx - 1];
+          cList[idx - 1] = temp;
+          setContacts(cList);
+          markKeyPending('contact');
+          renderPublicContact();
+          renderAdminContactList();
+          showToast(`Contact "${temp.name}" moved up to #${idx}.`);
+        }
+      });
+    });
+
+    // Reorder DOWN
+    container.querySelectorAll('[data-order-down-contact]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-down-contact');
+        const cList = getContacts();
+        const idx = cList.findIndex(i => i.id === id);
+        if (idx !== -1 && idx < cList.length - 1) {
+          const temp = cList[idx];
+          cList[idx] = cList[idx + 1];
+          cList[idx + 1] = temp;
+          setContacts(cList);
+          markKeyPending('contact');
+          renderPublicContact();
+          renderAdminContactList();
+          showToast(`Contact "${temp.name}" moved down to #${idx + 2}.`);
+        }
+      });
+    });
+
+    // EDIT
+    container.querySelectorAll('[data-edit-contact]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-edit-contact');
+        const c = getContacts().find(i => i.id === id);
+        if (!c) return;
+
+        const formPanel = document.getElementById('admin-contact-form-panel');
+        document.getElementById('admin-contact-edit-id').value = c.id;
+        document.getElementById('admin-contact-name').value = c.name || '';
+        document.getElementById('admin-contact-role').value = c.designation || '';
+        document.getElementById('admin-contact-phone').value = c.phone || '';
+        document.getElementById('admin-contact-email').value = c.email || '';
+        document.getElementById('admin-contact-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Contact: ${escapeHtml(c.name)}</span>`;
+
+        formPanel.style.display = 'block';
+        formPanel.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // DELETE
+    container.querySelectorAll('[data-del-contact]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-del-contact');
+        const c = getContacts().find(i => i.id === id);
+        if (confirm(`Remove contact "${c ? c.name : id}"?`)) {
+          const updated = getContacts().filter(i => i.id !== id);
+          setContacts(updated);
+          markKeyPending('contact');
+          renderPublicContact();
+          renderAdminContactList();
+          showToast(`Contact removed.`);
+        }
+      });
+    });
+  }
+
+  function renderAdminContact() {
+    renderAdminContactList();
+  }
+
+  function initContactAdmin() {
+    const addBtn = document.getElementById('admin-contact-add-btn');
+    const resetBtn = document.getElementById('admin-reset-contact-btn');
+    const formPanel = document.getElementById('admin-contact-form-panel');
+    const form = document.getElementById('admin-contact-form');
+    const cancelBtn = document.getElementById('admin-contact-cancel-btn');
+
+    if (addBtn && formPanel) {
+      addBtn.addEventListener('click', () => {
+        form.reset();
+        document.getElementById('admin-contact-edit-id').value = '';
+        document.getElementById('admin-contact-form-title').innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+          <span>Add New Contact Person</span>
+        `;
+        formPanel.style.display = 'block';
+        formPanel.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    if (cancelBtn && formPanel) {
+      cancelBtn.addEventListener('click', () => {
+        formPanel.style.display = 'none';
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (!confirm('Reset contacts to default coordinator?')) return;
+        setContacts(DEFAULT_CONTACTS);
+        markKeyPending('contact');
+        if (formPanel) formPanel.style.display = 'none';
+        renderPublicContact();
+        renderAdminContactList();
+        showToast('🔄 Contacts reset to default coordinator.');
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('admin-contact-edit-id').value.trim();
+        const name = document.getElementById('admin-contact-name').value.trim();
+        const designation = document.getElementById('admin-contact-role').value.trim();
+        const phone = document.getElementById('admin-contact-phone').value.trim();
+        const email = document.getElementById('admin-contact-email').value.trim();
+
+        if (!name || !designation || !phone || !email) {
+          showToast('⚠️ Please fill in all contact fields.');
+          return;
+        }
+
+        const list = getContacts();
+        if (editId) {
+          const idx = list.findIndex(i => i.id === editId);
+          if (idx !== -1) {
+            list[idx] = { id: editId, name, designation, phone, email };
+          }
+          showToast(`Contact "${name}" updated! Ready to publish.`);
+        } else {
+          list.push({
+            id: 'cnt-' + Date.now(),
+            name,
+            designation,
+            phone,
+            email
+          });
+          showToast(`Contact "${name}" added! Ready to publish.`);
+        }
+
+        setContacts(list);
+        markKeyPending('contact');
+        if (formPanel) formPanel.style.display = 'none';
+        renderPublicContact();
+        renderAdminContactList();
+      });
+    }
+
+    renderAdminContactList();
+  }
+
+  // ==========================================================================
   // INITIALIZATION ON LOAD
   // ==========================================================================
   document.addEventListener('DOMContentLoaded', () => {
@@ -2313,6 +2632,8 @@
     getSchedule,
     getCrowns,
     getMerch,
-    getGallery
+    getGallery,
+    getContact,
+    getContacts
   };
 })();
