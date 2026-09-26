@@ -315,17 +315,27 @@
   });
 
   // Background Cloud Poller for concurrent remote users across devices
-  async function checkRemoteFestivalVersion() {
+  let lastCheckTimestamp = 0;
+
+  async function checkRemoteFestivalVersion(force = false) {
     if (isCheckingRemote || isAutoUpdating) return;
+
+    const now = Date.now();
+    // Throttle checks to at least 10 seconds apart unless forced
+    if (!force && (now - lastCheckTimestamp < 10000)) return;
 
     // If admin portal is open on this tab, do not poll to avoid any interference
     const fsPortal = document.getElementById('admin-fullscreen-portal');
     if (fsPortal && fsPortal.classList.contains('open')) return;
 
     isCheckingRemote = true;
+    lastCheckTimestamp = now;
+
     try {
-      const cacheBuster = Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-      const res = await fetch(`/api/content?_cb=${cacheBuster}`, {
+      const cacheBuster = now + '_' + Math.random().toString(36).slice(2, 6);
+
+      // Step 1: Ultra-lightweight version probe (only 1 single KV read!)
+      const probeRes = await fetch(`/api/content?key=last_updated&_cb=${cacheBuster}`, {
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -333,54 +343,64 @@
         }
       });
 
-      if (res.ok) {
-        const fullJson = await res.json();
+      if (!probeRes.ok) return;
+      const probeJson = await probeRes.json();
+      if (!probeJson || probeJson.configured === false) return;
+
+      const serverVersion = String(probeJson.last_updated || '0').replace(/"/g, '');
+
+      // Baseline initialization on initial page load
+      if (!lastHandledVersion || lastHandledVersion === '0') {
+        lastHandledVersion = serverVersion;
+        lastKnownVersion = serverVersion;
+        if (serverVersion !== '0') {
+          localStorage.setItem('abhigraha_last_updated', serverVersion);
+        }
+        return;
+      }
+
+      // If version hasn't changed, STOP HERE: zero further KV reads!
+      if (serverVersion === lastHandledVersion) {
+        return;
+      }
+
+      // Step 2: An update is actually published! Fetch the full dataset to update DOM
+      console.log(`[AutoSync] New version detected (${serverVersion}), syncing full content...`);
+      const fullRes = await fetch(`/api/content?_cb=${cacheBuster}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+
+      if (fullRes.ok) {
+        const fullJson = await fullRes.json();
         if (fullJson && fullJson.configured !== false) {
-          const serverVersion = String(fullJson.last_updated || '0').replace(/"/g, '');
-          const fingerprint = serverVersion + '_' +
-            (fullJson.events ? JSON.stringify(fullJson.events).length : 0) + '_' +
-            (fullJson.schedule ? JSON.stringify(fullJson.schedule).length : 0) + '_' +
-            (fullJson.merchandise ? JSON.stringify(fullJson.merchandise).length : 0) + '_' +
-            (fullJson.crowns ? JSON.stringify(fullJson.crowns).length : 0) + '_' +
-            (fullJson.contacts ? JSON.stringify(fullJson.contacts).length : 0) + '_' +
-            JSON.stringify(fullJson.visibility || {});
-
-          if (!lastKnownFingerprint) {
-            // First run on page load: record baseline without showing modal
-            lastKnownFingerprint = fingerprint;
-            lastHandledVersion = serverVersion;
-            lastKnownVersion = serverVersion;
-            if (serverVersion !== '0') {
-              localStorage.setItem('abhigraha_last_updated', serverVersion);
-            }
-          } else if (fingerprint !== lastKnownFingerprint && serverVersion !== lastHandledVersion) {
-            console.log(`[AutoSync] Instant update detected! Version: ${serverVersion}`);
-            lastKnownFingerprint = fingerprint;
-            lastHandledVersion = serverVersion;
-            lastKnownVersion = serverVersion;
-            if (serverVersion !== '0') {
-              localStorage.setItem('abhigraha_last_updated', serverVersion);
-            }
-
-            // Immediately load data into localStorage from the current response (0ms latency, no second fetch!)
-            const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
-            keys.forEach(k => {
-              if (Array.isArray(fullJson[k])) {
-                const localKey = REVERSE_KEY_MAPPING[k];
-                localStorage.setItem(localKey, JSON.stringify(fullJson[k]));
-              }
-            });
-            if (fullJson.visibility && typeof fullJson.visibility === 'object') {
-              localStorage.setItem('abhigraha_visibility', JSON.stringify(fullJson.visibility));
-            }
-
-            // Trigger the auto-loading screen immediately for this active user
-            triggerAutoLoadingUpdate({
-              reason: 'remote_admin_update',
-              source: 'cloud_ready',
-              version: serverVersion
-            });
+          lastHandledVersion = serverVersion;
+          lastKnownVersion = serverVersion;
+          if (serverVersion !== '0') {
+            localStorage.setItem('abhigraha_last_updated', serverVersion);
           }
+
+          // Immediately load data into localStorage from response
+          const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
+          keys.forEach(k => {
+            if (Array.isArray(fullJson[k])) {
+              const localKey = REVERSE_KEY_MAPPING[k];
+              localStorage.setItem(localKey, JSON.stringify(fullJson[k]));
+            }
+          });
+          if (fullJson.visibility && typeof fullJson.visibility === 'object') {
+            localStorage.setItem('abhigraha_visibility', JSON.stringify(fullJson.visibility));
+          }
+
+          // Trigger the auto-loading screen immediately for this active user
+          triggerAutoLoadingUpdate({
+            reason: 'remote_admin_update',
+            source: 'cloud_ready',
+            version: serverVersion
+          });
         }
       }
     } catch (e) {
@@ -393,14 +413,14 @@
   let pollerInterval = null;
   function startAutoSyncPoller() {
     if (pollerInterval) clearInterval(pollerInterval);
-    // Poll every 1.5 seconds when tab is active for instant real-time response
+    // Poll every 30 seconds when tab is active (reduces KV operations by ~99%)
     pollerInterval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         checkRemoteFestivalVersion();
       }
-    }, 1500);
+    }, 30000);
 
-    // Instant verification when user returns to tab or window refocuses
+    // Instant verification when user returns to tab (throttled by lastCheckTimestamp)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         checkRemoteFestivalVersion();
@@ -412,7 +432,7 @@
     });
 
     window.addEventListener('online', () => {
-      checkRemoteFestivalVersion();
+      checkRemoteFestivalVersion(true);
     });
   }
 

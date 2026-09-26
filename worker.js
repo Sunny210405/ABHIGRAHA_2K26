@@ -78,6 +78,11 @@ export default {
             } else {
               const raw = await env.FESTIVAL_KV.get(targetKey);
               data = raw ? JSON.parse(raw) : null;
+              if (targetKey === 'last_updated' && data) {
+                IN_MEMORY_LAST_UPDATED = String(data).replace(/"/g, '');
+              } else if (data !== null) {
+                IN_MEMORY_CACHE[targetKey] = data;
+              }
             }
             return new Response(JSON.stringify({ [targetKey]: data }), {
               status: 200,
@@ -98,7 +103,13 @@ export default {
                 return [k, IN_MEMORY_CACHE[k]];
               }
               const raw = await env.FESTIVAL_KV.get(k);
-              return [k, raw ? JSON.parse(raw) : null];
+              const parsed = raw ? JSON.parse(raw) : null;
+              if (k === 'last_updated' && parsed) {
+                IN_MEMORY_LAST_UPDATED = String(parsed).replace(/"/g, '');
+              } else if (parsed !== null) {
+                IN_MEMORY_CACHE[k] = parsed;
+              }
+              return [k, parsed];
             })
           );
           const result = Object.fromEntries(entries);
