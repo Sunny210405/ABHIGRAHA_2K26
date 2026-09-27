@@ -1459,7 +1459,7 @@
         document.getElementById('admin-event-edit-id').value = '';
         const formUrlInput = document.getElementById('admin-event-form-url');
         if (formUrlInput) formUrlInput.value = '';
-        document.getElementById('admin-event-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add New Festival Event</span>`;
+        document.getElementById('admin-event-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Event</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -1659,7 +1659,7 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-schedule-edit-id').value = '';
-        document.getElementById('admin-schedule-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Timeline Activity</span>`;
+        document.getElementById('admin-schedule-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Schedule</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -1869,7 +1869,7 @@
         document.getElementById('admin-crown-edit-id').value = '';
         const formUrlInput = document.getElementById('admin-crown-form-url');
         if (formUrlInput) formUrlInput.value = '';
-        document.getElementById('admin-crown-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Royal Crown Title</span>`;
+        document.getElementById('admin-crown-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Crown</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -2060,7 +2060,7 @@
         document.getElementById('admin-merch-edit-id').value = '';
         const formUrlInput = document.getElementById('admin-merch-form-url');
         if (formUrlInput) formUrlInput.value = '';
-        document.getElementById('admin-merch-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Merchandise Gear</span>`;
+        document.getElementById('admin-merch-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Merchandise</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -2256,7 +2256,7 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-gallery-edit-id').value = '';
-        document.getElementById('admin-gallery-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Gallery Memory</span>`;
+        document.getElementById('admin-gallery-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Gallery</span>`;
         if (typeSelect) typeSelect.dispatchEvent(new Event('change'));
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
@@ -2442,7 +2442,7 @@
         document.getElementById('admin-contact-edit-id').value = '';
         document.getElementById('admin-contact-form-title').innerHTML = `
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-          <span>Add New Contact Person</span>
+          <span>Add Contact</span>
         `;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
