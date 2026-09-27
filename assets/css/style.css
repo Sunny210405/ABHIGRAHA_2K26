@@ -2435,12 +2435,13 @@ body {
 }
 
 .contact-rep-channels {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
 .contact-channel-pill {
+  flex: 1 1 200px;
   display: flex;
   align-items: center;
   gap: 9px;

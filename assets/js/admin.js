@@ -1152,6 +1152,16 @@
     container.innerHTML = contacts.map(c => {
       const initial = (c.name || 'C').charAt(0).toUpperCase();
       const cleanPhone = (c.phone || '').replace(/[^\d+]/g, '');
+      const hasEmail = Boolean(c.email && c.email.trim());
+      const emailHtml = hasEmail ? `
+            <a href="mailto:${encodeURIComponent(c.email.trim())}" class="contact-channel-pill" title="Email ${escapeHtml(c.name)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+              <span class="contact-channel-text">${escapeHtml(c.email.trim())}</span>
+            </a>` : '';
+
       return `
         <div class="contact-representative-card">
           <div class="contact-rep-header">
@@ -1162,13 +1172,7 @@
             </div>
           </div>
           <div class="contact-rep-channels">
-            <a href="mailto:${encodeURIComponent(c.email)}" class="contact-channel-pill" title="Email ${escapeHtml(c.name)}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
-                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-              </svg>
-              <span class="contact-channel-text">${escapeHtml(c.email)}</span>
-            </a>
+            ${emailHtml}
             <a href="tel:${escapeHtml(cleanPhone)}" class="contact-channel-pill" title="Call ${escapeHtml(c.name)}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
@@ -2471,8 +2475,8 @@
         const email = document.getElementById('admin-contact-email').value.trim();
         const phone = document.getElementById('admin-contact-phone').value.trim();
 
-        if (!name || !designation || !email || !phone) {
-          alert('Please fill in all contact details.');
+        if (!name || !designation || !phone) {
+          alert('Please fill in all required contact details (Name, Role, and Phone Number).');
           return;
         }
 
@@ -2532,7 +2536,7 @@
             <span class="admin-topbar-badge">${escapeHtml(c.designation)}</span>
           </div>
           <div class="admin-item-meta">
-            <span>✉️ ${escapeHtml(c.email)}</span> &bull; <span>📞 ${escapeHtml(c.phone)}</span>
+            ${c.email && c.email.trim() ? `<span>✉️ ${escapeHtml(c.email.trim())}</span> &bull; ` : ''}<span>📞 ${escapeHtml(c.phone)}</span>
           </div>
         </div>
         <div class="admin-item-actions">
