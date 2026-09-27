@@ -1255,7 +1255,11 @@
     function handleAdminOpen(e) {
       if (e) e.preventDefault();
       const mobileDrawer = document.getElementById('mobile-drawer');
+      const mobileBackdrop = document.getElementById('mobile-drawer-backdrop');
       if (mobileDrawer) mobileDrawer.classList.remove('open');
+      if (mobileBackdrop) mobileBackdrop.classList.remove('open');
+      document.body.classList.remove('drawer-open');
+      document.documentElement.classList.remove('drawer-open');
 
       if (sessionStorage.getItem('abhigraha_admin_logged') === 'true') {
         openFullscreenPortal();

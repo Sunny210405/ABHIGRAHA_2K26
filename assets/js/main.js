@@ -9,6 +9,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileToggle = document.getElementById('mobile-menu-toggle');
   const mobileDrawer = document.getElementById('mobile-drawer');
   const mobileClose = document.getElementById('mobile-drawer-close');
+  const mobileBackdrop = document.getElementById('mobile-drawer-backdrop');
+
+  /**
+   * Open Mobile Drawer with Fluid Transition and Body Scroll Lock
+   */
+  function openMobileDrawer() {
+    if (!mobileDrawer) return;
+    mobileDrawer.classList.add('open');
+    if (mobileBackdrop) mobileBackdrop.classList.add('open');
+    document.body.classList.add('drawer-open');
+    document.documentElement.classList.add('drawer-open');
+  }
+
+  /**
+   * Close Mobile Drawer and Restore Background Page Scrolling
+   */
+  function closeMobileDrawer() {
+    if (!mobileDrawer) return;
+    mobileDrawer.classList.remove('open');
+    if (mobileBackdrop) mobileBackdrop.classList.remove('open');
+    document.body.classList.remove('drawer-open');
+    document.documentElement.classList.remove('drawer-open');
+  }
 
   // Valid Page IDs
   const validPages = ['home', 'events', 'schedule', 'team', 'crowns', 'merchandise', 'gallery', 'sponsors'];
@@ -50,9 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Close mobile drawer if open
-    if (mobileDrawer) {
-      mobileDrawer.classList.remove('open');
-    }
+    closeMobileDrawer();
   }
 
   // Handle hash changes (back/forward buttons, direct bookmark URLs)
@@ -91,23 +112,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Mobile Drawer Controls
-  if (mobileToggle && mobileDrawer) {
-    mobileToggle.addEventListener('click', () => {
-      mobileDrawer.classList.add('open');
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openMobileDrawer();
     });
   }
 
-  if (mobileClose && mobileDrawer) {
-    mobileClose.addEventListener('click', () => {
-      mobileDrawer.classList.remove('open');
+  if (mobileClose) {
+    mobileClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeMobileDrawer();
     });
+  }
+
+  if (mobileBackdrop) {
+    mobileBackdrop.addEventListener('click', closeMobileDrawer);
+    // Prevent background scrolling when dragging finger over backdrop
+    mobileBackdrop.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+  }
+
+  // Prevent background bounce when scrolling inside the drawer
+  if (mobileDrawer) {
+    mobileDrawer.addEventListener('touchmove', (e) => {
+      e.stopPropagation();
+    }, { passive: true });
   }
 
   const mobileAdminBtn = document.getElementById('mobile-drawer-admin-btn');
   if (mobileAdminBtn) {
     mobileAdminBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      if (mobileDrawer) mobileDrawer.classList.remove('open');
+      closeMobileDrawer();
       const adminBtn = document.getElementById('admin-btn');
       if (adminBtn) adminBtn.click();
     });
@@ -354,5 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === teamModal) teamModal.classList.remove('open');
     const adminModal = document.getElementById('admin-modal');
     if (e.target === adminModal) adminModal.classList.remove('open');
+    if (e.target === mobileBackdrop) closeMobileDrawer();
   });
 });

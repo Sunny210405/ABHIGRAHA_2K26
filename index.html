@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=97">
+  <link rel="stylesheet" href="./assets/css/style.css?v=99">
 </head>
 <body>
 
@@ -958,11 +958,11 @@
           <input type="password" class="form-input" id="admin-passcode" placeholder="Enter security key..." autocomplete="off">
         </div>
         <button type="button" class="form-submit-btn" id="admin-login-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg" style="margin-right: 6px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg">
             <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          Authenticate &amp; Enter Portal
+          <span>Authenticate</span>
         </button>
       </div>
     </div>
@@ -1524,8 +1524,9 @@
     </div>
   </div>
 
-  <!-- Mobile Slide-out Drawer: Placed safely at bottom of DOM -->
-  <div class="mobile-drawer" id="mobile-drawer">
+  <!-- Mobile Slide-out Drawer & Dimmed Backdrop -->
+  <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop" aria-hidden="true"></div>
+  <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
     <div class="mobile-drawer-header">
       <div style="display: flex; align-items: center; gap: 10px;">
         <img src="./assets/images/logo-crest.webp?v=4" alt="Crest" style="width: 36px; height: 36px; border-radius: 50%;">
@@ -1593,7 +1594,7 @@
   <script src="./assets/js/countdown.js?v=2"></script>
   <script src="./assets/js/admin.js?v=27"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
-  <script src="./assets/js/main.js?v=11"></script>
+  <script src="./assets/js/main.js?v=12"></script>
 
 </body>
 </html>
