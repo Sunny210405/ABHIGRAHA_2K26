@@ -2335,6 +2335,11 @@ body {
   flex-direction: column;
 }
 
+.contact-modal-window .modal-title {
+  text-align: center;
+  margin-bottom: 6px;
+}
+
 .contact-representatives-container {
   display: flex;
   flex-direction: column;
