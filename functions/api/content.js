@@ -7,7 +7,7 @@
 // SHA-256 digest of the authorized admin access key
 const AUTH_HASH = '7ba682d1dcfb5d93995134af9fce82b2bf9c0a365f4f29e7b3aac8e949f3297d';
 
-const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'contacts', 'last_updated'];
+const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'contacts', 'last_updated', 'festival_data'];
 
 // Helper to compute SHA-256 in Cloudflare Workers environment
 async function computeSha256(str) {
@@ -18,16 +18,24 @@ async function computeSha256(str) {
     .join('');
 }
 
-// High-speed edge in-memory cache for instant zero-latency cross-worker reads
-const IN_MEMORY_CACHE = {};
-let IN_MEMORY_LAST_UPDATED = '0';
-
 // CORS Headers helper
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+}
+
+function noCacheHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    'CDN-Cache-Control': 'no-store',
+    'Cloudflare-CDN-Cache-Control': 'no-store',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    ...corsHeaders()
   };
 }
 
@@ -42,7 +50,7 @@ export async function onRequestOptions() {
 /**
  * GET /api/content
  * Returns live festival data from Cloudflare KV
- * Query params optional: ?key=events
+ * Query params optional: ?key=events or ?key=last_updated
  */
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -56,60 +64,75 @@ export async function onRequestGet(context) {
       configured: false
     }), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        ...corsHeaders()
-      }
+      headers: noCacheHeaders()
     });
   }
 
   try {
+    // 1. Single Key Probe (e.g. key=last_updated for ultra-fast, cheap version check)
     if (targetKey) {
       if (!ALLOWED_KEYS.includes(targetKey)) {
         return new Response(JSON.stringify({ error: 'Invalid key requested' }), {
           status: 400,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+          headers: noCacheHeaders()
         });
       }
+
+      const raw = await env.FESTIVAL_KV.get(targetKey);
       let data = null;
-      if (targetKey === 'last_updated' && IN_MEMORY_LAST_UPDATED !== '0') {
-        data = IN_MEMORY_LAST_UPDATED;
-      } else if (IN_MEMORY_CACHE[targetKey] !== undefined) {
-        data = IN_MEMORY_CACHE[targetKey];
-      } else {
-        const raw = await env.FESTIVAL_KV.get(targetKey);
-        data = raw ? JSON.parse(raw) : null;
-        if (targetKey === 'last_updated' && data) {
-          IN_MEMORY_LAST_UPDATED = String(data).replace(/"/g, '');
-        } else if (data !== null) {
-          IN_MEMORY_CACHE[targetKey] = data;
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch (e) {
+          data = raw;
         }
       }
+
+      if (targetKey === 'last_updated') {
+        const cleanVer = data ? String(data).replace(/"/g, '') : '0';
+        return new Response(JSON.stringify({ last_updated: cleanVer }), {
+          status: 200,
+          headers: noCacheHeaders()
+        });
+      }
+
       return new Response(JSON.stringify({ [targetKey]: data }), {
         status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-          ...corsHeaders()
-        }
+        headers: noCacheHeaders()
       });
     }
 
-    // Fetch all keys in parallel
+    // 2. Full Content Fetch: First attempt single-read bundle (1 KV read instead of 8!)
+    const rawBundle = await env.FESTIVAL_KV.get('festival_data');
+    if (rawBundle) {
+      try {
+        const bundle = JSON.parse(rawBundle);
+        if (bundle && typeof bundle === 'object') {
+          return new Response(JSON.stringify(bundle), {
+            status: 200,
+            headers: noCacheHeaders()
+          });
+        }
+      } catch (e) {
+        // Fallback to reading individual keys if bundle parse fails
+      }
+    }
+
+    // Fallback: Read individual keys in parallel
+    const individualKeys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'contacts', 'last_updated'];
     const entries = await Promise.all(
-      ALLOWED_KEYS.map(async (k) => {
-        if (k === 'last_updated' && IN_MEMORY_LAST_UPDATED !== '0') {
-          return [k, IN_MEMORY_LAST_UPDATED];
-        }
-        if (IN_MEMORY_CACHE[k] !== undefined) {
-          return [k, IN_MEMORY_CACHE[k]];
-        }
+      individualKeys.map(async (k) => {
         const raw = await env.FESTIVAL_KV.get(k);
-        const parsed = raw ? JSON.parse(raw) : null;
+        let parsed = null;
+        if (raw) {
+          try {
+            parsed = JSON.parse(raw);
+          } catch (e) {
+            parsed = raw;
+          }
+        }
         if (k === 'last_updated' && parsed) {
-          IN_MEMORY_LAST_UPDATED = String(parsed).replace(/"/g, '');
-        } else if (parsed !== null) {
-          IN_MEMORY_CACHE[k] = parsed;
+          parsed = String(parsed).replace(/"/g, '');
         }
         return [k, parsed];
       })
@@ -117,25 +140,17 @@ export async function onRequestGet(context) {
 
     const result = Object.fromEntries(entries);
     if (!result.last_updated) {
-      result.last_updated = IN_MEMORY_LAST_UPDATED !== '0' ? IN_MEMORY_LAST_UPDATED : '0';
+      result.last_updated = '0';
     }
 
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-        'CDN-Cache-Control': 'no-store',
-        'Cloudflare-CDN-Cache-Control': 'no-store',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        ...corsHeaders()
-      }
+      headers: noCacheHeaders()
     });
   } catch (err) {
     return new Response(JSON.stringify({ error: 'Failed to read from Cloudflare KV', details: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      headers: noCacheHeaders()
     });
   }
 }
@@ -143,7 +158,6 @@ export async function onRequestGet(context) {
 /**
  * POST /api/content
  * Authenticates admin and updates Cloudflare KV in real-time
- * Body: { key: 'events'|'schedule'|'crowns'|'merchandise'|'gallery', data: [...] }
  */
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -155,7 +169,7 @@ export async function onRequestPost(context) {
       configured: false
     }), {
       status: 503,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      headers: noCacheHeaders()
     });
   }
 
@@ -166,11 +180,10 @@ export async function onRequestPost(context) {
   if (!token) {
     return new Response(JSON.stringify({ error: 'Missing security token' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      headers: noCacheHeaders()
     });
   }
 
-  // Token can be the already-hashed key or raw string that hashes to AUTH_HASH
   let isAuthorized = false;
   if (token === AUTH_HASH) {
     isAuthorized = true;
@@ -184,32 +197,35 @@ export async function onRequestPost(context) {
   if (!isAuthorized) {
     return new Response(JSON.stringify({ error: 'Access Denied: Invalid Security Authentication' }), {
       status: 403,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      headers: noCacheHeaders()
     });
   }
 
   try {
     const body = await request.json();
 
-    // Batch Publish: saves multiple modified sections in 1 single network request and 1 last_updated write
+    // Batch Publish: saves multiple modified sections in 1 single network request
     if (body.batch && typeof body.batch === 'object') {
       const batchKeys = Object.keys(body.batch).filter(k => ALLOWED_KEYS.includes(k));
       if (batchKeys.length === 0) {
         return new Response(JSON.stringify({ error: 'No valid keys provided in batch payload' }), {
           status: 400,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+          headers: noCacheHeaders()
         });
       }
 
       const updateTimestamp = Date.now().toString();
-      await Promise.all(
-        batchKeys.map(async (k) => {
-          IN_MEMORY_CACHE[k] = body.batch[k];
-          await env.FESTIVAL_KV.put(k, JSON.stringify(body.batch[k]));
-        })
-      );
-      IN_MEMORY_LAST_UPDATED = updateTimestamp;
-      await env.FESTIVAL_KV.put('last_updated', JSON.stringify(updateTimestamp));
+      const bundle = {
+        ...body.batch,
+        last_updated: updateTimestamp
+      };
+
+      // Persist bundle for single-read optimization AND individual keys for backwards compatibility
+      await Promise.all([
+        env.FESTIVAL_KV.put('festival_data', JSON.stringify(bundle)),
+        env.FESTIVAL_KV.put('last_updated', JSON.stringify(updateTimestamp)),
+        ...batchKeys.map(k => env.FESTIVAL_KV.put(k, JSON.stringify(body.batch[k])))
+      ]);
 
       return new Response(JSON.stringify({
         success: true,
@@ -218,11 +234,7 @@ export async function onRequestPost(context) {
         last_updated: updateTimestamp
       }), {
         status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-          ...corsHeaders()
-        }
+        headers: noCacheHeaders()
       });
     }
 
@@ -231,24 +243,37 @@ export async function onRequestPost(context) {
     if (!key || !ALLOWED_KEYS.includes(key)) {
       return new Response(JSON.stringify({ error: 'Invalid or unsupported key for storage' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+        headers: noCacheHeaders()
       });
     }
 
     if (data === undefined) {
       return new Response(JSON.stringify({ error: 'Missing data payload' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+        headers: noCacheHeaders()
       });
     }
 
-    // Save to Cloudflare KV and fast edge in-memory cache
     const updateTimestamp = Date.now().toString();
-    IN_MEMORY_CACHE[key] = data;
-    IN_MEMORY_LAST_UPDATED = updateTimestamp;
 
-    await env.FESTIVAL_KV.put(key, JSON.stringify(data));
-    await env.FESTIVAL_KV.put('last_updated', JSON.stringify(updateTimestamp));
+    // Update individual key and last_updated
+    const puts = [
+      env.FESTIVAL_KV.put(key, JSON.stringify(data)),
+      env.FESTIVAL_KV.put('last_updated', JSON.stringify(updateTimestamp))
+    ];
+
+    // Also update festival_data bundle if possible
+    try {
+      const rawBundle = await env.FESTIVAL_KV.get('festival_data');
+      if (rawBundle) {
+        const bundle = JSON.parse(rawBundle);
+        bundle[key] = data;
+        bundle.last_updated = updateTimestamp;
+        puts.push(env.FESTIVAL_KV.put('festival_data', JSON.stringify(bundle)));
+      }
+    } catch (e) {}
+
+    await Promise.all(puts);
 
     return new Response(JSON.stringify({
       success: true,
@@ -257,16 +282,12 @@ export async function onRequestPost(context) {
       last_updated: updateTimestamp
     }), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-        ...corsHeaders()
-      }
+      headers: noCacheHeaders()
     });
   } catch (err) {
     return new Response(JSON.stringify({ error: 'Failed to write to Cloudflare KV', details: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+      headers: noCacheHeaders()
     });
   }
 }

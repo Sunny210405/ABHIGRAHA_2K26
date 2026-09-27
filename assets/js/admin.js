@@ -261,8 +261,19 @@
             localStorage.setItem('abhigraha_last_updated', payload.timestamp);
           }
 
-          // If the broadcast payload includes the actual data, write it to localStorage immediately in 0ms!
-          if (payload.key && payload.data !== undefined) {
+          // If the broadcast payload includes the actual batch data, write it to localStorage immediately in 0ms!
+          if (payload.batch && typeof payload.batch === 'object') {
+            const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
+            keys.forEach(k => {
+              if (Array.isArray(payload.batch[k])) {
+                const localKey = REVERSE_KEY_MAPPING[k];
+                localStorage.setItem(localKey, JSON.stringify(payload.batch[k]));
+              }
+            });
+            if (payload.batch.visibility && typeof payload.batch.visibility === 'object') {
+              localStorage.setItem('abhigraha_visibility', JSON.stringify(payload.batch.visibility));
+            }
+          } else if (payload.key && payload.data !== undefined) {
             try {
               localStorage.setItem(payload.key, JSON.stringify(payload.data));
             } catch (e) {}
@@ -321,8 +332,8 @@
     if (isCheckingRemote || isAutoUpdating) return;
 
     const now = Date.now();
-    // Throttle checks to at least 10 seconds apart unless forced
-    if (!force && (now - lastCheckTimestamp < 10000)) return;
+    // Throttle checks to at least 2.5 seconds apart unless forced
+    if (!force && (now - lastCheckTimestamp < 2500)) return;
 
     // If admin portal is open on this tab, do not poll to avoid any interference
     const fsPortal = document.getElementById('admin-fullscreen-portal');
@@ -377,11 +388,19 @@
       if (fullRes.ok) {
         const fullJson = await fullRes.json();
         if (fullJson && fullJson.configured !== false) {
-          lastHandledVersion = serverVersion;
-          lastKnownVersion = serverVersion;
-          if (serverVersion !== '0') {
-            localStorage.setItem('abhigraha_last_updated', serverVersion);
+          const contentVersion = String(fullJson.last_updated || '0').replace(/"/g, '');
+
+          // Verify edge consistency: if full payload is older than probeVersion, edge hasn't caught up
+          if (contentVersion !== '0' && contentVersion < serverVersion) {
+            console.warn(`[AutoSync] Edge replication delay (${contentVersion} < ${serverVersion}). Retrying in 1.5s...`);
+            setTimeout(() => checkRemoteFestivalVersion(true), 1500);
+            return;
           }
+
+          const finalVersion = contentVersion !== '0' ? contentVersion : serverVersion;
+          lastHandledVersion = finalVersion;
+          lastKnownVersion = finalVersion;
+          localStorage.setItem('abhigraha_last_updated', finalVersion);
 
           // Immediately load data into localStorage from response
           const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
@@ -399,7 +418,7 @@
           triggerAutoLoadingUpdate({
             reason: 'remote_admin_update',
             source: 'cloud_ready',
-            version: serverVersion
+            version: finalVersion
           });
         }
       }
@@ -413,22 +432,22 @@
   let pollerInterval = null;
   function startAutoSyncPoller() {
     if (pollerInterval) clearInterval(pollerInterval);
-    // Poll every 30 seconds when tab is active (reduces KV operations by ~99%)
+    // Poll every 12 seconds when tab is active (reduces KV operations while keeping site live and responsive)
     pollerInterval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         checkRemoteFestivalVersion();
       }
-    }, 30000);
+    }, 12000);
 
-    // Instant verification when user returns to tab (throttled by lastCheckTimestamp)
+    // Instant verification when user returns to tab
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        checkRemoteFestivalVersion();
+        checkRemoteFestivalVersion(true);
       }
     });
 
     window.addEventListener('focus', () => {
-      checkRemoteFestivalVersion();
+      checkRemoteFestivalVersion(true);
     });
 
     window.addEventListener('online', () => {
@@ -637,7 +656,8 @@
             festivalBroadcast.postMessage({
               type: 'PORTAL_DETAILS_CHANGED',
               originSession: TAB_SESSION_ID,
-              timestamp: updateTs
+              timestamp: updateTs,
+              batch: batch
             });
           } catch (e) {}
         }
@@ -1222,6 +1242,7 @@
       }
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+      renderPublicContent();
     }
 
     // Publish Changes Button (Batch sync to Cloudflare KV & Active Visitors)
