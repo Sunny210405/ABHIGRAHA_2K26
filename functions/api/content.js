@@ -5,7 +5,7 @@
  */
 
 // SHA-256 digest of the authorized admin access key
-const AUTH_HASH = '7ba682d1dcfb5d93995134af9fce82b2bf9c0a365f4f29e7b3aac8e949f3297d';
+const AUTH_HASH = '3ecc739cabde3ed0a536a0bc899959e01e17c2c96499cdfc2397d00addea3d59';
 
 const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'contacts', 'last_updated', 'festival_data'];
 
