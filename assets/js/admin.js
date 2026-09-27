@@ -480,7 +480,6 @@
     if (!screen || !progressBar || !statusText) {
       renderPublicContent();
       if (typeof syncRegistrationDropdown === 'function') syncRegistrationDropdown();
-      showToast('✨ Festival details updated to latest version!');
       isAutoUpdating = false;
       return;
     }
@@ -537,7 +536,6 @@
             if (card) card.classList.remove('success');
             screen.setAttribute('aria-hidden', 'true');
             isAutoUpdating = false;
-            showToast('✨ Festival details have been updated to latest version!');
           }, 250);
         }, 300);
       }, 270);
