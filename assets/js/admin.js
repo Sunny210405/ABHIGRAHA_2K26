@@ -170,17 +170,17 @@
   const DEFAULT_CONTACTS = [
     {
       id: 'cnt-1',
-      name: 'Subhadeep Nandy',
-      designation: 'Lead Student Coordinator',
-      phone: '+91 98765 43210',
-      email: 'abhigraha2k26@gmail.com'
+      name: 'Snigdha Sanyal',
+      designation: 'President',
+      phone: '+91 8159961776',
+      email: 'sanyalsnigdho@gmail.com'
     },
     {
       id: 'cnt-2',
-      name: 'Sambit Bhattacharya',
-      designation: 'Festival Co-Coordinator',
-      phone: '+91 87654 32109',
-      email: 'abhigraha2k26@gmail.com'
+      name: 'Sahil Khan',
+      designation: 'Vice President',
+      phone: '+91 81339 78834',
+      email: 'sahilaslamrr@gmail.com'
     }
   ];
 
@@ -266,8 +266,12 @@
             const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
             keys.forEach(k => {
               if (Array.isArray(payload.batch[k])) {
+                let list = payload.batch[k];
+                if (k === 'contacts' && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
+                  list = DEFAULT_CONTACTS;
+                }
                 const localKey = REVERSE_KEY_MAPPING[k];
-                localStorage.setItem(localKey, JSON.stringify(payload.batch[k]));
+                localStorage.setItem(localKey, JSON.stringify(list));
               }
             });
             if (payload.batch.visibility && typeof payload.batch.visibility === 'object') {
@@ -406,8 +410,12 @@
           const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
           keys.forEach(k => {
             if (Array.isArray(fullJson[k])) {
+              let list = fullJson[k];
+              if (k === 'contacts' && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
+                list = DEFAULT_CONTACTS;
+              }
               const localKey = REVERSE_KEY_MAPPING[k];
-              localStorage.setItem(localKey, JSON.stringify(fullJson[k]));
+              localStorage.setItem(localKey, JSON.stringify(list));
             }
           });
           if (fullJson.visibility && typeof fullJson.visibility === 'object') {
@@ -740,7 +748,11 @@
           return;
         }
         if (data && Array.isArray(data[k])) {
-          localStorage.setItem(localKey, JSON.stringify(data[k]));
+          let list = data[k];
+          if (k === 'contacts' && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
+            list = DEFAULT_CONTACTS;
+          }
+          localStorage.setItem(localKey, JSON.stringify(list));
           updatedAny = true;
         }
       });
@@ -793,7 +805,16 @@
         localStorage.setItem(key, JSON.stringify(fallback));
         return fallback;
       }
-      return JSON.parse(val);
+      const parsed = JSON.parse(val);
+      // Auto-migrate legacy contact placeholders if still in localStorage
+      if (key === 'abhigraha_contacts' && Array.isArray(parsed)) {
+        const hasLegacyPlaceholder = parsed.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'));
+        if (hasLegacyPlaceholder) {
+          localStorage.setItem(key, JSON.stringify(fallback));
+          return fallback;
+        }
+      }
+      return parsed;
     } catch (e) {
       console.warn(`Failed to parse ${key}, falling back to defaults`, e);
       return fallback;
