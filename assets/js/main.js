@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Valid Page IDs
-  const validPages = ['home', 'events', 'schedule', 'team', 'crowns', 'merchandise', 'gallery', 'sponsors'];
+  const validPages = ['home', 'events', 'auditions', 'schedule', 'team', 'crowns', 'merchandise', 'gallery', 'sponsors', 'coming-soon'];
 
   /**
    * Navigate to a specific page view
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const regEventSelect = document.getElementById('reg-event-select');
   // Global Event delegation for Event Registration & Merchandise Modals / Google Forms
   document.addEventListener('click', (e) => {
-    const regBtn = e.target.closest('.event-register-btn');
+    const regBtn = e.target.closest('.event-register-btn, .audition-register-btn');
     if (regBtn) {
       e.preventDefault();
       const formUrl = regBtn.getAttribute('data-form-url');

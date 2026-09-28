@@ -59,6 +59,53 @@
     }
   ];
 
+  const DEFAULT_AUDITIONS = [
+    {
+      id: 'aud-1',
+      title: 'Nritya Vyuha - Dance & Choreography Auditions',
+      category: 'Dance',
+      tag: 'Flagship Showcase',
+      date: 'Pre-Fest Day | 11:00 AM - 02:00 PM',
+      venue: 'Amphitheatre Stage & Dance Studio',
+      criteria: 'Solo & Duet: 2 mins | Group: 4 mins. Bring tracks on a USB drive.',
+      desc: 'Screening for the official Abhigraha opening choreography, street flashmobs, and imperial stage feature showcases.',
+      formUrl: 'https://forms.gle/abhigraha2k26-dance-auditions'
+    },
+    {
+      id: 'aud-2',
+      title: 'Sur Sangam - Vocals & Instrumental Auditions',
+      category: 'Music',
+      tag: 'Star Clash',
+      date: 'Pre-Fest Day | 02:30 PM - 05:30 PM',
+      venue: 'Central Music Room & Sound Lab',
+      criteria: 'Acoustic / Western / Classical. Keyboards & standard amps provided on site.',
+      desc: 'Auditions for lead vocalists, backing harmonies, guitarists, and percussionists for festival headliner overtures.',
+      formUrl: 'https://forms.gle/abhigraha2k26-music-auditions'
+    },
+    {
+      id: 'aud-3',
+      title: 'Rangashetra - Drama & Street Play Auditions',
+      category: 'Drama',
+      tag: 'Theatrical Call',
+      date: 'Day 0 Screening | 01:00 PM - 03:30 PM',
+      venue: 'Open-Air Amphitheatre Arena',
+      criteria: 'Nukkad Natak & Mono-act screen tests. Dialogue delivery & expression focus.',
+      desc: 'Calling passionate actors, scriptwriters, and voice artists for thematic street plays and festival skits.',
+      formUrl: 'https://forms.gle/abhigraha2k26-drama-auditions'
+    },
+    {
+      id: 'aud-4',
+      title: 'Vaktrutva - Anchoring & Emcee Screening',
+      category: 'Anchoring',
+      tag: 'Stage Hosts',
+      date: 'Pre-Fest Day | 04:00 PM - 06:00 PM',
+      venue: 'Central Seminar Hall A',
+      criteria: 'Fluency in English & Hindi / Bengali. Prompt situational commentary test.',
+      desc: 'Official auditions for dynamic festival stage hosts, arena emcees, and live livestream commentary anchors.',
+      formUrl: 'https://forms.gle/abhigraha2k26-anchor-auditions'
+    }
+  ];
+
   const DEFAULT_SCHEDULE = [
     { id: 'sch-1', day: 'day1', time: '10:00 AM - 11:30 AM', title: 'Grand Inauguration & Lamp Lighting', venue: 'Central Auditorium | Welcome Address by Vice Chancellor' },
     { id: 'sch-2', day: 'day1', time: '05:00 PM - 08:30 PM', title: 'Sur Tarang Live Band War & Rock Night', venue: 'Main Ground Pavilion | Live Rock & Fusion Night' },
@@ -66,9 +113,9 @@
     { id: 'sch-4', day: 'day2', time: '07:00 PM - 10:00 PM', title: 'Celebrity DJ Night & Grand EDM Extravaganza', venue: 'Main Festival Grounds | Star EDM Finale' }
   ];
 
-  // Auto-align default datasets for clean initial display (2 events, 2 Day 1 activities, 2 Day 2 activities)
+  // Auto-align default datasets for clean initial display
   (function migrateDefaults() {
-    const DATASET_REV = 'rev_2evt_4sch_formurls_v2';
+    const DATASET_REV = 'rev_auditions_v1';
     if (localStorage.getItem('abhigraha_defaults_rev') !== DATASET_REV) {
       try {
         const existingEvts = JSON.parse(localStorage.getItem('abhigraha_events') || 'null');
@@ -80,6 +127,11 @@
             formUrl: e.formUrl || (DEFAULT_EVENTS[idx] ? DEFAULT_EVENTS[idx].formUrl : 'https://forms.gle/abhigraha2k26-registration')
           }));
           localStorage.setItem('abhigraha_events', JSON.stringify(enriched));
+        }
+
+        const existingAuds = JSON.parse(localStorage.getItem('abhigraha_auditions') || 'null');
+        if (!existingAuds || !Array.isArray(existingAuds) || existingAuds.length === 0) {
+          localStorage.setItem('abhigraha_auditions', JSON.stringify(DEFAULT_AUDITIONS));
         }
 
         const existingSch = JSON.parse(localStorage.getItem('abhigraha_schedule') || 'null');
@@ -189,6 +241,7 @@
   // ==========================================================================
   const KEY_MAPPING = {
     'abhigraha_events': 'events',
+    'abhigraha_auditions': 'auditions',
     'abhigraha_schedule': 'schedule',
     'abhigraha_crowns': 'crowns',
     'abhigraha_merchandise': 'merchandise',
@@ -199,6 +252,7 @@
 
   const REVERSE_KEY_MAPPING = {
     'events': 'abhigraha_events',
+    'auditions': 'abhigraha_auditions',
     'schedule': 'abhigraha_schedule',
     'crowns': 'abhigraha_crowns',
     'merchandise': 'abhigraha_merchandise',
@@ -263,7 +317,7 @@
 
           // If the broadcast payload includes the actual batch data, write it to localStorage immediately in 0ms!
           if (payload.batch && typeof payload.batch === 'object') {
-            const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
+            const keys = ['events', 'auditions', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
             keys.forEach(k => {
               if (Array.isArray(payload.batch[k])) {
                 let list = payload.batch[k];
@@ -407,7 +461,7 @@
           localStorage.setItem('abhigraha_last_updated', finalVersion);
 
           // Immediately load data into localStorage from response
-          const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
+          const keys = ['events', 'auditions', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
           keys.forEach(k => {
             if (Array.isArray(fullJson[k])) {
               let list = fullJson[k];
@@ -627,6 +681,7 @@
     try {
       const batch = {
         events: getEvents(),
+        auditions: getAuditions(),
         schedule: getSchedule(),
         crowns: getCrowns(),
         merchandise: getMerch(),
@@ -740,7 +795,7 @@
       }
 
       let updatedAny = false;
-      const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
+      const keys = ['events', 'auditions', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
       keys.forEach(k => {
         const localKey = REVERSE_KEY_MAPPING[k];
         // Do not overwrite local keys that have pending draft changes!
@@ -841,6 +896,7 @@
 
   const DEFAULT_VISIBILITY = {
     events_cs: false,
+    auditions_cs: false,
     schedule_cs: false,
     merchandise_cs: false,
     gallery_cs: false
@@ -855,6 +911,7 @@
   }
 
   function getEvents() { return loadData('abhigraha_events', DEFAULT_EVENTS); }
+  function getAuditions() { return loadData('abhigraha_auditions', DEFAULT_AUDITIONS); }
   function getSchedule() { return loadData('abhigraha_schedule', DEFAULT_SCHEDULE); }
   function getCrowns() { return loadData('abhigraha_crowns', DEFAULT_CROWNS); }
   function getMerch() { return loadData('abhigraha_merchandise', DEFAULT_MERCH); }
@@ -875,6 +932,7 @@
   // ==========================================================================
   function renderPublicContent() {
     renderPublicEvents();
+    renderPublicAuditions();
     renderPublicSchedule();
     renderPublicCrowns();
     renderPublicMerch();
@@ -965,6 +1023,99 @@
         const filter = btn.getAttribute('data-filter');
         liveEl.querySelectorAll('.event-card').forEach(card => {
           const cat = card.getAttribute('data-category');
+          if (filter === 'all' || cat === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  // Auditions Page
+  function renderPublicAuditions() {
+    const liveEl = document.getElementById('auditions-live-content');
+    const csEl = document.getElementById('auditions-cs-content');
+    if (!liveEl) return;
+
+    const vis = getVisibility();
+    if (vis.auditions_cs) {
+      liveEl.style.display = 'none';
+      if (csEl) csEl.style.display = 'block';
+      return;
+    }
+
+    liveEl.style.display = 'block';
+    if (csEl) csEl.style.display = 'none';
+
+    const auditions = getAuditions();
+
+    if (auditions.length === 0) {
+      liveEl.innerHTML = `
+        <div class="page-coming-soon-wrapper">
+          <div class="grand-coming-soon-tile">
+            <div class="coming-soon-emblem-large">🎭</div>
+            <h3 class="grand-coming-soon-title">Festival Auditions & Screenings <span>Coming Soon</span></h3>
+            <div class="grand-coming-soon-meta">
+              <span class="meta-pill">🎭 Dance, Music, Drama & Anchoring</span>
+              <span class="meta-pill">⚡ Offline & Online Screening Rounds</span>
+              <span class="meta-pill">👑 Direct Entry to Festival Stages</span>
+            </div>
+            <div class="grand-coming-soon-action">
+              <a href="#events" class="cta-btn-primary" style="text-decoration: none;">
+                ⚔️ Explore Events
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // Render Category Filter Bar + Auditions Grid
+    const categories = ['all', ...new Set(auditions.map(a => a.category || 'General'))];
+    let filterHtml = '<div class="event-filter-bar">';
+    categories.forEach((cat, idx) => {
+      const activeClass = idx === 0 ? 'active' : '';
+      const label = cat === 'all' ? 'All Auditions' : cat;
+      filterHtml += `<button class="filter-btn ${activeClass}" data-aud-filter="${cat.toLowerCase()}">${label}</button>`;
+    });
+    filterHtml += '</div>';
+
+    let gridHtml = '<div class="auditions-grid">';
+    auditions.forEach(aud => {
+      gridHtml += `
+        <div class="audition-card" data-aud-category="${(aud.category || 'all').toLowerCase()}">
+          <div class="audition-badge-row">
+            <span class="audition-tag">${escapeHtml(aud.tag || aud.category || 'Audition')}</span>
+            <span class="audition-category-badge">🎭 ${escapeHtml(aud.category || 'Talent')}</span>
+          </div>
+          <h3 class="audition-title">${escapeHtml(aud.title)}</h3>
+          <p class="audition-desc">${escapeHtml(aud.desc)}</p>
+          ${aud.criteria ? `<div class="audition-criteria-box"><strong>✦ Screening Note:</strong> ${escapeHtml(aud.criteria)}</div>` : ''}
+          <div class="audition-meta">
+            <span class="audition-meta-item">📍 ${escapeHtml(aud.venue || 'Campus Studio')}</span>
+            <span class="audition-meta-item">⏰ ${escapeHtml(aud.date || 'Pre-Fest Call')}</span>
+          </div>
+          <button class="audition-register-btn" data-event="Audition: ${escapeHtml(aud.title)}" data-form-url="${escapeHtml(aud.formUrl || '')}">
+            ⚡ Apply for Audition
+          </button>
+        </div>
+      `;
+    });
+    gridHtml += '</div>';
+
+    liveEl.innerHTML = filterHtml + gridHtml;
+
+    // Attach filter listeners
+    liveEl.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        liveEl.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.getAttribute('data-aud-filter');
+        liveEl.querySelectorAll('.audition-card').forEach(card => {
+          const cat = card.getAttribute('data-aud-category');
           if (filter === 'all' || cat === filter) {
             card.style.display = 'flex';
           } else {
@@ -1192,11 +1343,15 @@
 
     const currentVal = select.value;
     const events = getEvents();
+    const auditions = getAuditions();
     const crowns = getCrowns();
 
     let optionsHtml = '';
     events.forEach(e => {
       optionsHtml += `<option value="${e.title}">${e.title}</option>`;
+    });
+    auditions.forEach(a => {
+      optionsHtml += `<option value="Audition: ${a.title}">Audition: ${a.title}</option>`;
     });
     crowns.forEach(c => {
       const nom = c.regEvent || ('Nomination: ' + c.role);
@@ -1380,6 +1535,7 @@
 
     // Setup CRUD event handlers
     initEventsAdmin();
+    initAuditionsAdmin();
     initScheduleAdmin();
     initCrownsAdmin();
     initMerchAdmin();
@@ -1392,6 +1548,7 @@
     const vis = getVisibility();
     const configs = [
       { id: 'toggle-cs-events', key: 'events_cs' },
+      { id: 'toggle-cs-auditions', key: 'auditions_cs' },
       { id: 'toggle-cs-schedule', key: 'schedule_cs' },
       { id: 'toggle-cs-merchandise', key: 'merchandise_cs' },
       { id: 'toggle-cs-gallery', key: 'gallery_cs' }
@@ -1407,6 +1564,7 @@
   function initVisibilityToggles() {
     const configs = [
       { id: 'toggle-cs-events', key: 'events_cs', name: 'Events' },
+      { id: 'toggle-cs-auditions', key: 'auditions_cs', name: 'Auditions' },
       { id: 'toggle-cs-schedule', key: 'schedule_cs', name: 'Schedule' },
       { id: 'toggle-cs-merchandise', key: 'merchandise_cs', name: 'Merchandise' },
       { id: 'toggle-cs-gallery', key: 'gallery_cs', name: 'Gallery' }
@@ -1436,6 +1594,7 @@
 
   function renderAdminTabContent(tab) {
     if (tab === 'events') renderAdminEventsList();
+    else if (tab === 'auditions') renderAdminAuditionsList();
     else if (tab === 'schedule') renderAdminScheduleList();
     else if (tab === 'crowns') renderAdminCrownsList();
     else if (tab === 'merchandise') renderAdminMerchList();
@@ -1640,6 +1799,208 @@
           renderAdminEventsList();
           syncRegistrationDropdown();
           showToast('Event deleted.');
+        }
+      });
+    });
+  }
+
+  // ==========================================================================
+  // TAB: AUDITIONS MANAGEMENT (ADD, EDIT, REMOVE, REORDER)
+  // ==========================================================================
+  function initAuditionsAdmin() {
+    const addBtn = document.getElementById('admin-add-audition-btn');
+    const resetBtn = document.getElementById('admin-reset-auditions-btn');
+    const formPanel = document.getElementById('admin-audition-form-panel');
+    const form = document.getElementById('admin-audition-form');
+    const cancelBtn = document.getElementById('admin-audition-cancel-btn');
+
+    if (addBtn && formPanel) {
+      addBtn.addEventListener('click', () => {
+        form.reset();
+        document.getElementById('admin-audition-edit-id').value = '';
+        const formUrlInput = document.getElementById('admin-audition-form-url');
+        if (formUrlInput) formUrlInput.value = '';
+        document.getElementById('admin-audition-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Audition</span>`;
+        formPanel.style.display = 'block';
+        formPanel.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    if (cancelBtn && formPanel) {
+      cancelBtn.addEventListener('click', () => {
+        formPanel.style.display = 'none';
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (confirm('Reset all festival auditions back to official defaults?')) {
+          saveData('abhigraha_auditions', DEFAULT_AUDITIONS);
+          renderPublicAuditions();
+          renderAdminAuditionsList();
+          syncRegistrationDropdown();
+          showToast('Auditions reset to festival defaults.');
+        }
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('admin-audition-edit-id').value;
+        const title = document.getElementById('admin-audition-title').value.trim();
+        const category = document.getElementById('admin-audition-category').value.trim();
+        const date = document.getElementById('admin-audition-date').value.trim();
+        const venue = document.getElementById('admin-audition-venue').value.trim();
+        const tag = document.getElementById('admin-audition-tag').value.trim();
+        const criteria = document.getElementById('admin-audition-criteria').value.trim();
+        const formUrl = (document.getElementById('admin-audition-form-url')?.value || '').trim();
+        const desc = document.getElementById('admin-audition-desc').value.trim();
+
+        if (!title || !desc) {
+          alert('Please provide audition title and description.');
+          return;
+        }
+
+        const list = getAuditions();
+        if (editId) {
+          // Edit
+          const idx = list.findIndex(item => item.id === editId);
+          if (idx !== -1) {
+            list[idx] = { ...list[idx], title, category, date, venue, tag, criteria, desc, formUrl };
+          }
+          showToast(`Audition "${title}" updated!`);
+        } else {
+          // Add
+          const newId = 'aud-' + Date.now();
+          list.push({ id: newId, title, category, date, venue, tag, criteria, desc, formUrl });
+          showToast(`New Audition "${title}" added!`);
+        }
+
+        saveData('abhigraha_auditions', list);
+        formPanel.style.display = 'none';
+        renderPublicAuditions();
+        renderAdminAuditionsList();
+        syncRegistrationDropdown();
+      });
+    }
+  }
+
+  function renderAdminAuditionsList() {
+    const container = document.getElementById('admin-auditions-list');
+    const countEl = document.getElementById('admin-auditions-count');
+    if (!container) return;
+
+    const list = getAuditions();
+    if (countEl) countEl.textContent = `${list.length} Auditions`;
+
+    if (list.length === 0) {
+      container.innerHTML = '<p style="color:#a38c94; text-align:center; padding:16px;">No auditions present. Public page is displaying Coming Soon mode.</p>';
+      return;
+    }
+
+    container.innerHTML = list.map((aud, idx) => `
+      <div class="admin-item-card">
+        <div class="admin-item-order-corner">
+          <button type="button" class="btn-order-circle" data-order-up-aud="${aud.id}" title="Move Up in Website Order" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveUp}
+          </button>
+          <button type="button" class="btn-order-circle" data-order-down-aud="${aud.id}" title="Move Down in Website Order" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveDown}
+          </button>
+        </div>
+        <div class="admin-item-main">
+          <div class="admin-item-title">
+            <span class="admin-order-badge">#${idx + 1}</span>
+            <span>${escapeHtml(aud.title)}</span>
+            <span class="admin-topbar-badge">${escapeHtml(aud.category || 'Talent')}</span>
+            <span style="font-size:0.75rem; color:#f59e0b;">🎭 ${escapeHtml(aud.tag || '')}</span>
+          </div>
+          <div class="admin-item-meta">
+            📍 ${escapeHtml(aud.venue || 'Campus Studio')} &nbsp;|&nbsp; ⏰ ${escapeHtml(aud.date || 'Pre-Fest Call')} &nbsp;|&nbsp; Note: ${escapeHtml(aud.criteria || '-')}
+            ${aud.formUrl ? ` &nbsp;|&nbsp; <a href="${escapeHtml(aud.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Form Link</a>` : ''}
+          </div>
+        </div>
+        <div class="admin-item-actions">
+          <button class="btn-action-edit" data-edit-aud="${aud.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+          <button class="btn-action-delete" data-del-aud="${aud.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
+        </div>
+      </div>
+    `).join('');
+
+    // Attach Reorder Listeners
+    container.querySelectorAll('[data-order-up-aud]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-up-aud');
+        const auds = getAuditions();
+        const idx = auds.findIndex(e => e.id === id);
+        if (idx > 0) {
+          const temp = auds[idx];
+          auds[idx] = auds[idx - 1];
+          auds[idx - 1] = temp;
+          saveData('abhigraha_auditions', auds);
+          renderPublicAuditions();
+          renderAdminAuditionsList();
+          syncRegistrationDropdown();
+          showToast(`Audition "${temp.title}" moved up to #${idx}.`);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-order-down-aud]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-order-down-aud');
+        const auds = getAuditions();
+        const idx = auds.findIndex(e => e.id === id);
+        if (idx !== -1 && idx < auds.length - 1) {
+          const temp = auds[idx];
+          auds[idx] = auds[idx + 1];
+          auds[idx + 1] = temp;
+          saveData('abhigraha_auditions', auds);
+          renderPublicAuditions();
+          renderAdminAuditionsList();
+          syncRegistrationDropdown();
+          showToast(`Audition "${temp.title}" moved down to #${idx + 2}.`);
+        }
+      });
+    });
+
+    // Attach Edit & Delete Listeners
+    container.querySelectorAll('[data-edit-aud]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-edit-aud');
+        const aud = getAuditions().find(i => i.id === id);
+        if (!aud) return;
+
+        const formPanel = document.getElementById('admin-audition-form-panel');
+        document.getElementById('admin-audition-edit-id').value = aud.id;
+        document.getElementById('admin-audition-title').value = aud.title;
+        document.getElementById('admin-audition-category').value = aud.category || 'Dance';
+        document.getElementById('admin-audition-date').value = aud.date || '';
+        document.getElementById('admin-audition-venue').value = aud.venue || '';
+        document.getElementById('admin-audition-tag').value = aud.tag || '';
+        document.getElementById('admin-audition-criteria').value = aud.criteria || '';
+        const formUrlInput = document.getElementById('admin-audition-form-url');
+        if (formUrlInput) formUrlInput.value = aud.formUrl || '';
+        document.getElementById('admin-audition-desc').value = aud.desc || '';
+        document.getElementById('admin-audition-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Audition: ${escapeHtml(aud.title)}</span>`;
+
+        formPanel.style.display = 'block';
+        formPanel.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    container.querySelectorAll('[data-del-aud]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-del-aud');
+        const aud = getAuditions().find(i => i.id === id);
+        if (confirm(`Are you sure you want to remove audition "${aud ? aud.title : id}"?`)) {
+          const updated = getAuditions().filter(i => i.id !== id);
+          saveData('abhigraha_auditions', updated);
+          renderPublicAuditions();
+          renderAdminAuditionsList();
+          syncRegistrationDropdown();
+          showToast('Audition deleted.');
         }
       });
     });
