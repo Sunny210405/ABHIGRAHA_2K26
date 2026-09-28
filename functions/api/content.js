@@ -7,7 +7,7 @@
 // SHA-256 digest of the authorized admin access key
 const AUTH_HASH = '3ecc739cabde3ed0a536a0bc899959e01e17c2c96499cdfc2397d00addea3d59';
 
-const ALLOWED_KEYS = ['events', 'auditions', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'contacts', 'last_updated', 'festival_data'];
+const ALLOWED_KEYS = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'contacts', 'last_updated', 'festival_data'];
 
 // Helper to compute SHA-256 in Cloudflare Workers environment
 async function computeSha256(str) {
@@ -119,7 +119,7 @@ export async function onRequestGet(context) {
     }
 
     // Fallback: Read individual keys in parallel
-    const individualKeys = ['events', 'auditions', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'contacts', 'last_updated'];
+    const individualKeys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'visibility', 'contacts', 'last_updated'];
     const entries = await Promise.all(
       individualKeys.map(async (k) => {
         const raw = await env.FESTIVAL_KV.get(k);
