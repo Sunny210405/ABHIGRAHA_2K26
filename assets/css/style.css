@@ -1200,7 +1200,8 @@ body {
   gap: 6px;
 }
 
-.event-register-btn {
+.event-register-btn,
+.event-schedule-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1216,12 +1217,15 @@ body {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
+  text-decoration: none;
   transition: all var(--transition-smooth);
 }
 
-.event-register-btn:hover {
+.event-register-btn:hover,
+.event-schedule-btn:hover {
   background: var(--color-crimson-primary);
   box-shadow: 0 4px 18px var(--color-crimson-glow);
+  color: #fff;
 }
 
 /* Event Coming Soon Card (Theme-aligned Mystery & Star Arena Tile) */

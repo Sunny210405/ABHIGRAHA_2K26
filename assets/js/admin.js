@@ -39,23 +39,17 @@
       id: 'evt-1',
       title: 'Nrityotsav - Dance Battle',
       category: 'Cultural',
-      prize: '₹15,000 + Trophy',
-      tag: 'Flagship',
       desc: 'Eastern and Western solo & group dance choreography clash on the imperial amphitheatre stage.',
       venue: 'Amphitheatre Stage',
-      time: 'Day 1 | 02:00 PM',
-      formUrl: 'https://forms.gle/abhigraha2k26-nrityotsav'
+      time: 'Day 1 | 02:00 PM'
     },
     {
       id: 'evt-2',
       title: 'Sur Tarang - Battle of Bands',
       category: 'Cultural',
-      prize: '₹20,000 + Trophy',
-      tag: 'Star Clash',
       desc: 'High-voltage live rock and fusion band showdown featuring collegiate bands across the region.',
       venue: 'Main Ground Pavilion',
-      time: 'Day 1 | 05:00 PM',
-      formUrl: 'https://forms.gle/abhigraha2k26-surtarang'
+      time: 'Day 1 | 05:00 PM'
     }
   ];
 
@@ -937,19 +931,15 @@
     events.forEach(evt => {
       gridHtml += `
         <div class="event-card" data-category="${(evt.category || 'all').toLowerCase()}">
-          <div class="event-badge-row">
-            <span class="event-tag">${evt.tag || evt.category || 'Event'}</span>
-            <span class="event-prize">🏆 ${evt.prize || 'Prizes & Citations'}</span>
-          </div>
-          <h3 class="event-title">${evt.title}</h3>
-          <p class="event-desc">${evt.desc}</p>
+          <h3 class="event-title">${escapeHtml(evt.title)}</h3>
+          <p class="event-desc">${escapeHtml(evt.desc)}</p>
           <div class="event-meta">
-            <span class="event-meta-item">📍 ${evt.venue || 'Campus Stage'}</span>
-            <span class="event-meta-item">⏰ ${evt.time || 'Festival Days'}</span>
+            <span class="event-meta-item">📍 ${escapeHtml(evt.venue || 'Campus Stage')}</span>
+            <span class="event-meta-item">⏰ ${escapeHtml(evt.time || 'Festival Days')}</span>
           </div>
-          <button class="event-register-btn" data-event="${escapeHtml(evt.title)}" data-form-url="${escapeHtml(evt.formUrl || '')}">
-            ⚡ Register Now
-          </button>
+          <a href="#schedule" class="event-schedule-btn">
+            📅 View Schedule
+          </a>
         </div>
       `;
     });
@@ -1457,8 +1447,6 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-event-edit-id').value = '';
-        const formUrlInput = document.getElementById('admin-event-form-url');
-        if (formUrlInput) formUrlInput.value = '';
         document.getElementById('admin-event-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Event</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
@@ -1489,11 +1477,8 @@
         const editId = document.getElementById('admin-event-edit-id').value;
         const title = document.getElementById('admin-event-title').value.trim();
         const category = document.getElementById('admin-event-category').value.trim();
-        const prize = document.getElementById('admin-event-prize').value.trim();
-        const tag = document.getElementById('admin-event-tag').value.trim();
         const venue = document.getElementById('admin-event-venue').value.trim();
         const time = document.getElementById('admin-event-time').value.trim();
-        const formUrl = (document.getElementById('admin-event-form-url')?.value || '').trim();
         const desc = document.getElementById('admin-event-desc').value.trim();
 
         if (!title || !desc) {
@@ -1506,13 +1491,13 @@
           // Edit
           const idx = list.findIndex(item => item.id === editId);
           if (idx !== -1) {
-            list[idx] = { ...list[idx], title, category, prize, tag, venue, time, desc, formUrl };
+            list[idx] = { ...list[idx], title, category, venue, time, desc };
           }
           showToast(`Event "${title}" updated!`);
         } else {
           // Add
           const newId = 'evt-' + Date.now();
-          list.push({ id: newId, title, category, prize, tag, venue, time, desc, formUrl });
+          list.push({ id: newId, title, category, venue, time, desc });
           showToast(`New Event "${title}" added!`);
         }
 
@@ -1553,11 +1538,9 @@
             <span class="admin-order-badge">#${idx + 1}</span>
             <span>${escapeHtml(evt.title)}</span>
             <span class="admin-topbar-badge">${escapeHtml(evt.category || 'General')}</span>
-            <span style="font-size:0.75rem; color:#f59e0b;">🏆 ${escapeHtml(evt.prize || '')}</span>
           </div>
           <div class="admin-item-meta">
-            📍 ${escapeHtml(evt.venue || 'Campus Arena')} &nbsp;|&nbsp; ⏰ ${escapeHtml(evt.time || 'Schedule Tab')} &nbsp;|&nbsp; Tag: ${escapeHtml(evt.tag || '-')}
-            ${evt.formUrl ? ` &nbsp;|&nbsp; <a href="${escapeHtml(evt.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Form Link</a>` : ''}
+            📍 ${escapeHtml(evt.venue || 'Campus Arena')} &nbsp;|&nbsp; ⏰ ${escapeHtml(evt.time || 'Schedule Tab')}
           </div>
         </div>
         <div class="admin-item-actions">
@@ -1615,12 +1598,8 @@
         document.getElementById('admin-event-edit-id').value = evt.id;
         document.getElementById('admin-event-title').value = evt.title;
         document.getElementById('admin-event-category').value = evt.category || 'Cultural';
-        document.getElementById('admin-event-prize').value = evt.prize || '';
-        document.getElementById('admin-event-tag').value = evt.tag || '';
         document.getElementById('admin-event-venue').value = evt.venue || '';
         document.getElementById('admin-event-time').value = evt.time || '';
-        const formUrlInput = document.getElementById('admin-event-form-url');
-        if (formUrlInput) formUrlInput.value = evt.formUrl || '';
         document.getElementById('admin-event-desc').value = evt.desc || '';
         document.getElementById('admin-event-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Event: ${escapeHtml(evt.title)}</span>`;
 
