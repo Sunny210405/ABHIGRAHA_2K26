@@ -1752,7 +1752,7 @@
       const dayIdx = dayList.findIndex(i => i.id === item.id);
       const isFirstInDay = dayIdx === 0;
       const isLastInDay = dayIdx === dayList.length - 1;
-      const dayLabel = isDay1 ? 'Flash Mob' : 'Abhigraha';
+      const dayLabel = isDay1 ? 'Day 1: Flash Mob' : 'Day 2: Abhigraha';
 
       return `
         <div class="admin-item-card" data-schedule-id="${item.id}">
@@ -1804,7 +1804,7 @@
           saveData('abhigraha_schedule', schList);
           renderPublicSchedule();
           renderAdminScheduleList();
-          showToast(`Activity "${temp.title}" moved up to #${dayIdx} in ${item.day === 'day1' ? 'Flash Mob' : 'Abhigraha'}.`);
+          showToast(`Activity "${temp.title}" moved up to #${dayIdx} in ${item.day === 'day1' ? 'Day 1: Flash Mob' : 'Day 2: Abhigraha'}.`);
         }
       });
     });
@@ -1829,7 +1829,7 @@
           saveData('abhigraha_schedule', schList);
           renderPublicSchedule();
           renderAdminScheduleList();
-          showToast(`Activity "${temp.title}" moved down to #${dayIdx + 2} in ${item.day === 'day1' ? 'Flash Mob' : 'Abhigraha'}.`);
+          showToast(`Activity "${temp.title}" moved down to #${dayIdx + 2} in ${item.day === 'day1' ? 'Day 1: Flash Mob' : 'Day 2: Abhigraha'}.`);
         }
       });
     });
