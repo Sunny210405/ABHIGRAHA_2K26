@@ -107,20 +107,14 @@
     {
       id: 'crw-1',
       role: 'Mr. Freshers 2K26',
-      title: 'The Dragon King',
-      icon: '🤴',
-      criteria: '✦ Round 1: Ethnic & Theme Runway Walk\n✦ Round 2: On-stage Talent Showcase\n✦ Round 3: Wit, Intellect & Judges Q&A\n✦ Live Audience Popular Choice Voting',
-      regEvent: 'Nomination: Mr. Freshers 2K26',
-      formUrl: 'https://forms.gle/abhigraha2k26-mrfreshers'
+      name: '',
+      imageUrl: ''
     },
     {
       id: 'crw-2',
       role: 'Ms. Freshers 2K26',
-      title: 'The Imperial Empress',
-      icon: '👸',
-      criteria: '✦ Round 1: Oriental Fusion Fashion Runway\n✦ Round 2: Individual Performance & Passion\n✦ Round 3: Wit, Spontaneity & Final Pitch\n✦ Live Audience Popular Choice Voting',
-      regEvent: 'Nomination: Ms. Freshers 2K26',
-      formUrl: 'https://forms.gle/abhigraha2k26-msfreshers'
+      name: '',
+      imageUrl: ''
     }
   ];
 
@@ -1015,28 +1009,28 @@
 
     const crowns = getCrowns();
     if (crowns.length === 0) {
-      container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color: #a38c94;">Crowns nominations will be revealed shortly.</p>';
+      container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color: #a38c94;">Crowns titles will be revealed shortly.</p>';
       return;
     }
 
     container.innerHTML = crowns.map(c => {
-      const criteriaList = (c.criteria || '')
-        .split('\n')
-        .filter(line => line.trim())
-        .map(line => `<li><i>✦</i> ${line.replace(/^✦\s*/, '')}</li>`)
-        .join('');
+      const img = (c.imageUrl || '').trim();
+      const avatarHtml = img
+        ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(c.role)}" class="crown-avatar-img" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+           <div class="crown-avatar-placeholder" style="display:none;">👑</div>`
+        : `<div class="crown-avatar-placeholder">👑</div>`;
+
+      const nameHtml = (c.name || '').trim()
+        ? `<p class="crown-fresher-name">${escapeHtml(c.name.trim())}</p>`
+        : '';
 
       return `
         <div class="crown-card">
-          <div class="crown-icon">${c.icon || '👑'}</div>
-          <h3 class="crown-role">${c.role}</h3>
-          <p style="color: #ffd899; font-weight: 600;">${c.title}</p>
-          <ul class="crown-criteria">
-            ${criteriaList}
-          </ul>
-          <button class="cta-btn-primary event-register-btn" data-event="${escapeHtml(c.regEvent || ('Nomination: ' + c.role))}" data-form-url="${escapeHtml(c.formUrl || '')}" style="margin-top: 10px;">
-            Nominate for ${escapeHtml(c.role.split(' ')[0])}
-          </button>
+          <div class="crown-avatar-frame">
+            ${avatarHtml}
+          </div>
+          <h3 class="crown-role">${escapeHtml(c.role)}</h3>
+          ${nameHtml}
         </div>
       `;
     }).join('');
@@ -1715,7 +1709,7 @@
       const dayIdx = dayList.findIndex(i => i.id === item.id);
       const isFirstInDay = dayIdx === 0;
       const isLastInDay = dayIdx === dayList.length - 1;
-      const dayLabel = isDay1 ? 'Day 1' : 'Day 2';
+      const dayLabel = isDay1 ? 'Flash Mob' : 'Abhigraha';
 
       return `
         <div class="admin-item-card" data-schedule-id="${item.id}">
@@ -1767,7 +1761,7 @@
           saveData('abhigraha_schedule', schList);
           renderPublicSchedule();
           renderAdminScheduleList();
-          showToast(`Activity "${temp.title}" moved up to #${dayIdx} in ${item.day === 'day1' ? 'Day 1' : 'Day 2'}.`);
+          showToast(`Activity "${temp.title}" moved up to #${dayIdx} in ${item.day === 'day1' ? 'Flash Mob' : 'Abhigraha'}.`);
         }
       });
     });
@@ -1792,7 +1786,7 @@
           saveData('abhigraha_schedule', schList);
           renderPublicSchedule();
           renderAdminScheduleList();
-          showToast(`Activity "${temp.title}" moved down to #${dayIdx + 2} in ${item.day === 'day1' ? 'Day 1' : 'Day 2'}.`);
+          showToast(`Activity "${temp.title}" moved down to #${dayIdx + 2} in ${item.day === 'day1' ? 'Flash Mob' : 'Abhigraha'}.`);
         }
       });
     });
@@ -1877,24 +1871,21 @@
         e.preventDefault();
         const editId = document.getElementById('admin-crown-edit-id').value;
         const role = document.getElementById('admin-crown-role').value.trim();
-        const title = document.getElementById('admin-crown-title').value.trim();
-        const icon = document.getElementById('admin-crown-icon').value.trim() || '👑';
-        const criteria = document.getElementById('admin-crown-criteria').value.trim();
-        const regEvent = document.getElementById('admin-crown-regevent').value.trim() || ('Nomination: ' + role);
-        const formUrl = (document.getElementById('admin-crown-form-url')?.value || '').trim();
+        const name = (document.getElementById('admin-crown-name')?.value || '').trim();
+        const imageUrl = (document.getElementById('admin-crown-image')?.value || '').trim();
 
-        if (!role || !title) {
-          alert('Please enter Role and Theme Title.');
+        if (!role) {
+          alert('Please enter the Award Role.');
           return;
         }
 
         const list = getCrowns();
         if (editId) {
           const idx = list.findIndex(i => i.id === editId);
-          if (idx !== -1) list[idx] = { id: editId, role, title, icon, criteria, regEvent, formUrl };
+          if (idx !== -1) list[idx] = { id: editId, role, name, imageUrl };
           showToast(`Crown "${role}" updated!`);
         } else {
-          list.push({ id: 'crw-' + Date.now(), role, title, icon, criteria, regEvent, formUrl });
+          list.push({ id: 'crw-' + Date.now(), role, name, imageUrl });
           showToast(`Crown "${role}" added!`);
         }
 
@@ -1933,13 +1924,14 @@
         <div class="admin-item-main">
           <div class="admin-item-title">
             <span class="admin-order-badge">#${idx + 1}</span>
-            <span style="font-size:1.3rem;">${c.icon}</span>
-            <span>${c.role}</span>
-            <span style="color:#ffd899; font-weight:600;">(${c.title})</span>
+            <span style="display:inline-block; width:28px; height:28px; border-radius:50%; overflow:hidden; vertical-align:middle; border:1px solid #f59e0b; background:#1a0b11;">
+              ${c.imageUrl ? `<img src="${escapeHtml(c.imageUrl)}" style="width:100%; height:100%; object-fit:cover;">` : '<span style="display:flex; width:100%; height:100%; align-items:center; justify-content:center; font-size:14px;">👑</span>'}
+            </span>
+            <span>${escapeHtml(c.role)}</span>
+            ${c.name ? `<span style="color:#ffd899; font-weight:600;">(${escapeHtml(c.name)})</span>` : ''}
           </div>
           <div class="admin-item-meta">
-            Registration Nomination: ${c.regEvent}
-            ${c.formUrl ? ` &nbsp;|&nbsp; <a href="${escapeHtml(c.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Nomination Form</a>` : ''}
+            ${c.imageUrl ? `<a href="${escapeHtml(c.imageUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🖼️ Photo Link</a>` : '<span style="color:#888;">No photo uploaded</span>'}
           </div>
         </div>
         <div class="admin-item-actions">
@@ -1994,12 +1986,10 @@
         const formPanel = document.getElementById('admin-crown-form-panel');
         document.getElementById('admin-crown-edit-id').value = c.id;
         document.getElementById('admin-crown-role').value = c.role;
-        document.getElementById('admin-crown-title').value = c.title;
-        document.getElementById('admin-crown-icon').value = c.icon;
-        document.getElementById('admin-crown-criteria').value = c.criteria;
-        document.getElementById('admin-crown-regevent').value = c.regEvent || '';
-        const formUrlInput = document.getElementById('admin-crown-form-url');
-        if (formUrlInput) formUrlInput.value = c.formUrl || '';
+        const nameInput = document.getElementById('admin-crown-name');
+        if (nameInput) nameInput.value = c.name || '';
+        const imgInput = document.getElementById('admin-crown-image');
+        if (imgInput) imgInput.value = c.imageUrl || '';
         document.getElementById('admin-crown-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Crown: ${escapeHtml(c.role)}</span>`;
 
         formPanel.style.display = 'block';
