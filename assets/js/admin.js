@@ -108,12 +108,14 @@
       id: 'crw-1',
       role: 'Mr. Freshers 2K26',
       name: '',
+      dept: '',
       imageUrl: ''
     },
     {
       id: 'crw-2',
       role: 'Ms. Freshers 2K26',
       name: '',
+      dept: '',
       imageUrl: ''
     }
   ];
@@ -1008,21 +1010,51 @@
     if (!container) return;
 
     const crowns = getCrowns();
-    if (crowns.length === 0) {
-      container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color: #a38c94;">Crowns titles will be revealed shortly.</p>';
+
+    // Check if any fresher winner details have been entered
+    const hasAnnounced = crowns.some(c => (c.name || '').trim() || (c.imageUrl || '').trim());
+
+    if (!hasAnnounced) {
+      container.innerHTML = `
+        <div class="page-coming-soon-wrapper" style="grid-column: 1 / -1; width: 100%;">
+          <div class="grand-coming-soon-tile">
+            <div class="coming-soon-emblem-large">👑</div>
+            <h3 class="grand-coming-soon-title">Mr. &amp; Ms. Freshers CROWNS <span>Announcing Soon</span></h3>
+            <div class="grand-coming-soon-meta">
+              <span class="meta-pill">🤴 Mr. Freshers 2K26</span>
+              <span class="meta-pill">👸 Ms. Freshers 2K26</span>
+              <span class="meta-pill">✨ Grand Coronation Ceremony</span>
+            </div>
+            <div class="grand-coming-soon-action">
+              <a href="#schedule" class="cta-btn-primary" style="text-decoration: none;">
+                📅 Explore Schedule
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
       return;
     }
 
     container.innerHTML = crowns.map(c => {
       const img = (c.imageUrl || '').trim();
+      const name = (c.name || '').trim();
+      const dept = (c.dept || '').trim();
+
       const avatarHtml = img
         ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(c.role)}" class="crown-avatar-img" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
            <div class="crown-avatar-placeholder" style="display:none;">👑</div>`
         : `<div class="crown-avatar-placeholder">👑</div>`;
 
-      const nameHtml = (c.name || '').trim()
-        ? `<p class="crown-fresher-name">${escapeHtml(c.name.trim())}</p>`
-        : '';
+      let detailHtml = '';
+      if (!name) {
+        detailHtml = `<p class="crown-announcing-soon">Announcing Soon</p>`;
+      } else {
+        detailHtml = `<p class="crown-fresher-name">${escapeHtml(name)}</p>`;
+        if (dept) {
+          detailHtml += `<div class="crown-dept-badge">${escapeHtml(dept)}</div>`;
+        }
+      }
 
       return `
         <div class="crown-card">
@@ -1030,7 +1062,7 @@
             ${avatarHtml}
           </div>
           <h3 class="crown-role">${escapeHtml(c.role)}</h3>
-          ${nameHtml}
+          ${detailHtml}
         </div>
       `;
     }).join('');
@@ -1872,6 +1904,7 @@
         const editId = document.getElementById('admin-crown-edit-id').value;
         const role = document.getElementById('admin-crown-role').value.trim();
         const name = (document.getElementById('admin-crown-name')?.value || '').trim();
+        const dept = (document.getElementById('admin-crown-dept')?.value || '').trim();
         const imageUrl = (document.getElementById('admin-crown-image')?.value || '').trim();
 
         if (!role) {
@@ -1882,10 +1915,10 @@
         const list = getCrowns();
         if (editId) {
           const idx = list.findIndex(i => i.id === editId);
-          if (idx !== -1) list[idx] = { id: editId, role, name, imageUrl };
+          if (idx !== -1) list[idx] = { id: editId, role, name, dept, imageUrl };
           showToast(`Crown "${role}" updated!`);
         } else {
-          list.push({ id: 'crw-' + Date.now(), role, name, imageUrl });
+          list.push({ id: 'crw-' + Date.now(), role, name, dept, imageUrl });
           showToast(`Crown "${role}" added!`);
         }
 
@@ -1924,14 +1957,15 @@
         <div class="admin-item-main">
           <div class="admin-item-title">
             <span class="admin-order-badge">#${idx + 1}</span>
-            <span style="display:inline-block; width:28px; height:28px; border-radius:50%; overflow:hidden; vertical-align:middle; border:1px solid #f59e0b; background:#1a0b11;">
+            <span style="display:inline-block; width:30px; height:30px; border-radius:50%; overflow:hidden; vertical-align:middle; border:1.5px solid #f59e0b; background:#1a0b11;">
               ${c.imageUrl ? `<img src="${escapeHtml(c.imageUrl)}" style="width:100%; height:100%; object-fit:cover;">` : '<span style="display:flex; width:100%; height:100%; align-items:center; justify-content:center; font-size:14px;">👑</span>'}
             </span>
             <span>${escapeHtml(c.role)}</span>
-            ${c.name ? `<span style="color:#ffd899; font-weight:600;">(${escapeHtml(c.name)})</span>` : ''}
+            ${c.name ? `<span style="color:#ffd899; font-weight:600;">(${escapeHtml(c.name)})</span>` : '<span style="color:#fbbf24; font-size:0.8rem; font-weight:600;">[Announcing Soon]</span>'}
+            ${c.dept ? `<span class="admin-topbar-badge" style="font-size:0.75rem; text-transform:uppercase;">${escapeHtml(c.dept)}</span>` : ''}
           </div>
           <div class="admin-item-meta">
-            ${c.imageUrl ? `<a href="${escapeHtml(c.imageUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🖼️ Photo Link</a>` : '<span style="color:#888;">No photo uploaded</span>'}
+            ${c.dept ? `Dept: <strong>${escapeHtml(c.dept)}</strong> &nbsp;|&nbsp; ` : ''}${c.imageUrl ? `<a href="${escapeHtml(c.imageUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🖼️ Photo Link</a>` : '<span style="color:#888;">No photo uploaded</span>'}
           </div>
         </div>
         <div class="admin-item-actions">
@@ -1985,9 +2019,11 @@
 
         const formPanel = document.getElementById('admin-crown-form-panel');
         document.getElementById('admin-crown-edit-id').value = c.id;
-        document.getElementById('admin-crown-role').value = c.role;
+        document.getElementById('admin-crown-role').value = c.role || '';
         const nameInput = document.getElementById('admin-crown-name');
         if (nameInput) nameInput.value = c.name || '';
+        const deptInput = document.getElementById('admin-crown-dept');
+        if (deptInput) deptInput.value = c.dept || '';
         const imgInput = document.getElementById('admin-crown-image');
         if (imgInput) imgInput.value = c.imageUrl || '';
         document.getElementById('admin-crown-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Crown: ${escapeHtml(c.role)}</span>`;

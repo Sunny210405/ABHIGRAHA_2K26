@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=103">
+  <link rel="stylesheet" href="./assets/css/style.css?v=105">
 </head>
 <body>
 
@@ -574,18 +574,21 @@
           <h2 class="section-title">Crowns of <span>2K26</span></h2>
 
           <div class="crowns-grid" id="crowns-container">
-            <div class="crown-card">
-              <div class="crown-avatar-frame">
-                <div class="crown-avatar-placeholder">👑</div>
+            <div class="page-coming-soon-wrapper" style="grid-column: 1 / -1; width: 100%;">
+              <div class="grand-coming-soon-tile">
+                <div class="coming-soon-emblem-large">👑</div>
+                <h3 class="grand-coming-soon-title">Mr. &amp; Ms. Freshers CROWNS <span>Announcing Soon</span></h3>
+                <div class="grand-coming-soon-meta">
+                  <span class="meta-pill">🤴 Mr. Freshers 2K26</span>
+                  <span class="meta-pill">👸 Ms. Freshers 2K26</span>
+                  <span class="meta-pill">✨ Grand Coronation Ceremony</span>
+                </div>
+                <div class="grand-coming-soon-action">
+                  <a href="#schedule" class="cta-btn-primary" style="text-decoration: none;">
+                    📅 Explore Schedule
+                  </a>
+                </div>
               </div>
-              <h3 class="crown-role">Mr. Freshers 2K26</h3>
-            </div>
-
-            <div class="crown-card">
-              <div class="crown-avatar-frame">
-                <div class="crown-avatar-placeholder">👑</div>
-              </div>
-              <h3 class="crown-role">Ms. Freshers 2K26</h3>
             </div>
           </div>
         </div>
@@ -1216,13 +1219,17 @@
                   <input type="text" class="form-input" id="admin-crown-role" placeholder="e.g. Mr. Freshers 2K26" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Fresher Name (Optional)</label>
-                  <input type="text" class="form-input" id="admin-crown-name" placeholder="e.g. Winner Name">
+                  <label class="form-label">Fresher Name (Leave blank if not announced)</label>
+                  <input type="text" class="form-input" id="admin-crown-name" placeholder="e.g. Rahul Sharma">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                  <label class="form-label">Department / Stream</label>
+                  <input type="text" class="form-input" id="admin-crown-dept" placeholder="e.g. Computer Science & Engineering">
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
                   <label class="form-label">Fresher Photo URL (Image Link)</label>
                   <input type="url" class="form-input" id="admin-crown-image" placeholder="https://i.ibb.co/... or https://ibb.co/...">
-                  <small style="color: #a38c94; font-size: 0.75rem; margin-top: 4px; display: block;">Paste hosted image link (e.g. imgbb). It will display inside a 1:1 circular framed portrait.</small>
+                  <small style="color: #a38c94; font-size: 0.75rem; margin-top: 4px; display: block;">Paste hosted image link (e.g. imgbb). Displays in enlarged 1:1 circular framed portrait.</small>
                 </div>
               </div>
               <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;">
@@ -1549,7 +1556,7 @@
 
   <!-- Core JavaScript Modules (No flying hearts/petals, clean and fast) -->
   <script src="./assets/js/countdown.js?v=2"></script>
-  <script src="./assets/js/admin.js?v=33"></script>
+  <script src="./assets/js/admin.js?v=35"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
   <script src="./assets/js/main.js?v=12"></script>
 
