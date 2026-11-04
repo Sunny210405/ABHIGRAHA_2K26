@@ -1758,14 +1758,14 @@ body {
   height: auto;
   object-fit: contain;
   border-radius: 14px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: none;
   display: block;
-  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  transition: transform var(--transition-smooth);
 }
 
 .merch-card:hover .merch-img-preview {
   transform: scale(1.04);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 16px var(--color-crimson-glow);
+  box-shadow: none;
 }
 
 .merch-icon-preview {
