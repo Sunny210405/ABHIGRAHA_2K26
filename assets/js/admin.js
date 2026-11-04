@@ -128,6 +128,7 @@
       tag: 'Popular',
       desc: 'Premium oriental embroidered heavyweight hoodie with gold foil dragon iconography.',
       icon: '👘',
+      imageUrl: '',
       formUrl: 'https://forms.gle/abhigraha2k26-hoodie'
     },
     {
@@ -137,6 +138,7 @@
       tag: 'Trending',
       desc: '100% bio-washed cotton tee with glowing lantern screenprint and TNU official event signature.',
       icon: '👕',
+      imageUrl: '',
       formUrl: 'https://forms.gle/abhigraha2k26-tshirt'
     },
     {
@@ -146,6 +148,7 @@
       tag: 'Limited',
       desc: 'Front-row arena entry for celebrity star night, LED festival wristband, and holographic souvenir badge.',
       icon: '🎟️',
+      imageUrl: '',
       formUrl: 'https://forms.gle/abhigraha2k26-vippass'
     }
   ];
@@ -1092,20 +1095,28 @@
       return;
     }
 
-    container.innerHTML = merch.map(m => `
-      <div class="merch-card">
-        <div class="merch-visual">
-          <span class="merch-icon-preview">${m.icon || '🛍️'}</span>
-          <span class="merch-tag">${m.tag || 'Official'}</span>
+    container.innerHTML = merch.map(m => {
+      const img = (m.imageUrl || '').trim();
+      const visualContent = img
+        ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(m.title)}" class="merch-img-preview" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';">
+           <span class="merch-icon-preview" style="display:none;">${m.icon || '🛍️'}</span>`
+        : `<span class="merch-icon-preview">${m.icon || '🛍️'}</span>`;
+
+      return `
+        <div class="merch-card">
+          <div class="merch-visual">
+            ${visualContent}
+            <span class="merch-tag">${escapeHtml(m.tag || 'Official')}</span>
+          </div>
+          <div class="merch-info">
+            <h4 class="merch-title">${escapeHtml(m.title)}</h4>
+            <div class="merch-price">${escapeHtml(m.price)}</div>
+            <p class="merch-desc">${escapeHtml(m.desc || '')}</p>
+            <button class="merch-btn" data-merch="${escapeHtml(m.title)} (${escapeHtml(m.price)})" data-form-url="${escapeHtml(m.formUrl || '')}">Pre-Order Now</button>
+          </div>
         </div>
-        <div class="merch-info">
-          <h4 class="merch-title">${m.title}</h4>
-          <div class="merch-price">${m.price}</div>
-          <p class="merch-desc">${m.desc}</p>
-          <button class="merch-btn" data-merch="${escapeHtml(m.title)} (${escapeHtml(m.price)})" data-form-url="${escapeHtml(m.formUrl || '')}">Pre-Order Now</button>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   // 5. Gallery Page
@@ -2063,6 +2074,8 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-merch-edit-id').value = '';
+        const imgInput = document.getElementById('admin-merch-image');
+        if (imgInput) imgInput.value = '';
         const formUrlInput = document.getElementById('admin-merch-form-url');
         if (formUrlInput) formUrlInput.value = '';
         document.getElementById('admin-merch-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Merchandise</span>`;
@@ -2096,6 +2109,7 @@
         const price = document.getElementById('admin-merch-price').value.trim();
         const tag = document.getElementById('admin-merch-tag').value.trim();
         const icon = document.getElementById('admin-merch-icon').value.trim() || '🛍️';
+        const imageUrl = (document.getElementById('admin-merch-image')?.value || '').trim();
         const formUrl = (document.getElementById('admin-merch-form-url')?.value || '').trim();
         const desc = document.getElementById('admin-merch-desc').value.trim();
 
@@ -2107,10 +2121,10 @@
         const list = getMerch();
         if (editId) {
           const idx = list.findIndex(i => i.id === editId);
-          if (idx !== -1) list[idx] = { id: editId, title, price, tag, icon, desc, formUrl };
+          if (idx !== -1) list[idx] = { id: editId, title, price, tag, icon, imageUrl, desc, formUrl };
           showToast(`Merchandise "${title}" updated!`);
         } else {
-          list.push({ id: 'mrc-' + Date.now(), title, price, tag, icon, desc, formUrl });
+          list.push({ id: 'mrc-' + Date.now(), title, price, tag, icon, imageUrl, desc, formUrl });
           showToast(`Merchandise "${title}" added!`);
         }
 
@@ -2148,14 +2162,17 @@
         <div class="admin-item-main">
           <div class="admin-item-title">
             <span class="admin-order-badge">#${idx + 1}</span>
-            <span style="font-size:1.3rem;">${m.icon}</span>
+            <span style="display:inline-block; width:34px; height:26px; border-radius:6px; overflow:hidden; vertical-align:middle; border:1px solid #f59e0b; background:#1a0b11; text-align:center;">
+              ${m.imageUrl ? `<img src="${escapeHtml(m.imageUrl)}" style="width:100%; height:100%; object-fit:contain;">` : `<span style="font-size:1.1rem; line-height:26px;">${m.icon || '🛍️'}</span>`}
+            </span>
             <span>${escapeHtml(m.title)}</span>
             <span class="admin-topbar-badge">${escapeHtml(m.price)}</span>
             <span style="font-size:0.75rem; color:#fde68a;">[${escapeHtml(m.tag || '-')}]</span>
           </div>
           <div class="admin-item-meta">
             ${escapeHtml(m.desc || '')}
-            ${m.formUrl ? `<div style="margin-top: 5px;"><a href="${escapeHtml(m.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Order Form: ${escapeHtml(m.formUrl)}</a></div>` : ''}
+            ${m.imageUrl ? `<div style="margin-top: 4px;"><a href="${escapeHtml(m.imageUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🖼️ Photo Link</a></div>` : ''}
+            ${m.formUrl ? `<div style="margin-top: 4px;"><a href="${escapeHtml(m.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Order Form: ${escapeHtml(m.formUrl)}</a></div>` : ''}
           </div>
         </div>
         <div class="admin-item-actions">
@@ -2211,6 +2228,8 @@
         document.getElementById('admin-merch-price').value = m.price;
         document.getElementById('admin-merch-tag').value = m.tag || '';
         document.getElementById('admin-merch-icon').value = m.icon || '🛍️';
+        const imgInput = document.getElementById('admin-merch-image');
+        if (imgInput) imgInput.value = m.imageUrl || '';
         const formUrlInput = document.getElementById('admin-merch-form-url');
         if (formUrlInput) formUrlInput.value = m.formUrl || '';
         document.getElementById('admin-merch-desc').value = m.desc || '';
