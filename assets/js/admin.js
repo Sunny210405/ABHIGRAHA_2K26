@@ -153,12 +153,29 @@
     }
   ];
 
-  const DEFAULT_GALLERY = [
-    { id: 'gal-1', type: 'img', src: './assets/images/logo-crest.webp', icon: '', bg: '', caption: 'The Imperial Dragon Gates of Abhigraha' },
-    { id: 'gal-2', type: 'emoji', src: '', icon: '🏮🏮🏮', bg: 'radial-gradient(circle, #3b0914, #0b0306)', caption: 'Illuminated Temple Lanterns Night' },
-    { id: 'gal-3', type: 'emoji', src: '', icon: '🎸🔥🥁', bg: 'radial-gradient(circle, #54111f, #0b0306)', caption: 'Battle of Bands Rock Stage' },
-    { id: 'gal-4', type: 'emoji', src: '', icon: '👑✨👗', bg: 'radial-gradient(circle, #441708, #0b0306)', caption: 'Mr. & Ms. Freshers Runway Coronation' }
-  ];
+  const DEFAULT_GALLERY = {
+    driveUrl: 'https://drive.google.com',
+    sections: [
+      {
+        id: 'sec-1',
+        title: 'Flash Mob & Campus Street Teaser',
+        images: [
+          './assets/images/logo-crest.webp',
+          './assets/images/dragon.webp',
+          './assets/images/lantern_1.webp'
+        ]
+      },
+      {
+        id: 'sec-2',
+        title: 'Imperial Fest & Stage Memories',
+        images: [
+          './assets/images/scroll_welcome_canvas.webp',
+          './assets/images/lantern_2.webp',
+          './assets/images/thank_you.webp'
+        ]
+      }
+    ]
+  };
 
   const DEFAULT_CONTACTS = [
     {
@@ -258,9 +275,10 @@
           if (payload.batch && typeof payload.batch === 'object') {
             const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
             keys.forEach(k => {
-              if (Array.isArray(payload.batch[k])) {
-                let list = payload.batch[k];
-                if (k === 'contacts' && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
+              const val = payload.batch[k];
+              if (Array.isArray(val) || (k === 'gallery' && val && typeof val === 'object')) {
+                let list = val;
+                if (k === 'contacts' && Array.isArray(list) && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
                   list = DEFAULT_CONTACTS;
                 }
                 const localKey = REVERSE_KEY_MAPPING[k];
@@ -402,9 +420,10 @@
           // Immediately load data into localStorage from response
           const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
           keys.forEach(k => {
-            if (Array.isArray(fullJson[k])) {
-              let list = fullJson[k];
-              if (k === 'contacts' && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
+            const val = fullJson[k];
+            if (Array.isArray(val) || (k === 'gallery' && val && typeof val === 'object')) {
+              let list = val;
+              if (k === 'contacts' && Array.isArray(list) && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
                 list = DEFAULT_CONTACTS;
               }
               const localKey = REVERSE_KEY_MAPPING[k];
@@ -740,9 +759,9 @@
         if (pendingKeys.has(k) || pendingKeys.has(localKey)) {
           return;
         }
-        if (data && Array.isArray(data[k])) {
+        if (data && (Array.isArray(data[k]) || (k === 'gallery' && data[k] && typeof data[k] === 'object'))) {
           let list = data[k];
-          if (k === 'contacts' && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
+          if (k === 'contacts' && Array.isArray(list) && list.some(c => c && (c.name === 'Subhadeep Nandy' || c.name === 'Sambit Bhattacharya'))) {
             list = DEFAULT_CONTACTS;
           }
           localStorage.setItem(localKey, JSON.stringify(list));
@@ -851,7 +870,35 @@
   function getSchedule() { return loadData('abhigraha_schedule', DEFAULT_SCHEDULE); }
   function getCrowns() { return loadData('abhigraha_crowns', DEFAULT_CROWNS); }
   function getMerch() { return loadData('abhigraha_merchandise', DEFAULT_MERCH); }
-  function getGallery() { return loadData('abhigraha_gallery', DEFAULT_GALLERY); }
+  function getGallery() {
+    const raw = loadData('abhigraha_gallery', DEFAULT_GALLERY);
+    if (Array.isArray(raw)) {
+      const validImages = raw
+        .filter(item => item && (item.src || item.imageUrl))
+        .map(item => item.src || item.imageUrl);
+
+      return {
+        driveUrl: 'https://drive.google.com',
+        sections: [
+          {
+            id: 'sec-1',
+            title: 'Festival Moments & Highlights',
+            images: validImages.length > 0 ? validImages : [
+              './assets/images/logo-crest.webp',
+              './assets/images/dragon.webp',
+              './assets/images/lantern_1.webp'
+            ]
+          }
+        ]
+      };
+    }
+    if (raw && typeof raw === 'object') {
+      if (!Array.isArray(raw.sections)) raw.sections = [];
+      if (typeof raw.driveUrl !== 'string') raw.driveUrl = '';
+      return raw;
+    }
+    return DEFAULT_GALLERY;
+  }
   function getContacts() { return loadData('abhigraha_contacts', DEFAULT_CONTACTS); }
 
   function showToast(msg) {
@@ -1119,11 +1166,17 @@
     }).join('');
   }
 
-  // 5. Gallery Page
+  // 5. Gallery Page (Redesigned with Sub-Headings, 3s Auto-Scroll Carousels & Google Drive Button)
   function renderPublicGallery() {
     const liveEl = document.getElementById('gallery-live-content');
     const csEl = document.getElementById('gallery-cs-content');
-    const container = document.getElementById('gallery-container');
+    const sectionsContainer = document.getElementById('gallery-sections-container');
+    const driveLinkBtn = document.getElementById('gallery-drive-link-btn');
+
+    if (window._galleryIntervals) {
+      window._galleryIntervals.forEach(t => clearInterval(t));
+    }
+    window._galleryIntervals = [];
 
     const vis = getVisibility();
     if (vis.gallery_cs) {
@@ -1135,34 +1188,178 @@
     if (liveEl) liveEl.style.display = 'block';
     if (csEl) csEl.style.display = 'none';
 
-    if (!container) return;
+    const galleryData = getGallery();
+    const sections = Array.isArray(galleryData.sections) ? galleryData.sections : [];
+    const driveUrl = (galleryData.driveUrl || '').trim();
 
-    const gallery = getGallery();
-    if (gallery.length === 0) {
-      container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color: #a38c94;">Gallery moments being curated.</p>';
+    // Configure Google Drive button
+    if (driveLinkBtn) {
+      if (driveUrl) {
+        driveLinkBtn.href = driveUrl;
+        driveLinkBtn.onclick = null;
+      } else {
+        driveLinkBtn.href = '#';
+        driveLinkBtn.onclick = (e) => {
+          e.preventDefault();
+          showToast('Google Drive link has not been configured in Admin yet.');
+        };
+      }
+    }
+
+    if (!sectionsContainer) return;
+
+    if (sections.length === 0) {
+      sectionsContainer.innerHTML = '<p style="text-align:center; color: #a38c94; padding: 40px 20px;">Festival photo albums will be revealed soon.</p>';
       return;
     }
 
-    container.innerHTML = gallery.map(g => {
-      if (g.type === 'img' && g.src) {
+    sectionsContainer.innerHTML = sections.map((sec) => {
+      const images = Array.isArray(sec.images) ? sec.images.filter(Boolean) : [];
+      if (images.length === 0) {
         return `
-          <div class="gallery-item">
-            <img src="${g.src}" alt="${g.caption}" loading="lazy">
-            <div class="gallery-overlay">
-              <span class="gallery-caption">${g.caption}</span>
+          <div class="gallery-sub-block" data-section-id="${sec.id}">
+            <div class="gallery-subheading-wrap">
+              <h3 class="gallery-subheading">${escapeHtml(sec.title || 'Festival Moments')}</h3>
+            </div>
+            <div class="gallery-carousel-wrapper" style="height: 180px; display:flex; align-items:center; justify-content:center; color:#a38c94;">
+              <span>No images added to this sub-heading yet.</span>
             </div>
           </div>
         `;
       }
+
       return `
-        <div class="gallery-item" style="background: ${g.bg || 'radial-gradient(circle, #3b0914, #0b0306)'};">
-          <div style="font-size: 3rem;">${g.icon || '🏮'}</div>
-          <div class="gallery-overlay" style="opacity: 1;">
-            <span class="gallery-caption">${g.caption}</span>
+        <div class="gallery-sub-block" data-section-id="${sec.id}">
+          <div class="gallery-subheading-wrap">
+            <h3 class="gallery-subheading">${escapeHtml(sec.title || 'Festival Moments')}</h3>
           </div>
+          <div class="gallery-carousel-wrapper" data-carousel-sec="${sec.id}">
+            <div class="gallery-carousel-viewport">
+              <div class="gallery-carousel-track" id="track-${sec.id}">
+                ${images.map((imgUrl, imgIdx) => `
+                  <div class="gallery-slide" data-slide-idx="${imgIdx}">
+                    <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(sec.title)} - Photo ${imgIdx + 1}" loading="lazy" onerror="this.onerror=null; this.src='./assets/images/logo-crest.webp';">
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            ${images.length > 1 ? `
+              <button type="button" class="gallery-arrow-btn prev" aria-label="Previous Photo" data-arrow-prev="${sec.id}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <button type="button" class="gallery-arrow-btn next" aria-label="Next Photo" data-arrow-next="${sec.id}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            ` : ''}
+          </div>
+          ${images.length > 1 ? `
+            <div class="gallery-dots-indicator" id="dots-${sec.id}">
+              ${images.map((_, dotIdx) => `
+                <button type="button" class="gallery-dot ${dotIdx === 0 ? 'active' : ''}" data-dot-sec="${sec.id}" data-dot-idx="${dotIdx}" aria-label="Photo ${dotIdx + 1}"></button>
+              `).join('')}
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
+
+    // Attach Carousel Auto-scroll (3s right to left) and Controls
+    sections.forEach(sec => {
+      const images = Array.isArray(sec.images) ? sec.images.filter(Boolean) : [];
+      if (images.length <= 1) return;
+
+      const track = document.getElementById(`track-${sec.id}`);
+      const dotsContainer = document.getElementById(`dots-${sec.id}`);
+      const wrapper = document.querySelector(`[data-carousel-sec="${sec.id}"]`);
+      if (!track) return;
+
+      let currentIndex = 0;
+      const total = images.length;
+      let timer = null;
+
+      function goToSlide(idx) {
+        currentIndex = (idx + total) % total;
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        if (dotsContainer) {
+          const dots = dotsContainer.querySelectorAll('.gallery-dot');
+          dots.forEach((d, i) => {
+            if (i === currentIndex) d.classList.add('active');
+            else d.classList.remove('active');
+          });
+        }
+      }
+
+      function startTimer() {
+        stopTimer();
+        timer = setInterval(() => {
+          goToSlide(currentIndex + 1);
+        }, 3000); // 3s auto scroll right to left
+        window._galleryIntervals.push(timer);
+      }
+
+      function stopTimer() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }
+
+      // Arrows
+      if (wrapper) {
+        const prevBtn = wrapper.querySelector(`[data-arrow-prev="${sec.id}"]`);
+        const nextBtn = wrapper.querySelector(`[data-arrow-next="${sec.id}"]`);
+        if (prevBtn) {
+          prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            goToSlide(currentIndex - 1);
+            startTimer();
+          });
+        }
+        if (nextBtn) {
+          nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            goToSlide(currentIndex + 1);
+            startTimer();
+          });
+        }
+
+        // Pause on mouse hover
+        wrapper.addEventListener('mouseenter', stopTimer);
+        wrapper.addEventListener('mouseleave', startTimer);
+
+        // Touch swipe support
+        let touchStartX = 0;
+        wrapper.addEventListener('touchstart', (e) => {
+          stopTimer();
+          if (e.touches && e.touches[0]) touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        wrapper.addEventListener('touchend', (e) => {
+          if (e.changedTouches && e.changedTouches[0]) {
+            const diffX = e.changedTouches[0].clientX - touchStartX;
+            if (diffX < -35) {
+              goToSlide(currentIndex + 1);
+            } else if (diffX > 35) {
+              goToSlide(currentIndex - 1);
+            }
+          }
+          startTimer();
+        }, { passive: true });
+      }
+
+      // Dots click
+      if (dotsContainer) {
+        dotsContainer.querySelectorAll('.gallery-dot').forEach(dot => {
+          dot.addEventListener('click', () => {
+            const idx = parseInt(dot.getAttribute('data-dot-idx'), 10);
+            goToSlide(idx);
+            startTimer();
+          });
+        });
+      }
+
+      startTimer();
+    });
   }
 
   // 6. Public Contact Us Representatives
@@ -2256,23 +2453,95 @@
   }
 
   // ==========================================================================
-  // TAB 6: GALLERY MANAGEMENT (ADD, EDIT, REMOVE)
+  // TAB 6: GALLERY MANAGEMENT (SUB-HEADINGS, IMAGE QUEUE, DRIVE LINK)
   // ==========================================================================
+  let activeGalleryQueue = [];
+
+  function renderAdminGalleryQueue() {
+    const queueList = document.getElementById('admin-gallery-queue-list');
+    const queueCount = document.getElementById('admin-queue-count');
+    if (queueCount) queueCount.textContent = activeGalleryQueue.length;
+    if (!queueList) return;
+
+    if (activeGalleryQueue.length === 0) {
+      queueList.innerHTML = '<p style="color: #a38c94; font-size: 0.85rem; text-align: center; margin: 12px 0;">No images in queue yet. Add single or multiple links above.</p>';
+      return;
+    }
+
+    queueList.innerHTML = activeGalleryQueue.map((url, idx) => `
+      <div class="admin-queue-item">
+        <img src="${escapeHtml(url)}" alt="Thumbnail ${idx + 1}" class="admin-queue-thumb" onerror="this.src='./assets/images/logo-crest.webp';">
+        <div class="admin-queue-url" title="${escapeHtml(url)}">
+          <strong style="color: #ffd899; margin-right: 6px;">#${idx + 1}</strong>
+          ${escapeHtml(url)}
+        </div>
+        <div class="admin-queue-actions">
+          <button type="button" class="btn-order-circle" data-queue-up="${idx}" title="Move Up in Queue" ${idx === 0 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveUp}
+          </button>
+          <button type="button" class="btn-order-circle" data-queue-down="${idx}" title="Move Down in Queue" ${idx === activeGalleryQueue.length - 1 ? 'disabled' : ''}>
+            ${ADMIN_ICONS.moveDown}
+          </button>
+          <button type="button" class="btn-action-delete" data-queue-del="${idx}" title="Remove from Queue" style="padding: 5px 8px;">
+            ${ADMIN_ICONS.delete}
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    queueList.querySelectorAll('[data-queue-up]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-queue-up'), 10);
+        if (idx > 0) {
+          const temp = activeGalleryQueue[idx];
+          activeGalleryQueue[idx] = activeGalleryQueue[idx - 1];
+          activeGalleryQueue[idx - 1] = temp;
+          renderAdminGalleryQueue();
+        }
+      });
+    });
+
+    queueList.querySelectorAll('[data-queue-down]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-queue-down'), 10);
+        if (idx < activeGalleryQueue.length - 1) {
+          const temp = activeGalleryQueue[idx];
+          activeGalleryQueue[idx] = activeGalleryQueue[idx + 1];
+          activeGalleryQueue[idx + 1] = temp;
+          renderAdminGalleryQueue();
+        }
+      });
+    });
+
+    queueList.querySelectorAll('[data-queue-del]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-queue-del'), 10);
+        activeGalleryQueue.splice(idx, 1);
+        renderAdminGalleryQueue();
+      });
+    });
+  }
+
   function initGalleryAdmin() {
     const addBtn = document.getElementById('admin-add-gallery-btn');
     const resetBtn = document.getElementById('admin-reset-gallery-btn');
     const formPanel = document.getElementById('admin-gallery-form-panel');
     const form = document.getElementById('admin-gallery-form');
     const cancelBtn = document.getElementById('admin-gallery-cancel-btn');
-    const typeSelect = document.getElementById('admin-gallery-type');
+    const saveDriveBtn = document.getElementById('admin-save-drive-btn');
+    const queueAddSingleBtn = document.getElementById('admin-queue-add-btn');
+    const queueAddBulkBtn = document.getElementById('admin-queue-bulk-btn');
 
-    if (typeSelect) {
-      typeSelect.addEventListener('change', () => {
-        const isImg = typeSelect.value === 'img';
-        const imgGroup = document.getElementById('admin-gallery-img-group');
-        const emojiGroup = document.getElementById('admin-gallery-emoji-group');
-        if (imgGroup) imgGroup.style.display = isImg ? 'block' : 'none';
-        if (emojiGroup) emojiGroup.style.display = isImg ? 'none' : 'block';
+    if (saveDriveBtn) {
+      saveDriveBtn.addEventListener('click', () => {
+        const driveInput = document.getElementById('admin-gallery-drive-url');
+        const url = driveInput ? driveInput.value.trim() : '';
+        const gData = getGallery();
+        gData.driveUrl = url;
+        saveData('abhigraha_gallery', gData);
+        renderPublicGallery();
+        renderAdminGalleryList();
+        showToast('Google Drive album link saved!');
       });
     }
 
@@ -2280,8 +2549,9 @@
       addBtn.addEventListener('click', () => {
         form.reset();
         document.getElementById('admin-gallery-edit-id').value = '';
-        document.getElementById('admin-gallery-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Gallery</span>`;
-        if (typeSelect) typeSelect.dispatchEvent(new Event('change'));
+        activeGalleryQueue = [];
+        renderAdminGalleryQueue();
+        document.getElementById('admin-gallery-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Sub-heading & Images</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -2293,9 +2563,49 @@
       });
     }
 
+    if (queueAddSingleBtn) {
+      queueAddSingleBtn.addEventListener('click', () => {
+        const input = document.getElementById('admin-gallery-single-url');
+        const val = input ? input.value.trim() : '';
+        if (!val) {
+          alert('Please enter a valid image URL.');
+          return;
+        }
+        activeGalleryQueue.push(val);
+        input.value = '';
+        renderAdminGalleryQueue();
+        showToast('Image added to queue.');
+      });
+    }
+
+    if (queueAddBulkBtn) {
+      queueAddBulkBtn.addEventListener('click', () => {
+        const textarea = document.getElementById('admin-gallery-bulk-urls');
+        const val = textarea ? textarea.value.trim() : '';
+        if (!val) {
+          alert('Please paste image URLs into the box.');
+          return;
+        }
+        const links = val
+          .split(/[\r\n,]+/)
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        if (links.length === 0) {
+          alert('No valid URLs found in text.');
+          return;
+        }
+
+        activeGalleryQueue.push(...links);
+        textarea.value = '';
+        renderAdminGalleryQueue();
+        showToast(`Added ${links.length} image${links.length === 1 ? '' : 's'} to queue.`);
+      });
+    }
+
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        if (confirm('Reset moments & memories back to defaults?')) {
+        if (confirm('Reset gallery sub-headings & memories back to defaults?')) {
           saveData('abhigraha_gallery', DEFAULT_GALLERY);
           renderPublicGallery();
           renderAdminGalleryList();
@@ -2308,28 +2618,37 @@
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         const editId = document.getElementById('admin-gallery-edit-id').value;
-        const type = document.getElementById('admin-gallery-type').value;
-        const src = document.getElementById('admin-gallery-src').value.trim();
-        const icon = document.getElementById('admin-gallery-icon').value.trim();
-        const bg = document.getElementById('admin-gallery-bg').value.trim();
-        const caption = document.getElementById('admin-gallery-caption').value.trim();
+        const title = document.getElementById('admin-gallery-title').value.trim();
 
-        if (!caption) {
-          alert('Please enter a caption for this moment.');
+        if (!title) {
+          alert('Please enter a sub-heading title.');
           return;
         }
 
-        const list = getGallery();
-        if (editId) {
-          const idx = list.findIndex(i => i.id === editId);
-          if (idx !== -1) list[idx] = { id: editId, type, src, icon, bg, caption };
-          showToast(`Gallery item "${caption}" updated!`);
-        } else {
-          list.push({ id: 'gal-' + Date.now(), type, src, icon, bg, caption });
-          showToast(`Gallery moment "${caption}" added!`);
+        if (activeGalleryQueue.length === 0) {
+          alert('Please add at least one image to the queue before saving.');
+          return;
         }
 
-        saveData('abhigraha_gallery', list);
+        const gData = getGallery();
+        if (!Array.isArray(gData.sections)) gData.sections = [];
+
+        if (editId) {
+          const idx = gData.sections.findIndex(s => s.id === editId);
+          if (idx !== -1) {
+            gData.sections[idx] = { id: editId, title, images: [...activeGalleryQueue] };
+          }
+          showToast(`Sub-heading "${title}" updated!`);
+        } else {
+          gData.sections.push({
+            id: 'sec-' + Date.now(),
+            title,
+            images: [...activeGalleryQueue]
+          });
+          showToast(`Sub-heading "${title}" added!`);
+        }
+
+        saveData('abhigraha_gallery', gData);
         formPanel.style.display = 'none';
         renderPublicGallery();
         renderAdminGalleryList();
@@ -2340,111 +2659,132 @@
   function renderAdminGalleryList() {
     const container = document.getElementById('admin-gallery-list');
     const countEl = document.getElementById('admin-gallery-count');
+    const driveInput = document.getElementById('admin-gallery-drive-url');
     if (!container) return;
 
-    const list = getGallery();
-    if (countEl) countEl.textContent = `${list.length} Moments`;
+    const galleryData = getGallery();
+    const sections = Array.isArray(galleryData.sections) ? galleryData.sections : [];
 
-    if (list.length === 0) {
-      container.innerHTML = '<p style="color:#a38c94; text-align:center; padding:16px;">No gallery items available.</p>';
+    if (driveInput && document.activeElement !== driveInput) {
+      driveInput.value = galleryData.driveUrl || '';
+    }
+
+    const totalPhotos = sections.reduce((acc, s) => acc + (Array.isArray(s.images) ? s.images.length : 0), 0);
+    if (countEl) countEl.textContent = `${sections.length} Sub-headings · ${totalPhotos} Photos`;
+
+    if (sections.length === 0) {
+      container.innerHTML = '<p style="color:#a38c94; text-align:center; padding:16px;">No gallery sub-headings added yet. Click &quot;Add Sub-heading & Images&quot; to create your first album section.</p>';
       return;
     }
 
-    container.innerHTML = list.map((g, idx) => `
-      <div class="admin-item-card">
-        <div class="admin-item-order-corner">
-          <button type="button" class="btn-order-circle" data-order-up-gal="${g.id}" title="Move Up" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
-            ${ADMIN_ICONS.moveUp}
-          </button>
-          <button type="button" class="btn-order-circle" data-order-down-gal="${g.id}" title="Move Down" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
-            ${ADMIN_ICONS.moveDown}
-          </button>
-        </div>
-        <div class="admin-item-main">
-          <div class="admin-item-title">
-            <span class="admin-order-badge">#${idx + 1}</span>
-            <span style="font-size:1.2rem;">${g.type === 'img' ? '🖼️' : (g.icon || '🏮')}</span>
-            <span>${escapeHtml(g.caption)}</span>
-            <span class="admin-topbar-badge">${g.type === 'img' ? 'Photo Asset' : 'Imperial Preset'}</span>
-          </div>
-          <div class="admin-item-meta">
-            ${g.type === 'img' ? escapeHtml(g.src || 'Image Path') : ('Icon: ' + escapeHtml(g.icon || '-') + ' | Background: ' + escapeHtml(g.bg || '-'))}
-          </div>
-        </div>
-        <div class="admin-item-actions">
-          <button class="btn-action-edit" data-edit-gal="${g.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
-          <button class="btn-action-delete" data-del-gal="${g.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
-        </div>
-      </div>
-    `).join('');
+    container.innerHTML = sections.map((sec, idx) => {
+      const images = Array.isArray(sec.images) ? sec.images : [];
+      const isFirst = idx === 0;
+      const isLast = idx === sections.length - 1;
 
-    container.querySelectorAll('[data-order-up-gal]').forEach(btn => {
+      const thumbsHtml = images.length > 0
+        ? `<div class="admin-section-strip">
+            ${images.slice(0, 10).map((img, i) => `
+              <img src="${escapeHtml(img)}" alt="Thumb ${i + 1}" class="admin-section-thumb" loading="lazy" onerror="this.src='./assets/images/logo-crest.webp';">
+            `).join('')}
+            ${images.length > 10 ? `<span style="display:inline-flex; align-items:center; color:#ffd899; font-size:0.8rem; padding:0 8px;">+${images.length - 10} more</span>` : ''}
+          </div>`
+        : '<p style="color:#a38c94; font-size:0.8rem; margin-top:4px;">No images in this sub-heading</p>';
+
+      return `
+        <div class="admin-item-card" data-sec-id="${sec.id}">
+          <div class="admin-item-order-corner">
+            <button type="button" class="btn-order-circle" data-order-up-sec="${sec.id}" title="Move Up" aria-label="Move Up" ${isFirst ? 'disabled' : ''}>
+              ${ADMIN_ICONS.moveUp}
+            </button>
+            <button type="button" class="btn-order-circle" data-order-down-sec="${sec.id}" title="Move Down" aria-label="Move Down" ${isLast ? 'disabled' : ''}>
+              ${ADMIN_ICONS.moveDown}
+            </button>
+          </div>
+          <div class="admin-item-main">
+            <div class="admin-item-title">
+              <span class="admin-order-badge">#${idx + 1}</span>
+              <span style="font-size:1.15rem; font-weight:700; color:#ffd899;">${escapeHtml(sec.title || 'Untitled Section')}</span>
+              <span class="admin-topbar-badge">${images.length} Photo${images.length === 1 ? '' : 's'}</span>
+            </div>
+            ${thumbsHtml}
+          </div>
+          <div class="admin-item-actions">
+            <button class="btn-action-edit" data-edit-sec="${sec.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
+            <button class="btn-action-delete" data-del-sec="${sec.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('[data-order-up-sec]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-order-up-gal');
-        const gList = getGallery();
-        const idx = gList.findIndex(i => i.id === id);
+        const id = btn.getAttribute('data-order-up-sec');
+        const gData = getGallery();
+        const idx = gData.sections.findIndex(s => s.id === id);
         if (idx > 0) {
-          const temp = gList[idx];
-          gList[idx] = gList[idx - 1];
-          gList[idx - 1] = temp;
-          saveData('abhigraha_gallery', gList);
+          const temp = gData.sections[idx];
+          gData.sections[idx] = gData.sections[idx - 1];
+          gData.sections[idx - 1] = temp;
+          saveData('abhigraha_gallery', gData);
           renderPublicGallery();
           renderAdminGalleryList();
-          showToast(`Gallery moment "${temp.caption}" moved up to #${idx}.`);
+          showToast(`Sub-heading "${temp.title}" moved up to #${idx}.`);
         }
       });
     });
 
-    container.querySelectorAll('[data-order-down-gal]').forEach(btn => {
+    container.querySelectorAll('[data-order-down-sec]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-order-down-gal');
-        const gList = getGallery();
-        const idx = gList.findIndex(i => i.id === id);
-        if (idx !== -1 && idx < gList.length - 1) {
-          const temp = gList[idx];
-          gList[idx] = gList[idx + 1];
-          gList[idx + 1] = temp;
-          saveData('abhigraha_gallery', gList);
+        const id = btn.getAttribute('data-order-down-sec');
+        const gData = getGallery();
+        const idx = gData.sections.findIndex(s => s.id === id);
+        if (idx !== -1 && idx < gData.sections.length - 1) {
+          const temp = gData.sections[idx];
+          gData.sections[idx] = gData.sections[idx + 1];
+          gData.sections[idx + 1] = temp;
+          saveData('abhigraha_gallery', gData);
           renderPublicGallery();
           renderAdminGalleryList();
-          showToast(`Gallery moment "${temp.caption}" moved down to #${idx + 2}.`);
+          showToast(`Sub-heading "${temp.title}" moved down to #${idx + 2}.`);
         }
       });
     });
 
-    container.querySelectorAll('[data-edit-gal]').forEach(btn => {
+    container.querySelectorAll('[data-edit-sec]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-edit-gal');
-        const g = getGallery().find(i => i.id === id);
-        if (!g) return;
+        const id = btn.getAttribute('data-edit-sec');
+        const gData = getGallery();
+        const sec = gData.sections.find(s => s.id === id);
+        if (!sec) return;
 
         const formPanel = document.getElementById('admin-gallery-form-panel');
-        document.getElementById('admin-gallery-edit-id').value = g.id;
-        const typeSelect = document.getElementById('admin-gallery-type');
-        typeSelect.value = g.type;
-        typeSelect.dispatchEvent(new Event('change'));
+        document.getElementById('admin-gallery-edit-id').value = sec.id;
+        document.getElementById('admin-gallery-title').value = sec.title || '';
+        const singleUrl = document.getElementById('admin-gallery-single-url');
+        const bulkUrls = document.getElementById('admin-gallery-bulk-urls');
+        if (singleUrl) singleUrl.value = '';
+        if (bulkUrls) bulkUrls.value = '';
+        activeGalleryQueue = [...(sec.images || [])];
+        renderAdminGalleryQueue();
 
-        document.getElementById('admin-gallery-src').value = g.src || '';
-        document.getElementById('admin-gallery-icon').value = g.icon || '';
-        document.getElementById('admin-gallery-bg').value = g.bg || '';
-        document.getElementById('admin-gallery-caption').value = g.caption || '';
-        document.getElementById('admin-gallery-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Moment: ${escapeHtml(g.caption)}</span>`;
-
+        document.getElementById('admin-gallery-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Sub-heading: ${escapeHtml(sec.title)}</span>`;
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
     });
 
-    container.querySelectorAll('[data-del-gal]').forEach(btn => {
+    container.querySelectorAll('[data-del-sec]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-del-gal');
-        const g = getGallery().find(i => i.id === id);
-        if (confirm(`Remove gallery item "${g ? g.caption : id}"?`)) {
-          const updated = getGallery().filter(i => i.id !== id);
-          saveData('abhigraha_gallery', updated);
+        const id = btn.getAttribute('data-del-sec');
+        const gData = getGallery();
+        const sec = gData.sections.find(s => s.id === id);
+        if (confirm(`Remove sub-heading "${sec ? sec.title : id}" and all its photos?`)) {
+          gData.sections = gData.sections.filter(s => s.id !== id);
+          saveData('abhigraha_gallery', gData);
           renderPublicGallery();
           renderAdminGalleryList();
-          showToast('Gallery item deleted.');
+          showToast('Sub-heading deleted.');
         }
       });
     });

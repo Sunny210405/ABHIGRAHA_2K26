@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=107">
+  <link rel="stylesheet" href="./assets/css/style.css?v=108">
 </head>
 <body>
 
@@ -683,30 +683,23 @@
 
         <div id="gallery-display-container">
           <div id="gallery-live-content">
-            <div class="gallery-grid" id="gallery-container">
-              <div class="gallery-item">
-                <img src="./assets/images/logo-crest.webp" alt="Imperial Welcome Gates" loading="lazy">
-                <div class="gallery-overlay">
-                  <span class="gallery-caption">The Imperial Dragon Gates of Abhigraha</span>
+            <!-- Dynamically populated sub-headings and 3s auto-scroll image carousels -->
+            <div class="gallery-sections-wrap" id="gallery-sections-container">
+              <!-- Rendered via admin.js -->
+            </div>
+
+            <!-- Google Drive Full Album Link in the end -->
+            <div class="gallery-drive-footer" id="gallery-drive-footer">
+              <div class="gallery-drive-card">
+                <div class="gallery-drive-icon">📁</div>
+                <div class="gallery-drive-info">
+                  <h4 class="gallery-drive-title">Festival Cloud Archives</h4>
+                  <p class="gallery-drive-desc">View and download all raw full-resolution photos, celebrations & stage captures on Google Drive.</p>
                 </div>
-              </div>
-              <div class="gallery-item" style="background: radial-gradient(circle, #3b0914, #0b0306);">
-                <div style="font-size: 3rem;">🏮🏮🏮</div>
-                <div class="gallery-overlay" style="opacity: 1;">
-                  <span class="gallery-caption">Illuminated Temple Lanterns Night</span>
-                </div>
-              </div>
-              <div class="gallery-item" style="background: radial-gradient(circle, #54111f, #0b0306);">
-                <div style="font-size: 3rem;">🎸🔥🥁</div>
-                <div class="gallery-overlay" style="opacity: 1;">
-                  <span class="gallery-caption">Battle of Bands Rock Stage</span>
-                </div>
-              </div>
-              <div class="gallery-item" style="background: radial-gradient(circle, #441708, #0b0306);">
-                <div style="font-size: 3rem;">👑✨👗</div>
-                <div class="gallery-overlay" style="opacity: 1;">
-                  <span class="gallery-caption">Mr. & Ms. Freshers Runway Coronation</span>
-                </div>
+                <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="cta-btn-primary gallery-drive-btn" id="gallery-drive-link-btn">
+                  <span>See All Photos in Google Drive</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="drive-btn-svg"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </a>
               </div>
             </div>
           </div>
@@ -1333,14 +1326,29 @@
 
         <!-- Tab 6: Gallery Management -->
         <div class="admin-tab-pane" id="pane-gallery">
+          <!-- Google Drive Full Album Link Card -->
+          <div class="admin-drive-panel">
+            <div class="admin-drive-panel-left">
+              <span style="font-size: 1.3rem;">📁</span>
+              <span>Google Drive Album Link:</span>
+            </div>
+            <div class="admin-drive-input-wrap">
+              <input type="url" id="admin-gallery-drive-url" class="form-input" placeholder="https://drive.google.com/drive/folders/..." style="flex: 1;">
+              <button type="button" id="admin-save-drive-btn" class="admin-btn-sm admin-btn-gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <span>Save Drive Link</span>
+              </button>
+            </div>
+          </div>
+
           <div class="admin-pane-header">
             <div class="admin-pane-header-left">
-              <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-gallery-count">0 Moments</span>
+              <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-gallery-count">0 Sub-headings · 0 Photos</span>
             </div>
             <div class="admin-pane-actions">
               <button class="admin-btn-sm admin-btn-gold" id="admin-add-gallery-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>Add Gallery</span>
+                <span>Add Sub-heading & Images</span>
               </button>
               <button class="admin-btn-sm admin-btn-subtle" id="admin-reset-gallery-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
@@ -1358,40 +1366,57 @@
           <div class="admin-form-panel" id="admin-gallery-form-panel" style="display: none;">
             <h4 id="admin-gallery-form-title" class="admin-form-title-wrap" style="margin-bottom: 14px; color: var(--color-gold-bright);">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>Add Gallery</span>
+              <span>Add Sub-heading & Images</span>
             </h4>
             <form id="admin-gallery-form">
               <input type="hidden" id="admin-gallery-edit-id">
-              <div class="admin-form-grid">
-                <div class="form-group">
-                  <label class="form-label">Visual Type</label>
-                  <select class="form-select" id="admin-gallery-type">
-                    <option value="img">Photo Image URL</option>
-                    <option value="emoji">Imperial Preset Emblem</option>
-                  </select>
-                </div>
-                <div class="form-group" id="admin-gallery-img-group">
-                  <label class="form-label">Image Path / URL</label>
-                  <input type="text" class="form-input" id="admin-gallery-src" placeholder="./assets/images/...">
-                </div>
-                <div class="form-group" id="admin-gallery-emoji-group" style="display: none;">
-                  <label class="form-label">Emblem Emojis & Gradient</label>
-                  <input type="text" class="form-input" id="admin-gallery-icon" placeholder="e.g. 🏮🏮🏮 or 🎸🔥🥁">
-                  <input type="text" class="form-input" id="admin-gallery-bg" placeholder="CSS Background (optional)" style="margin-top: 6px;">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Caption / Memory Name</label>
-                  <input type="text" class="form-input" id="admin-gallery-caption" placeholder="e.g. Illuminated Temple Lanterns Night" required>
+              
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">Sub-heading Title (e.g. Flash Mob, Inauguration, DJ Night)</label>
+                <input type="text" class="form-input" id="admin-gallery-title" placeholder="e.g. Flash Mob & Campus Street Teaser" required>
+              </div>
+
+              <!-- Queue Single Image Link -->
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">Add Single Image Link to Queue</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="url" class="form-input" id="admin-gallery-single-url" placeholder="https://i.ibb.co/... or image URL" style="flex:1;">
+                  <button type="button" class="admin-btn-sm admin-btn-gold" id="admin-queue-add-btn">
+                    <span>+ Add to Queue</span>
+                  </button>
                 </div>
               </div>
-              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+
+              <!-- Queue Multiple Images (Bulk Paste) -->
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">Or Add Multiple Image Links in Queue (Paste links separated by line breaks or commas)</label>
+                <textarea class="form-input" id="admin-gallery-bulk-urls" rows="3" placeholder="https://i.ibb.co/photo1.jpg&#10;https://i.ibb.co/photo2.jpg&#10;https://i.ibb.co/photo3.jpg"></textarea>
+                <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+                  <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-queue-bulk-btn">
+                    <span>+ Add All Links to Queue</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Queued Images Box -->
+              <div class="admin-queue-container">
+                <div class="admin-queue-header">
+                  <span>Queued Images for this Sub-heading (<span id="admin-queue-count">0</span>):</span>
+                  <small style="color: #a38c94;">Images will auto-scroll right to left (3s) with dots indicator</small>
+                </div>
+                <div class="admin-queue-list" id="admin-gallery-queue-list">
+                  <!-- Dynamically rendered queue items -->
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px;">
                 <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-gallery-cancel-btn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                   <span>Cancel</span>
                 </button>
                 <button type="submit" class="admin-btn-sm admin-btn-gold">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                  <span>Save Moment</span>
+                  <span>Save Section & Images</span>
                 </button>
               </div>
             </form>
@@ -1561,7 +1586,7 @@
 
   <!-- Core JavaScript Modules (No flying hearts/petals, clean and fast) -->
   <script src="./assets/js/countdown.js?v=2"></script>
-  <script src="./assets/js/admin.js?v=37"></script>
+  <script src="./assets/js/admin.js?v=38"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
   <script src="./assets/js/main.js?v=12"></script>
 

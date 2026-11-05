@@ -1985,60 +1985,350 @@ body {
 }
 
 /* ==========================================================================
-   GALLERY SECTION
+   GALLERY SECTION (REDESIGNED: SUB-HEADINGS, 3S AUTO-SCROLL CAROUSELS & DRIVE ACTION)
    ========================================================================== */
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 18px;
+.gallery-sections-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
 }
 
-.gallery-item {
+.gallery-sub-block {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.gallery-subheading-wrap {
+  text-align: center;
+  margin-bottom: 22px;
   position: relative;
-  height: 220px;
-  border-radius: 14px;
+}
+
+.gallery-subheading {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-gold-bright, #ffd899);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-transform: uppercase;
+  text-shadow: 0 0 16px rgba(212, 175, 55, 0.35);
+  margin: 0;
+}
+
+.gallery-subheading::before,
+.gallery-subheading::after {
+  content: "✦";
+  font-size: 0.95rem;
+  color: var(--color-crimson, #ff3b30);
+  opacity: 0.9;
+}
+
+.gallery-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
   overflow: hidden;
-  border: 1px solid var(--color-border-subtle);
-  cursor: pointer;
-  background: #15070c;
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(184, 18, 51, 0.18);
+  background: radial-gradient(circle at center, #240811 0%, #0c0407 100%);
+  touch-action: pan-y;
+}
+
+.gallery-carousel-viewport {
+  width: 100%;
+  height: 440px;
+  overflow: hidden;
+  position: relative;
+}
+
+.gallery-carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.gallery-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  user-select: none;
+  background: #0d0407;
 }
 
-.gallery-item img {
+.gallery-slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-.gallery-item:hover img {
-  transform: scale(1.08);
+/* Arrow Navigation */
+.gallery-arrow-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(15, 5, 8, 0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--color-gold-bright, #ffd899);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
 }
 
-.gallery-overlay {
+.gallery-arrow-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.gallery-arrow-btn:hover {
+  background: rgba(212, 175, 55, 0.28);
+  border-color: var(--color-gold-bright, #ffd899);
+  color: #fff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.gallery-arrow-btn.prev {
+  left: 14px;
+}
+
+.gallery-arrow-btn.next {
+  right: 14px;
+}
+
+/* Pagination Dots Indicator ("...") */
+.gallery-dots-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 6px 0;
+}
+
+.gallery-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.25);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.gallery-dot:hover {
+  background: rgba(212, 175, 55, 0.65);
+  border-color: #ffd899;
+}
+
+.gallery-dot.active {
+  width: 26px;
+  background: linear-gradient(90deg, #d4af37, #fde68a);
+  border-color: #fde68a;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.7);
+}
+
+/* Google Drive Footer Section */
+.gallery-drive-footer {
+  margin-top: 54px;
+  display: flex;
+  justify-content: center;
+}
+
+.gallery-drive-card {
+  max-width: 680px;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(35, 9, 16, 0.88) 0%, rgba(12, 4, 7, 0.96) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.38);
+  border-radius: 20px;
+  padding: 30px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), 0 0 25px rgba(212, 175, 55, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery-drive-card::before {
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to top, rgba(10, 4, 7, 0.9) 0%, transparent 60%);
-  display: flex;
-  align-items: flex-end;
-  padding: 16px;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
 }
 
-.gallery-item:hover .gallery-overlay {
-  opacity: 1;
+.gallery-drive-icon {
+  font-size: 2.5rem;
+  line-height: 1;
 }
 
-.gallery-caption {
-  font-size: 0.88rem;
+.gallery-drive-title {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.4rem;
+  color: var(--color-gold-bright, #ffd899);
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+.gallery-drive-desc {
+  font-size: 0.92rem;
+  color: #c9b4ba;
+  margin: 0;
+  max-width: 520px;
+  line-height: 1.55;
+}
+
+.gallery-drive-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
   font-weight: 700;
-  color: #fff;
+  padding: 13px 30px;
+  font-size: 0.95rem;
+  border-radius: 999px;
+  margin-top: 4px;
+  box-shadow: 0 4px 18px rgba(184, 18, 51, 0.45);
+}
+
+.drive-btn-svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Admin Gallery Redesign Styles */
+.admin-drive-panel {
+  background: rgba(26, 9, 14, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.admin-drive-panel-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--color-gold-bright);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.admin-drive-input-wrap {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  gap: 10px;
+}
+
+.admin-queue-container {
+  background: rgba(12, 4, 7, 0.75);
+  border: 1px dashed rgba(212, 175, 55, 0.35);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 14px;
+}
+
+.admin-queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffd899;
+}
+
+.admin-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.admin-queue-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(30, 10, 16, 0.88);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.admin-queue-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #000;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.admin-queue-url {
+  flex: 1;
+  font-size: 0.82rem;
+  color: #e5e7eb;
+  word-break: break-all;
+  max-height: 38px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-queue-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-section-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 0 4px;
+}
+
+.admin-section-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #000;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -3374,12 +3664,25 @@ body {
     padding: 7px;
   }
 
-  .gallery-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .gallery-carousel-viewport {
+    height: 260px;
   }
-  .gallery-item {
-    height: 220px;
+  .gallery-subheading {
+    font-size: 1.25rem;
+  }
+  .gallery-arrow-btn {
+    width: 38px;
+    height: 38px;
+  }
+  .gallery-arrow-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  .gallery-drive-card {
+    padding: 22px 18px;
+  }
+  .gallery-drive-title {
+    font-size: 1.2rem;
   }
 
   .sponsors-strip {
