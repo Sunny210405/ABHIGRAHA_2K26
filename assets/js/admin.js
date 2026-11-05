@@ -954,7 +954,8 @@
             </div>
             <div class="grand-coming-soon-action">
               <a href="#schedule" class="cta-btn-primary" style="text-decoration: none;">
-                📅 Explore Schedule
+                <svg class="btn-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>Explore Schedule</span>
               </a>
             </div>
           </div>
@@ -984,7 +985,8 @@
             <span class="event-meta-item">⏰ ${escapeHtml(evt.time || 'Festival Days')}</span>
           </div>
           <a href="#schedule" class="event-schedule-btn">
-            📅 View Schedule
+            <svg class="btn-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>View Schedule</span>
           </a>
         </div>
       `;
@@ -1077,7 +1079,8 @@
             </div>
             <div class="grand-coming-soon-action">
               <a href="#schedule" class="cta-btn-primary" style="text-decoration: none;">
-                📅 Explore Schedule
+                <svg class="btn-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>Explore Schedule</span>
               </a>
             </div>
           </div>
@@ -1159,7 +1162,10 @@
             <h4 class="merch-title">${escapeHtml(m.title)}</h4>
             <div class="merch-price">${escapeHtml(m.price)}</div>
             <p class="merch-desc">${escapeHtml(m.desc || '')}</p>
-            <button class="merch-btn" data-merch="${escapeHtml(m.title)} (${escapeHtml(m.price)})" data-form-url="${escapeHtml(m.formUrl || '')}">Pre-Order Now</button>
+            <button class="merch-btn" data-merch="${escapeHtml(m.title)} (${escapeHtml(m.price)})" data-form-url="${escapeHtml(m.formUrl || '')}">
+              <svg class="btn-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              <span>Pre-Order Now</span>
+            </button>
           </div>
         </div>
       `;
