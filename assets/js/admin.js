@@ -1314,7 +1314,11 @@
         partnersGrid.innerHTML = '';
       }
       if (placeholder) {
-        placeholder.style.display = 'block';
+        placeholder.style.display = 'flex';
+      }
+      const partnerActionWrap = document.getElementById('sponsor-partner-action-wrap');
+      if (partnerActionWrap) {
+        partnerActionWrap.style.display = 'flex';
       }
       return;
     }
@@ -1384,12 +1388,21 @@
       }
     }
 
-    // Toggle placeholder
+    // Toggle placeholder and Partner With Us button
+    const partnerActionWrap = document.getElementById('sponsor-partner-action-wrap');
     if (placeholder) {
       if (hasPoster || items.length > 0) {
         placeholder.style.display = 'none';
       } else {
-        placeholder.style.display = 'block';
+        placeholder.style.display = 'flex';
+      }
+    }
+
+    if (partnerActionWrap) {
+      if (hasPoster) {
+        partnerActionWrap.style.display = 'none';
+      } else {
+        partnerActionWrap.style.display = 'flex';
       }
     }
   }

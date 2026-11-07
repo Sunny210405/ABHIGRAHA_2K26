@@ -392,11 +392,20 @@ document.addEventListener('DOMContentLoaded', () => {
       desktopImg.src = mSrc;
     }
 
+    const partnerActionWrap = document.getElementById('sponsor-partner-action-wrap');
     if (placeholder) {
       if (hasValidDesktop || hasValidMobile) {
         placeholder.style.display = 'none';
       } else {
-        placeholder.style.display = 'block';
+        placeholder.style.display = 'flex';
+      }
+    }
+
+    if (partnerActionWrap) {
+      if (hasValidDesktop || hasValidMobile) {
+        partnerActionWrap.style.display = 'none';
+      } else {
+        partnerActionWrap.style.display = 'flex';
       }
     }
   }
