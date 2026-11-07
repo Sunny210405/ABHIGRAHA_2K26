@@ -356,4 +356,50 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === adminModal) adminModal.classList.remove('open');
     if (e.target === mobileBackdrop) closeMobileDrawer();
   });
+
+  // ==========================================================================
+  // SPONSOR POSTERS (PC & MOBILE) MANAGEMENT
+  // Supports pasting image links directly into index.html OR via SPONSOR_CONFIG
+  // ==========================================================================
+  window.SPONSOR_CONFIG = window.SPONSOR_CONFIG || {
+    pcPosterUrl: '',     // e.g. 'https://.../sponsor-desktop.webp'
+    mobilePosterUrl: ''  // e.g. 'https://.../sponsor-mobile.webp'
+  };
+
+  function syncSponsorPosters() {
+    const desktopImg = document.getElementById('sponsor-poster-desktop');
+    const mobileImg = document.getElementById('sponsor-poster-mobile');
+    const placeholder = document.getElementById('sponsor-placeholder-wrapper');
+
+    if (window.SPONSOR_CONFIG) {
+      if (window.SPONSOR_CONFIG.pcPosterUrl && desktopImg && (!desktopImg.getAttribute('src') || desktopImg.getAttribute('src').startsWith('PASTE_'))) {
+        desktopImg.src = window.SPONSOR_CONFIG.pcPosterUrl;
+      }
+      if (window.SPONSOR_CONFIG.mobilePosterUrl && mobileImg && (!mobileImg.getAttribute('src') || mobileImg.getAttribute('src').startsWith('PASTE_'))) {
+        mobileImg.src = window.SPONSOR_CONFIG.mobilePosterUrl;
+      }
+    }
+
+    const dSrc = desktopImg ? (desktopImg.getAttribute('src') || '').trim() : '';
+    const mSrc = mobileImg ? (mobileImg.getAttribute('src') || '').trim() : '';
+    const hasValidDesktop = dSrc !== '' && !dSrc.startsWith('PASTE_') && dSrc !== '#';
+    const hasValidMobile = mSrc !== '' && !mSrc.startsWith('PASTE_') && mSrc !== '#';
+
+    // If only one poster is specified, mirror it to the other screen size as a fallback
+    if (hasValidDesktop && !hasValidMobile && mobileImg) {
+      mobileImg.src = dSrc;
+    } else if (hasValidMobile && !hasValidDesktop && desktopImg) {
+      desktopImg.src = mSrc;
+    }
+
+    if (placeholder) {
+      if (hasValidDesktop || hasValidMobile) {
+        placeholder.style.display = 'none';
+      } else {
+        placeholder.style.display = 'block';
+      }
+    }
+  }
+
+  syncSponsorPosters();
 });
