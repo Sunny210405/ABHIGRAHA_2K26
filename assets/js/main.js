@@ -296,14 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const sponsorPartnerBtn = document.getElementById('sponsor-partner-btn');
-  if (sponsorPartnerBtn && contactModal) {
-    sponsorPartnerBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      contactModal.classList.add('open');
-    });
-  }
-
   if (contactCloseBtn && contactModal) {
     contactCloseBtn.addEventListener('click', () => {
       contactModal.classList.remove('open');
@@ -392,20 +384,11 @@ document.addEventListener('DOMContentLoaded', () => {
       desktopImg.src = mSrc;
     }
 
-    const partnerActionWrap = document.getElementById('sponsor-partner-action-wrap');
     if (placeholder) {
       if (hasValidDesktop || hasValidMobile) {
         placeholder.style.display = 'none';
       } else {
         placeholder.style.display = 'flex';
-      }
-    }
-
-    if (partnerActionWrap) {
-      if (hasValidDesktop || hasValidMobile) {
-        partnerActionWrap.style.display = 'none';
-      } else {
-        partnerActionWrap.style.display = 'flex';
       }
     }
   }

@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Shojumaru&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=117">
+  <link rel="stylesheet" href="./assets/css/style.css?v=118">
 </head>
 <body>
 
@@ -696,13 +696,17 @@
           <!-- Placeholder tile (automatically hidden as soon as any poster image link is provided) -->
           <div class="page-coming-soon-wrapper sponsor-placeholder-wrapper" id="sponsor-placeholder-wrapper">
             <div class="grand-coming-soon-tile">
-              <div class="coming-soon-emblem-large">🤝</div>
+              <div class="coming-soon-emblem-large" style="margin-bottom: 12px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width: 44px; height: 44px; stroke: var(--color-gold-bright); margin: 0 auto; display: block;">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
               <h3 class="grand-coming-soon-title">Festival Sponsors & Partners <span>Coming Soon</span></h3>
               <p class="sponsor-placeholder-text">Official sponsor posters will be revealed here soon.</p>
               <div class="grand-coming-soon-meta">
-                <span class="meta-pill">🌟 Massive Student Engagement</span>
-                <span class="meta-pill">📢 Announcements Dropping Soon</span>
-                <span class="meta-pill">🎯 Premier Brand Spotlight</span>
+                <span class="meta-pill">Campus Engagement</span>
+                <span class="meta-pill">Announcements Dropping Soon</span>
+                <span class="meta-pill">Brand Spotlight</span>
               </div>
             </div>
           </div>
@@ -711,13 +715,6 @@
 
         <!-- Additional Sponsor Partner Cards (Managed via Admin Portal) -->
         <div id="sponsors-partners-grid" class="sponsors-partners-grid" style="display: none; margin-top: 36px;"></div>
-
-        <!-- Partner With Us Action Button -->
-        <div class="sponsor-partner-action-wrap" id="sponsor-partner-action-wrap">
-          <button class="cta-btn-primary sponsor-partner-btn" id="sponsor-partner-btn" title="Partner with Abhigraha 2K26">
-            🤝 Partner With Us
-          </button>
-        </div>
       </div>
     </div>
   </main>
@@ -1361,34 +1358,42 @@
             </div>
           </div>
 
-          <!-- Festival Sponsor Posters Panel (PC & Mobile WebP URLs) -->
-          <div class="admin-drive-panel admin-sponsors-poster-panel" style="margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 1.3rem;">🖼️</span>
-                <span style="font-weight: 700; color: var(--color-gold-bright);">Official Festival Sponsor Posters (PC & Mobile)</span>
-              </div>
-              <span style="font-size: 0.8rem; color: #a38c94;">Exact 1:1 natural aspect ratio, no borders</span>
+          <!-- Festival Sponsor Posters Panel (PC & Mobile with Live Image Previews) -->
+          <div class="admin-sponsor-posters-card">
+            <div class="admin-sponsor-posters-head">
+              <span class="admin-section-subtitle">Festival Sponsor Posters</span>
+              <span class="admin-section-hint">Uncropped 1:1 view</span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 14px;">
-              <div class="form-group">
-                <label class="form-label" for="admin-sponsor-pc-url">💻 PC / Desktop Screen Poster (URL / WebP path):</label>
-                <input type="text" id="admin-sponsor-pc-url" class="form-input" placeholder="e.g. ./assets/images/sponsor_pc.webp or https://...">
+            <div class="admin-sponsor-grid">
+              <!-- Desktop Poster Box -->
+              <div class="admin-poster-col">
+                <label class="form-label" for="admin-sponsor-pc-url">Desktop Poster (PC / Laptop)</label>
+                <input type="url" id="admin-sponsor-pc-url" class="form-input" placeholder="Paste desktop image or WebP link...">
+                <div class="admin-poster-preview-box" id="admin-sponsor-pc-preview-wrap">
+                  <img id="admin-sponsor-pc-preview-img" src="" alt="Desktop Preview" style="display: none;">
+                  <div class="admin-poster-empty-text" id="admin-sponsor-pc-empty-text">No Desktop Poster</div>
+                </div>
               </div>
-              <div class="form-group">
-                <label class="form-label" for="admin-sponsor-mobile-url">📱 Mobile Screen Poster (URL / WebP path):</label>
-                <input type="text" id="admin-sponsor-mobile-url" class="form-input" placeholder="e.g. ./assets/images/sponsor_mobile.webp or https://...">
+
+              <!-- Mobile Poster Box -->
+              <div class="admin-poster-col">
+                <label class="form-label" for="admin-sponsor-mobile-url">Mobile Poster (Phones)</label>
+                <input type="url" id="admin-sponsor-mobile-url" class="form-input" placeholder="Paste mobile image or WebP link...">
+                <div class="admin-poster-preview-box" id="admin-sponsor-mobile-preview-wrap">
+                  <img id="admin-sponsor-mobile-preview-img" src="" alt="Mobile Preview" style="display: none;">
+                  <div class="admin-poster-empty-text" id="admin-sponsor-mobile-empty-text">No Mobile Poster</div>
+                </div>
               </div>
             </div>
 
-            <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
+            <div class="admin-poster-footer-actions">
               <button type="button" id="admin-clear-sponsor-posters-btn" class="admin-btn-sm admin-btn-subtle">
                 <span>Clear Posters</span>
               </button>
               <button type="button" id="admin-save-sponsor-posters-btn" class="admin-btn-sm admin-btn-gold">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                <span>Save Poster Links</span>
+                <span>Save Posters</span>
               </button>
             </div>
           </div>
@@ -1397,30 +1402,40 @@
           <div class="admin-form-panel" id="admin-sponsor-form-panel" style="display: none; margin-bottom: 20px;">
             <h4 class="admin-form-title-wrap" id="admin-sponsor-form-title" style="margin-bottom: 18px; color: var(--color-gold-bright);">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>Add Sponsor Partner</span>
+              <span>Add Partner</span>
             </h4>
             <form id="admin-sponsor-form">
               <input type="hidden" id="admin-sponsor-edit-id" value="">
               <div class="admin-form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
                 <div class="form-group">
-                  <label class="form-label" for="admin-sponsor-name">Partner / Brand Name *</label>
-                  <input type="text" class="form-input" id="admin-sponsor-name" placeholder="e.g. Red Bull, Spotify, Monster Energy" required>
+                  <label class="form-label" for="admin-sponsor-name">Partner Name *</label>
+                  <input type="text" class="form-input" id="admin-sponsor-name" placeholder="e.g. Brand Name" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="admin-sponsor-tier">Sponsorship Tier / Role *</label>
-                  <input type="text" class="form-input" id="admin-sponsor-tier" placeholder="e.g. Title Sponsor, Associate Partner, Beverage Partner" required>
+                  <label class="form-label" for="admin-sponsor-tier">Sponsorship Tier *</label>
+                  <input type="text" class="form-input" id="admin-sponsor-tier" placeholder="e.g. Title Sponsor, Beverage Partner" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="admin-sponsor-logo">Logo / Poster URL (Optional)</label>
-                  <input type="text" class="form-input" id="admin-sponsor-logo" placeholder="e.g. https://... or ./assets/images/...">
+                  <label class="form-label" for="admin-sponsor-logo">Logo URL</label>
+                  <input type="url" class="form-input" id="admin-sponsor-logo" placeholder="Paste logo image link...">
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="admin-sponsor-link">Website / Social URL (Optional)</label>
-                  <input type="url" class="form-input" id="admin-sponsor-link" placeholder="e.g. https://www.brand.com">
+                  <label class="form-label" for="admin-sponsor-link">Website Link</label>
+                  <input type="url" class="form-input" id="admin-sponsor-link" placeholder="https://...">
                 </div>
               </div>
+
+              <!-- Live Logo Preview in Form -->
+              <div id="admin-sponsor-logo-preview-wrap" style="display: none; margin-top: 10px; align-items: center; gap: 12px; padding: 10px 14px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-gold-bright);">Logo Preview:</span>
+                <img id="admin-sponsor-logo-preview-img" src="" alt="Logo Preview" style="max-height: 40px; max-width: 120px; object-fit: contain;">
+              </div>
+
               <div class="admin-form-actions" style="margin-top: 18px; display: flex; gap: 12px; justify-content: flex-end;">
-                <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-sponsor-cancel-btn">Cancel</button>
+                <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-sponsor-cancel-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  <span>Cancel</span>
+                </button>
                 <button type="submit" class="admin-btn-sm admin-btn-gold">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                   <span>Save Partner</span>
@@ -1530,9 +1545,9 @@
 
   <!-- Core JavaScript Modules (No flying hearts/petals, clean and fast) -->
   <script src="./assets/js/countdown.js?v=2"></script>
-  <script src="./assets/js/admin.js?v=42"></script>
+  <script src="./assets/js/admin.js?v=43"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
-  <script src="./assets/js/main.js?v=16"></script>
+  <script src="./assets/js/main.js?v=17"></script>
 
 </body>
 </html>

@@ -1316,10 +1316,6 @@
       if (placeholder) {
         placeholder.style.display = 'flex';
       }
-      const partnerActionWrap = document.getElementById('sponsor-partner-action-wrap');
-      if (partnerActionWrap) {
-        partnerActionWrap.style.display = 'flex';
-      }
       return;
     }
 
@@ -1388,21 +1384,12 @@
       }
     }
 
-    // Toggle placeholder and Partner With Us button
-    const partnerActionWrap = document.getElementById('sponsor-partner-action-wrap');
+    // Toggle placeholder
     if (placeholder) {
       if (hasPoster || items.length > 0) {
         placeholder.style.display = 'none';
       } else {
         placeholder.style.display = 'flex';
-      }
-    }
-
-    if (partnerActionWrap) {
-      if (hasPoster) {
-        partnerActionWrap.style.display = 'none';
-      } else {
-        partnerActionWrap.style.display = 'flex';
       }
     }
   }
@@ -2829,8 +2816,59 @@
   }
 
   // ==========================================================================
-  // TAB 6: SPONSORS & PARTNERS MANAGEMENT (ADD, EDIT, POSTERS, COMING SOON)
+  // TAB 6: SPONSORS & PARTNERS MANAGEMENT (ADD, EDIT, PREVIEWS, ZERO EMOJIS)
   // ==========================================================================
+  function updatePcPreview(url) {
+    const pcInput = document.getElementById('admin-sponsor-pc-url');
+    const clean = (url !== undefined ? url : (pcInput?.value || '')).trim();
+    const img = document.getElementById('admin-sponsor-pc-preview-img');
+    const txt = document.getElementById('admin-sponsor-pc-empty-text');
+    if (!img || !txt) return;
+    if (clean) {
+      img.src = clean;
+      img.style.display = 'block';
+      txt.style.display = 'none';
+    } else {
+      img.removeAttribute('src');
+      img.style.display = 'none';
+      txt.textContent = 'No Desktop Poster';
+      txt.style.display = 'block';
+    }
+  }
+
+  function updateMobilePreview(url) {
+    const mobileInput = document.getElementById('admin-sponsor-mobile-url');
+    const clean = (url !== undefined ? url : (mobileInput?.value || '')).trim();
+    const img = document.getElementById('admin-sponsor-mobile-preview-img');
+    const txt = document.getElementById('admin-sponsor-mobile-empty-text');
+    if (!img || !txt) return;
+    if (clean) {
+      img.src = clean;
+      img.style.display = 'block';
+      txt.style.display = 'none';
+    } else {
+      img.removeAttribute('src');
+      img.style.display = 'none';
+      txt.textContent = 'No Mobile Poster';
+      txt.style.display = 'block';
+    }
+  }
+
+  function updateLogoPreview(url) {
+    const logoInput = document.getElementById('admin-sponsor-logo');
+    const clean = (url !== undefined ? url : (logoInput?.value || '')).trim();
+    const wrap = document.getElementById('admin-sponsor-logo-preview-wrap');
+    const img = document.getElementById('admin-sponsor-logo-preview-img');
+    if (!wrap || !img) return;
+    if (clean) {
+      img.src = clean;
+      wrap.style.display = 'flex';
+    } else {
+      wrap.style.display = 'none';
+      img.removeAttribute('src');
+    }
+  }
+
   function initSponsorsAdmin() {
     const addBtn = document.getElementById('admin-add-sponsor-btn');
     const resetBtn = document.getElementById('admin-reset-sponsors-btn');
@@ -2839,6 +2877,59 @@
     const cancelBtn = document.getElementById('admin-sponsor-cancel-btn');
     const savePostersBtn = document.getElementById('admin-save-sponsor-posters-btn');
     const clearPostersBtn = document.getElementById('admin-clear-sponsor-posters-btn');
+    const pcInput = document.getElementById('admin-sponsor-pc-url');
+    const mobileInput = document.getElementById('admin-sponsor-mobile-url');
+    const logoInput = document.getElementById('admin-sponsor-logo');
+    const pcImg = document.getElementById('admin-sponsor-pc-preview-img');
+    const mobileImg = document.getElementById('admin-sponsor-mobile-preview-img');
+    const logoImg = document.getElementById('admin-sponsor-logo-preview-img');
+
+    // Real-time Live Previews on user typing or pasting
+    if (pcInput) {
+      pcInput.addEventListener('input', () => updatePcPreview());
+      pcInput.addEventListener('change', () => updatePcPreview());
+    }
+    if (mobileInput) {
+      mobileInput.addEventListener('input', () => updateMobilePreview());
+      mobileInput.addEventListener('change', () => updateMobilePreview());
+    }
+    if (logoInput) {
+      logoInput.addEventListener('input', () => updateLogoPreview());
+      logoInput.addEventListener('change', () => updateLogoPreview());
+    }
+
+    if (pcImg) {
+      pcImg.addEventListener('error', () => {
+        pcImg.style.display = 'none';
+        const txt = document.getElementById('admin-sponsor-pc-empty-text');
+        if (txt) { txt.textContent = 'Invalid Image URL'; txt.style.display = 'block'; }
+      });
+      pcImg.addEventListener('load', () => {
+        pcImg.style.display = 'block';
+        const txt = document.getElementById('admin-sponsor-pc-empty-text');
+        if (txt) txt.style.display = 'none';
+      });
+    }
+
+    if (mobileImg) {
+      mobileImg.addEventListener('error', () => {
+        mobileImg.style.display = 'none';
+        const txt = document.getElementById('admin-sponsor-mobile-empty-text');
+        if (txt) { txt.textContent = 'Invalid Image URL'; txt.style.display = 'block'; }
+      });
+      mobileImg.addEventListener('load', () => {
+        mobileImg.style.display = 'block';
+        const txt = document.getElementById('admin-sponsor-mobile-empty-text');
+        if (txt) txt.style.display = 'none';
+      });
+    }
+
+    if (logoImg) {
+      logoImg.addEventListener('error', () => {
+        const wrap = document.getElementById('admin-sponsor-logo-preview-wrap');
+        if (wrap) wrap.style.display = 'none';
+      });
+    }
 
     // Save Poster URLs
     if (savePostersBtn) {
@@ -2851,18 +2942,18 @@
         saveData('abhigraha_sponsors', data);
         renderPublicSponsors();
         renderAdminSponsorsList();
-        showToast('Sponsor poster links saved successfully!');
+        showToast('Sponsor poster links saved.');
       });
     }
 
     // Clear Poster URLs
     if (clearPostersBtn) {
       clearPostersBtn.addEventListener('click', () => {
-        if (confirm('Clear both PC and Mobile sponsor poster links?')) {
-          const pcInput = document.getElementById('admin-sponsor-pc-url');
-          const mobileInput = document.getElementById('admin-sponsor-mobile-url');
+        if (confirm('Clear both desktop and mobile poster links?')) {
           if (pcInput) pcInput.value = '';
           if (mobileInput) mobileInput.value = '';
+          updatePcPreview('');
+          updateMobilePreview('');
           const data = getSponsors();
           data.desktopPosterUrl = '';
           data.mobilePosterUrl = '';
@@ -2879,7 +2970,8 @@
       addBtn.addEventListener('click', () => {
         if (form) form.reset();
         document.getElementById('admin-sponsor-edit-id').value = '';
-        document.getElementById('admin-sponsor-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Sponsor Partner</span>`;
+        document.getElementById('admin-sponsor-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Partner</span>`;
+        updateLogoPreview('');
         formPanel.style.display = 'block';
         formPanel.scrollIntoView({ behavior: 'smooth' });
       });
@@ -2926,11 +3018,11 @@
           if (idx !== -1) {
             data.items[idx] = { id: editId, name, tier, logo, link };
           }
-          showToast(`Sponsor "${name}" updated!`);
+          showToast(`Sponsor "${name}" updated.`);
         } else {
           const newId = 'spn-' + Date.now();
           data.items.push({ id: newId, name, tier, logo, link });
-          showToast(`Sponsor "${name}" added!`);
+          showToast(`Sponsor "${name}" added.`);
         }
 
         saveData('abhigraha_sponsors', data);
@@ -2956,11 +3048,14 @@
       mobileInput.value = sponsorsData.mobilePosterUrl || '';
     }
 
+    updatePcPreview(sponsorsData.desktopPosterUrl || '');
+    updateMobilePreview(sponsorsData.mobilePosterUrl || '');
+
     const items = sponsorsData.items || [];
     const hasPosters = !!(sponsorsData.desktopPosterUrl || sponsorsData.mobilePosterUrl);
 
     if (countEl) {
-      countEl.textContent = `${items.length} Partner${items.length !== 1 ? 's' : ''} ${hasPosters ? '· Posters Active' : '· No Posters'}`;
+      countEl.textContent = `${items.length} Partner${items.length !== 1 ? 's' : ''} ${hasPosters ? '· Posters Set' : '· No Posters'}`;
     }
 
     if (!container) return;
@@ -2969,7 +3064,7 @@
       container.innerHTML = `
         <div style="text-align: center; padding: 24px; color: var(--color-text-muted); background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
           <p style="margin: 0; font-size: 0.9rem; color: #fff4db;">No individual partner brand cards added yet.</p>
-          <p style="margin: 6px 0 0; font-size: 0.82rem; color: #a38c94;">Use the PC & Mobile poster URLs above for your full-width uncropped festival posters, or click <strong>"Add Partner"</strong> to spotlight specific sponsor logos.</p>
+          <p style="margin: 6px 0 0; font-size: 0.8rem; color: #a38c94;">Use the Desktop & Mobile poster fields above to display festival banners, or click <strong>Add Partner</strong> to spotlight individual brand logos.</p>
         </div>
       `;
       return;
@@ -2992,8 +3087,8 @@
             <span class="admin-topbar-badge">${escapeHtml(spn.tier || 'Partner')}</span>
           </div>
           <div class="admin-item-meta">
-            ${spn.link ? `<span>🔗 <a href="${escapeHtml(spn.link)}" target="_blank" style="color: var(--color-gold-bright); text-decoration: underline;">${escapeHtml(spn.link)}</a></span> &bull; ` : ''}
-            <span>${spn.logo ? '🖼️ Logo Configured' : '🌐 Text Only'}</span>
+            ${spn.link ? `<span><a href="${escapeHtml(spn.link)}" target="_blank" style="color: var(--color-gold-bright); text-decoration: underline;">${escapeHtml(spn.link)}</a></span> &bull; ` : ''}
+            <span>${spn.logo ? 'Logo Configured' : 'Text Only'}</span>
           </div>
         </div>
         <div class="admin-item-actions">
@@ -3052,7 +3147,8 @@
         document.getElementById('admin-sponsor-tier').value = item.tier || '';
         document.getElementById('admin-sponsor-logo').value = item.logo || '';
         document.getElementById('admin-sponsor-link').value = item.link || '';
-        document.getElementById('admin-sponsor-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Sponsor: ${escapeHtml(item.name)}</span>`;
+        document.getElementById('admin-sponsor-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Partner: ${escapeHtml(item.name)}</span>`;
+        updateLogoPreview(item.logo || '');
 
         if (formPanel) {
           formPanel.style.display = 'block';
