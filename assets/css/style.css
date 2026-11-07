@@ -2950,353 +2950,142 @@ body {
 }
 
 /* ==========================================================================
-   CONTACT US MODAL & DYNAMIC REPRESENTATIVES (IMPERIAL CHINESE THEME)
+   CONTACT US MODAL & DYNAMIC REPRESENTATIVES
    ========================================================================== */
 .contact-modal-window {
-  max-width: 660px;
-  width: 94%;
-  max-height: 90vh;
+  max-width: 620px;
+  width: 92%;
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
-  position: relative;
-  background: radial-gradient(circle at 50% 0%, rgba(55, 12, 22, 0.98) 0%, rgba(20, 5, 10, 0.99) 100%);
-  border: 1.5px solid rgba(251, 191, 36, 0.55);
-  border-radius: 24px;
-  padding: 32px 30px 24px;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(220, 38, 38, 0.3), inset 0 0 35px rgba(245, 158, 11, 0.08);
-  backdrop-filter: blur(20px);
-  overflow: hidden;
 }
 
-/* Subtle Imperial Radial Glow inside modal */
-.contact-modal-window::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 50% 30%, rgba(251, 191, 36, 0.05) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Close Button (Imperial Cinnabar Seal) */
-.contact-modal-close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(251, 191, 36, 0.65);
-  background: radial-gradient(circle, rgba(160, 24, 38, 0.9) 0%, rgba(50, 8, 14, 0.95) 100%);
-  color: #fff1d6;
-  font-size: 1.15rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 10px rgba(245, 158, 11, 0.2);
-  z-index: 10;
-}
-
-.contact-modal-close-btn:hover {
-  background: radial-gradient(circle, #dc2626 0%, #7f1d1d 100%);
-  border-color: #ffd54f;
-  color: #ffffff;
-  transform: rotate(90deg) scale(1.08);
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
-}
-
-/* Modal Header */
-.contact-modal-header {
+.contact-modal-window .modal-title {
   text-align: center;
-  position: relative;
-  z-index: 2;
   margin-bottom: 6px;
 }
 
-.contact-header-ornament {
-  margin-bottom: 2px;
-  display: flex;
-  justify-content: center;
-}
-
-.contact-crest-svg {
-  width: 100px;
-  height: 22px;
-  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5));
-}
-
-.contact-modal-hanzi {
-  display: block;
-  font-family: var(--font-kanji), 'Noto Serif JP', serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.35em;
-  color: rgba(251, 191, 36, 0.75);
-  margin-bottom: 2px;
-  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-}
-
-.contact-modal-title {
-  font-family: var(--font-cinzel), serif;
-  font-size: 1.7rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  background: linear-gradient(135deg, #fff7d6 0%, #ffd54f 45%, #ffb300 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin: 0;
-  line-height: 1.2;
-  text-shadow: 0 2px 14px rgba(245, 158, 11, 0.35);
-}
-
-.contact-modal-subtitle {
-  font-size: 0.82rem;
-  color: #d1b8bf;
-  letter-spacing: 0.04em;
-  margin: 4px 0 10px;
-}
-
-.contact-ornamental-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  max-width: 320px;
-  margin: 0 auto 10px;
-}
-
-.contact-divider-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.5), transparent);
-}
-
-.contact-divider-knot {
-  color: var(--color-gold-bright);
-  font-size: 0.75rem;
-  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.7));
-}
-
-/* Representatives Container */
 .contact-representatives-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  margin-top: 18px;
   overflow-y: auto;
-  max-height: calc(88vh - 210px);
-  padding: 4px 6px 4px 2px;
-  position: relative;
-  z-index: 2;
+  max-height: calc(88vh - 130px);
+  padding-right: 4px;
 }
 
-/* Custom Scrollbar */
+/* Custom scrollbar for contacts container */
 .contact-representatives-container::-webkit-scrollbar {
   width: 5px;
 }
 .contact-representatives-container::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
 .contact-representatives-container::-webkit-scrollbar-thumb {
-  background: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.35);
   border-radius: 4px;
 }
 .contact-representatives-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(251, 191, 36, 0.75);
+  background: rgba(251, 191, 36, 0.6);
 }
 
-/* Representative Card (Imperial Lacquer Plaque) */
 .contact-representative-card {
+  background: linear-gradient(135deg, rgba(38, 9, 16, 0.8), rgba(18, 5, 8, 0.9));
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   position: relative;
-  background: linear-gradient(145deg, rgba(38, 10, 18, 0.94) 0%, rgba(18, 5, 9, 0.98) 100%);
-  border: 1px solid rgba(251, 191, 36, 0.38);
-  border-radius: 16px;
-  padding: 18px 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .contact-representative-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(251, 191, 36, 0.7);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 158, 11, 0.22);
+  border-color: rgba(251, 191, 36, 0.55);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 15px rgba(245, 158, 11, 0.15);
 }
 
-/* Card Chinese Accents */
-.card-chinese-accent {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  pointer-events: none;
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
-}
-.contact-representative-card:hover .card-chinese-accent {
-  opacity: 1;
-}
-.card-chinese-accent.tl {
-  top: 4px;
-  left: 4px;
-  border-top: 2px solid var(--color-gold-bright);
-  border-left: 2px solid var(--color-gold-bright);
-}
-.card-chinese-accent.tr {
-  top: 4px;
-  right: 4px;
-  border-top: 2px solid var(--color-gold-bright);
-  border-right: 2px solid var(--color-gold-bright);
-}
-
-/* Card Header */
 .contact-rep-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-}
-
-/* Imperial Seal Avatar */
-.contact-rep-avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .contact-rep-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: radial-gradient(circle at 35% 35%, #881324 0%, #30060d 100%);
-  border: 1.5px solid rgba(251, 191, 36, 0.75);
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35), inset 0 0 8px rgba(0, 0, 0, 0.6);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #5b101e 0%, #200409 100%);
+  border: 1.5px solid rgba(251, 191, 36, 0.6);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 2;
-  transition: transform 0.3s ease;
-}
-
-.contact-representative-card:hover .contact-rep-avatar {
-  transform: scale(1.05);
-}
-
-.avatar-seal-char {
   font-family: var(--font-cinzel), serif;
-  font-weight: 800;
-  font-size: 1.35rem;
-  color: #fff2cc;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 6px rgba(251, 191, 36, 0.6);
-  line-height: 1;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--color-gold-bright);
+  flex-shrink: 0;
 }
 
-/* Info Section */
 .contact-rep-info {
   flex: 1;
   min-width: 0;
 }
 
-.contact-rep-title-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
-}
-
 .contact-rep-name {
   font-family: var(--font-cinzel), serif;
-  font-size: 1.12rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  color: #fff9ea;
+  color: #fff4db;
   letter-spacing: 0.03em;
-  margin: 0;
+  margin: 0 0 4px 0;
   line-height: 1.25;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
 }
 
-/* Imperial Silk Ribbon Badge */
 .contact-rep-role {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: #fde047;
-  background: linear-gradient(135deg, rgba(185, 28, 28, 0.45) 0%, rgba(180, 83, 9, 0.4) 100%);
-  border: 1px solid rgba(251, 191, 36, 0.5);
-  border-radius: 999px;
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 20px;
   padding: 2px 10px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.02em;
 }
 
-.role-star {
-  font-size: 0.7rem;
-  color: var(--color-gold-bright);
-}
-
-/* Channels Container */
 .contact-rep-channels {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
-  margin-top: 14px;
 }
 
-/* Interactive Channel Pill */
 .contact-channel-pill {
+  flex: 1 1 200px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  background: rgba(18, 5, 10, 0.75);
-  border: 1px solid rgba(251, 191, 36, 0.26);
-  border-radius: 10px;
+  gap: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 9px;
   padding: 9px 12px;
-  color: #f3e8eb;
+  color: #f1e7ea;
   text-decoration: none;
-  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+  font-size: 0.82rem;
+  transition: all var(--transition-fast);
   min-width: 0;
 }
 
 .contact-channel-pill:hover {
-  background: linear-gradient(135deg, rgba(55, 14, 25, 0.9) 0%, rgba(30, 8, 14, 0.95) 100%);
-  border-color: rgba(251, 191, 36, 0.7);
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
-  transform: translateY(-2px);
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(251, 191, 36, 0.5);
   color: #ffffff;
-}
-
-.contact-channel-main {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  flex: 1;
-}
-
-.contact-channel-icon-wrap {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.25s ease, border-color 0.25s ease;
-}
-
-.contact-channel-pill:hover .contact-channel-icon-wrap {
-  background: rgba(251, 191, 36, 0.2);
-  border-color: var(--color-gold-bright);
+  transform: translateY(-1px);
 }
 
 .contact-channel-icon {
@@ -3306,116 +3095,22 @@ body {
   flex-shrink: 0;
 }
 
-.contact-channel-info {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  flex: 1;
-}
-
-.contact-channel-tag {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #d97706;
-  text-transform: uppercase;
-  line-height: 1;
-  margin-bottom: 3px;
-}
-
-.contact-channel-pill:hover .contact-channel-tag {
-  color: #fbbf24;
-}
-
-.contact-channel-value {
-  font-size: 0.84rem;
-  color: #fff4f6;
-  font-weight: 500;
-  white-space: nowrap;
+.contact-channel-text {
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
-/* Action Badge on Right ("Write →" / "Call →") */
-.contact-channel-action {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: rgba(251, 191, 36, 0.85);
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.25);
-  border-radius: 6px;
-  padding: 4px 8px;
-  flex-shrink: 0;
-  transition: all 0.25s ease;
-}
-
-.contact-action-arrow {
-  width: 12px;
-  height: 12px;
-  transition: transform 0.25s ease;
-}
-
-.contact-channel-pill:hover .contact-channel-action {
-  background: var(--color-gold-bright);
-  color: #1a0509;
-  border-color: #ffd54f;
-}
-
-.contact-channel-pill:hover .contact-action-arrow {
-  transform: translateX(3px);
-}
-
-/* Empty State */
 .contact-empty-state {
   text-align: center;
-  padding: 36px 16px;
-  color: #d1b8bf;
+  padding: 30px 16px;
+  color: #a38c94;
   font-size: 0.95rem;
 }
 
-/* Footer Advisory Note */
-.contact-modal-footer-note {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px dashed rgba(251, 191, 36, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 0.76rem;
-  color: #b59ea6;
-  letter-spacing: 0.03em;
-  text-align: center;
-  position: relative;
-  z-index: 2;
-}
-
-.footer-note-lantern {
-  font-size: 0.9rem;
-  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.6));
-}
-
-/* Responsive adjustment for small phones */
-@media (max-width: 580px) {
-  .contact-modal-window {
-    padding: 26px 16px 20px;
-    width: 95%;
-  }
-  .contact-modal-title {
-    font-size: 1.4rem;
-  }
+@media (max-width: 600px) {
   .contact-rep-channels {
     grid-template-columns: 1fr;
-  }
-  .contact-channel-pill {
-    padding: 8px 10px;
-  }
-  .contact-channel-value {
-    font-size: 0.8rem;
   }
 }
 

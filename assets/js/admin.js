@@ -1394,19 +1394,14 @@
     }
   }
 
-  // 6. Public Contact Us Representatives (Imperial Chinese Theme)
+  // 6. Public Contact Us Representatives
   function renderPublicContacts() {
     const container = document.getElementById('contact-representatives-container');
     if (!container) return;
 
     const contacts = getContacts();
     if (!contacts || contacts.length === 0) {
-      container.innerHTML = `
-        <div class="contact-empty-state">
-          <span class="contact-empty-icon" style="font-size: 2rem; display: block; margin-bottom: 8px;">📜</span>
-          <p>Official representative contacts will be announced shortly.</p>
-        </div>
-      `;
+      container.innerHTML = '<div class="contact-empty-state"><p>Official representative contacts will be announced shortly.</p></div>';
       return;
     }
 
@@ -1414,77 +1409,31 @@
       const initial = (c.name || 'C').charAt(0).toUpperCase();
       const cleanPhone = (c.phone || '').replace(/[^\d+]/g, '');
       const hasEmail = Boolean(c.email && c.email.trim());
-      const emailVal = (c.email || '').trim();
-
       const emailHtml = hasEmail ? `
-            <a href="mailto:${encodeURIComponent(emailVal)}" class="contact-channel-pill contact-email-pill" title="Send Email to ${escapeHtml(c.name)}">
-              <div class="contact-channel-main">
-                <div class="contact-channel-icon-wrap email-icon-wrap" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
-                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                  </svg>
-                </div>
-                <div class="contact-channel-info">
-                  <span class="contact-channel-tag">EMAIL</span>
-                  <span class="contact-channel-value" title="${escapeHtml(emailVal)}">${escapeHtml(emailVal)}</span>
-                </div>
-              </div>
-              <div class="contact-channel-action" aria-hidden="true">
-                <span>Write</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="contact-action-arrow">
-                  <path d="M5 12h14"></path>
-                  <path d="m12 5 7 7-7 7"></path>
-                </svg>
-              </div>
+            <a href="mailto:${encodeURIComponent(c.email.trim())}" class="contact-channel-pill" title="Email ${escapeHtml(c.name)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+              <span class="contact-channel-text">${escapeHtml(c.email.trim())}</span>
             </a>` : '';
 
       return `
         <div class="contact-representative-card">
-          <!-- Card Corner Accents -->
-          <span class="card-chinese-accent tl" aria-hidden="true"></span>
-          <span class="card-chinese-accent tr" aria-hidden="true"></span>
-
           <div class="contact-rep-header">
-            <!-- Imperial Seal Avatar -->
-            <div class="contact-rep-avatar-wrap" aria-hidden="true">
-              <div class="contact-rep-avatar">
-                <span class="avatar-seal-char">${escapeHtml(initial)}</span>
-              </div>
-            </div>
-
+            <div class="contact-rep-avatar">${escapeHtml(initial)}</div>
             <div class="contact-rep-info">
-              <div class="contact-rep-title-row">
-                <h4 class="contact-rep-name">${escapeHtml(c.name)}</h4>
-                <span class="contact-rep-role">
-                  <span class="role-star">✦</span>
-                  <span>${escapeHtml(c.designation || 'Council')}</span>
-                </span>
-              </div>
+              <h4 class="contact-rep-name">${escapeHtml(c.name)}</h4>
+              <span class="contact-rep-role">${escapeHtml(c.designation)}</span>
             </div>
           </div>
-
           <div class="contact-rep-channels">
             ${emailHtml}
-            <a href="tel:${escapeHtml(cleanPhone)}" class="contact-channel-pill contact-phone-pill" title="Call ${escapeHtml(c.name)}">
-              <div class="contact-channel-main">
-                <div class="contact-channel-icon-wrap phone-icon-wrap" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                  </svg>
-                </div>
-                <div class="contact-channel-info">
-                  <span class="contact-channel-tag">PHONE</span>
-                  <span class="contact-channel-value">${escapeHtml(c.phone)}</span>
-                </div>
-              </div>
-              <div class="contact-channel-action" aria-hidden="true">
-                <span>Call</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="contact-action-arrow">
-                  <path d="M5 12h14"></path>
-                  <path d="m12 5 7 7-7 7"></path>
-                </svg>
-              </div>
+            <a href="tel:${escapeHtml(cleanPhone)}" class="contact-channel-pill" title="Call ${escapeHtml(c.name)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="contact-channel-icon">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              <span class="contact-channel-text">${escapeHtml(c.phone)}</span>
             </a>
           </div>
         </div>
