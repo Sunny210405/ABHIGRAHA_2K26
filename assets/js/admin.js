@@ -6,7 +6,6 @@
  *    - Events & Battles
  *    - Schedule & Timelines (Day 1 / Day 2)
  *    - Crowns of 2K26
- *    - Official Merchandise
  *    - Moments & Memories Gallery
  * 3. Live Applicant Management & CSV Export.
  * 4. Real-time DOM synchronization across public festival views.
@@ -89,15 +88,6 @@
           }));
           localStorage.setItem('abhigraha_crowns', JSON.stringify(enrichedCrowns));
         }
-
-        const existingMerch = JSON.parse(localStorage.getItem('abhigraha_merchandise') || 'null');
-        if (existingMerch && Array.isArray(existingMerch)) {
-          const enrichedMerch = existingMerch.map((m, idx) => ({
-            ...m,
-            formUrl: m.formUrl || (DEFAULT_MERCH[idx] ? DEFAULT_MERCH[idx].formUrl : 'https://forms.gle/abhigraha2k26-merch')
-          }));
-          localStorage.setItem('abhigraha_merchandise', JSON.stringify(enrichedMerch));
-        }
       } catch (e) {}
       localStorage.setItem('abhigraha_defaults_rev', DATASET_REV);
     }
@@ -117,39 +107,6 @@
       name: '',
       dept: '',
       imageUrl: ''
-    }
-  ];
-
-  const DEFAULT_MERCH = [
-    {
-      id: 'mrc-1',
-      title: 'Imperial Festival Kimono Hoodie',
-      price: '₹799',
-      tag: 'Popular',
-      desc: 'Premium oriental embroidered heavyweight hoodie with gold foil dragon iconography.',
-      icon: '👘',
-      imageUrl: '',
-      formUrl: 'https://forms.gle/abhigraha2k26-hoodie'
-    },
-    {
-      id: 'mrc-2',
-      title: 'Abhigraha 2K26 Graphic T-Shirt',
-      price: '₹399',
-      tag: 'Trending',
-      desc: '100% bio-washed cotton tee with glowing lantern screenprint and TNU official event signature.',
-      icon: '👕',
-      imageUrl: '',
-      formUrl: 'https://forms.gle/abhigraha2k26-tshirt'
-    },
-    {
-      id: 'mrc-3',
-      title: 'VIP Access Pass + Glow Wristband',
-      price: '₹199',
-      tag: 'Limited',
-      desc: 'Front-row arena entry for celebrity star night, LED festival wristband, and holographic souvenir badge.',
-      icon: '🎟️',
-      imageUrl: '',
-      formUrl: 'https://forms.gle/abhigraha2k26-vippass'
     }
   ];
 
@@ -201,7 +158,6 @@
     'abhigraha_events': 'events',
     'abhigraha_schedule': 'schedule',
     'abhigraha_crowns': 'crowns',
-    'abhigraha_merchandise': 'merchandise',
     'abhigraha_gallery': 'gallery',
     'abhigraha_contacts': 'contacts',
     'abhigraha_visibility': 'visibility'
@@ -211,7 +167,6 @@
     'events': 'abhigraha_events',
     'schedule': 'abhigraha_schedule',
     'crowns': 'abhigraha_crowns',
-    'merchandise': 'abhigraha_merchandise',
     'gallery': 'abhigraha_gallery',
     'contacts': 'abhigraha_contacts',
     'visibility': 'abhigraha_visibility'
@@ -273,7 +228,7 @@
 
           // If the broadcast payload includes the actual batch data, write it to localStorage immediately in 0ms!
           if (payload.batch && typeof payload.batch === 'object') {
-            const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
+            const keys = ['events', 'schedule', 'crowns', 'gallery', 'contacts'];
             keys.forEach(k => {
               const val = payload.batch[k];
               if (Array.isArray(val) || (k === 'gallery' && val && typeof val === 'object')) {
@@ -418,7 +373,7 @@
           localStorage.setItem('abhigraha_last_updated', finalVersion);
 
           // Immediately load data into localStorage from response
-          const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
+          const keys = ['events', 'schedule', 'crowns', 'gallery', 'contacts'];
           keys.forEach(k => {
             const val = fullJson[k];
             if (Array.isArray(val) || (k === 'gallery' && val && typeof val === 'object')) {
@@ -641,7 +596,6 @@
         events: getEvents(),
         schedule: getSchedule(),
         crowns: getCrowns(),
-        merchandise: getMerch(),
         gallery: getGallery(),
         contacts: getContacts(),
         visibility: getVisibility()
@@ -752,7 +706,7 @@
       }
 
       let updatedAny = false;
-      const keys = ['events', 'schedule', 'crowns', 'merchandise', 'gallery', 'contacts'];
+      const keys = ['events', 'schedule', 'crowns', 'gallery', 'contacts'];
       keys.forEach(k => {
         const localKey = REVERSE_KEY_MAPPING[k];
         // Do not overwrite local keys that have pending draft changes!
@@ -854,7 +808,6 @@
   const DEFAULT_VISIBILITY = {
     events_cs: false,
     schedule_cs: false,
-    merchandise_cs: false,
     gallery_cs: false
   };
 
@@ -869,7 +822,6 @@
   function getEvents() { return loadData('abhigraha_events', DEFAULT_EVENTS); }
   function getSchedule() { return loadData('abhigraha_schedule', DEFAULT_SCHEDULE); }
   function getCrowns() { return loadData('abhigraha_crowns', DEFAULT_CROWNS); }
-  function getMerch() { return loadData('abhigraha_merchandise', DEFAULT_MERCH); }
   function getGallery() {
     const raw = loadData('abhigraha_gallery', DEFAULT_GALLERY);
     if (Array.isArray(raw)) {
@@ -917,7 +869,6 @@
     renderPublicEvents();
     renderPublicSchedule();
     renderPublicCrowns();
-    renderPublicMerch();
     renderPublicGallery();
     renderPublicContacts();
     syncRegistrationDropdown();
@@ -1121,58 +1072,7 @@
     }).join('');
   }
 
-  // 4. Merchandise Page
-  function renderPublicMerch() {
-    const liveEl = document.getElementById('merch-live-content');
-    const csEl = document.getElementById('merch-cs-content');
-    const container = document.getElementById('merch-container');
-
-    const vis = getVisibility();
-    if (vis.merchandise_cs) {
-      if (liveEl) liveEl.style.display = 'none';
-      if (csEl) csEl.style.display = 'block';
-      return;
-    }
-
-    if (liveEl) liveEl.style.display = 'block';
-    if (csEl) csEl.style.display = 'none';
-
-    if (!container) return;
-
-    const merch = getMerch();
-    if (merch.length === 0) {
-      container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color: #a38c94;">Official festival merchandise catalog opening soon.</p>';
-      return;
-    }
-
-    container.innerHTML = merch.map(m => {
-      const img = (m.imageUrl || '').trim();
-      const visualContent = img
-        ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(m.title)}" class="merch-img-preview" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';">
-           <span class="merch-icon-preview" style="display:none;">${m.icon || '🛍️'}</span>`
-        : `<span class="merch-icon-preview">${m.icon || '🛍️'}</span>`;
-
-      return `
-        <div class="merch-card">
-          <div class="merch-visual">
-            ${visualContent}
-            <span class="merch-tag">${escapeHtml(m.tag || 'Official')}</span>
-          </div>
-          <div class="merch-info">
-            <h4 class="merch-title">${escapeHtml(m.title)}</h4>
-            <div class="merch-price">${escapeHtml(m.price)}</div>
-            <p class="merch-desc">${escapeHtml(m.desc || '')}</p>
-            <button class="merch-btn" data-merch="${escapeHtml(m.title)} (${escapeHtml(m.price)})" data-form-url="${escapeHtml(m.formUrl || '')}">
-              <svg class="btn-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-              <span>Pre-Order Now</span>
-            </button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // 5. Gallery Page (Redesigned with Sub-Headings, 3s Auto-Scroll Carousels & Google Drive Button)
+  // 4. Gallery Page (Redesigned with Sub-Headings, 3s Auto-Scroll Carousels & Google Drive Button)
   function renderPublicGallery() {
     const liveEl = document.getElementById('gallery-live-content');
     const csEl = document.getElementById('gallery-cs-content');
@@ -1368,7 +1268,7 @@
     });
   }
 
-  // 6. Public Contact Us Representatives
+  // 5. Public Contact Us Representatives
   function renderPublicContacts() {
     const container = document.getElementById('contact-representatives-container');
     if (!container) return;
@@ -1612,7 +1512,6 @@
     initEventsAdmin();
     initScheduleAdmin();
     initCrownsAdmin();
-    initMerchAdmin();
     initGalleryAdmin();
     initContactsAdmin();
     initVisibilityToggles();
@@ -1623,7 +1522,6 @@
     const configs = [
       { id: 'toggle-cs-events', key: 'events_cs' },
       { id: 'toggle-cs-schedule', key: 'schedule_cs' },
-      { id: 'toggle-cs-merchandise', key: 'merchandise_cs' },
       { id: 'toggle-cs-gallery', key: 'gallery_cs' }
     ];
 
@@ -1638,7 +1536,6 @@
     const configs = [
       { id: 'toggle-cs-events', key: 'events_cs', name: 'Events' },
       { id: 'toggle-cs-schedule', key: 'schedule_cs', name: 'Schedule' },
-      { id: 'toggle-cs-merchandise', key: 'merchandise_cs', name: 'Merchandise' },
       { id: 'toggle-cs-gallery', key: 'gallery_cs', name: 'Gallery' }
     ];
 
@@ -1668,7 +1565,6 @@
     if (tab === 'events') renderAdminEventsList();
     else if (tab === 'schedule') renderAdminScheduleList();
     else if (tab === 'crowns') renderAdminCrownsList();
-    else if (tab === 'merchandise') renderAdminMerchList();
     else if (tab === 'gallery') renderAdminGalleryList();
     else if (tab === 'contacts') renderAdminContactsList();
   }
@@ -2264,202 +2160,7 @@
   }
 
   // ==========================================================================
-  // TAB 5: MERCHANDISE MANAGEMENT (ADD, EDIT, REMOVE)
-  // ==========================================================================
-  function initMerchAdmin() {
-    const addBtn = document.getElementById('admin-add-merch-btn');
-    const resetBtn = document.getElementById('admin-reset-merch-btn');
-    const formPanel = document.getElementById('admin-merch-form-panel');
-    const form = document.getElementById('admin-merch-form');
-    const cancelBtn = document.getElementById('admin-merch-cancel-btn');
-
-    if (addBtn && formPanel) {
-      addBtn.addEventListener('click', () => {
-        form.reset();
-        document.getElementById('admin-merch-edit-id').value = '';
-        const imgInput = document.getElementById('admin-merch-image');
-        if (imgInput) imgInput.value = '';
-        const formUrlInput = document.getElementById('admin-merch-form-url');
-        if (formUrlInput) formUrlInput.value = '';
-        document.getElementById('admin-merch-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Merchandise</span>`;
-        formPanel.style.display = 'block';
-        formPanel.scrollIntoView({ behavior: 'smooth' });
-      });
-    }
-
-    if (cancelBtn && formPanel) {
-      cancelBtn.addEventListener('click', () => {
-        formPanel.style.display = 'none';
-      });
-    }
-
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        if (confirm('Reset merchandise items to official defaults?')) {
-          saveData('abhigraha_merchandise', DEFAULT_MERCH);
-          renderPublicMerch();
-          renderAdminMerchList();
-          showToast('Merchandise reset to defaults.');
-        }
-      });
-    }
-
-    if (form) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const editId = document.getElementById('admin-merch-edit-id').value;
-        const title = document.getElementById('admin-merch-title').value.trim();
-        const price = document.getElementById('admin-merch-price').value.trim();
-        const tag = document.getElementById('admin-merch-tag').value.trim();
-        const icon = document.getElementById('admin-merch-icon').value.trim() || '🛍️';
-        const imageUrl = (document.getElementById('admin-merch-image')?.value || '').trim();
-        const formUrl = (document.getElementById('admin-merch-form-url')?.value || '').trim();
-        const desc = document.getElementById('admin-merch-desc').value.trim();
-
-        if (!title || !price) {
-          alert('Please enter Title and Price.');
-          return;
-        }
-
-        const list = getMerch();
-        if (editId) {
-          const idx = list.findIndex(i => i.id === editId);
-          if (idx !== -1) list[idx] = { id: editId, title, price, tag, icon, imageUrl, desc, formUrl };
-          showToast(`Merchandise "${title}" updated!`);
-        } else {
-          list.push({ id: 'mrc-' + Date.now(), title, price, tag, icon, imageUrl, desc, formUrl });
-          showToast(`Merchandise "${title}" added!`);
-        }
-
-        saveData('abhigraha_merchandise', list);
-        formPanel.style.display = 'none';
-        renderPublicMerch();
-        renderAdminMerchList();
-      });
-    }
-  }
-
-  function renderAdminMerchList() {
-    const container = document.getElementById('admin-merch-list');
-    const countEl = document.getElementById('admin-merch-count');
-    if (!container) return;
-
-    const list = getMerch();
-    if (countEl) countEl.textContent = `${list.length} Items`;
-
-    if (list.length === 0) {
-      container.innerHTML = '<p style="color:#a38c94; text-align:center; padding:16px;">No merchandise items available.</p>';
-      return;
-    }
-
-    container.innerHTML = list.map((m, idx) => `
-      <div class="admin-item-card">
-        <div class="admin-item-order-corner">
-          <button type="button" class="btn-order-circle" data-order-up-mrc="${m.id}" title="Move Up" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
-            ${ADMIN_ICONS.moveUp}
-          </button>
-          <button type="button" class="btn-order-circle" data-order-down-mrc="${m.id}" title="Move Down" aria-label="Move Down" ${idx === list.length - 1 ? 'disabled' : ''}>
-            ${ADMIN_ICONS.moveDown}
-          </button>
-        </div>
-        <div class="admin-item-main">
-          <div class="admin-item-title">
-            <span class="admin-order-badge">#${idx + 1}</span>
-            <span style="display:inline-block; width:34px; height:26px; border-radius:6px; overflow:hidden; vertical-align:middle; border:1px solid #f59e0b; background:#1a0b11; text-align:center;">
-              ${m.imageUrl ? `<img src="${escapeHtml(m.imageUrl)}" style="width:100%; height:100%; object-fit:contain;">` : `<span style="font-size:1.1rem; line-height:26px;">${m.icon || '🛍️'}</span>`}
-            </span>
-            <span>${escapeHtml(m.title)}</span>
-            <span class="admin-topbar-badge">${escapeHtml(m.price)}</span>
-            <span style="font-size:0.75rem; color:#fde68a;">[${escapeHtml(m.tag || '-')}]</span>
-          </div>
-          <div class="admin-item-meta">
-            ${escapeHtml(m.desc || '')}
-            ${m.imageUrl ? `<div style="margin-top: 4px;"><a href="${escapeHtml(m.imageUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🖼️ Photo Link</a></div>` : ''}
-            ${m.formUrl ? `<div style="margin-top: 4px;"><a href="${escapeHtml(m.formUrl)}" target="_blank" rel="noopener noreferrer" class="admin-form-link-badge">🔗 Order Form: ${escapeHtml(m.formUrl)}</a></div>` : ''}
-          </div>
-        </div>
-        <div class="admin-item-actions">
-          <button class="btn-action-edit" data-edit-mrc="${m.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
-          <button class="btn-action-delete" data-del-mrc="${m.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
-        </div>
-      </div>
-    `).join('');
-
-    container.querySelectorAll('[data-order-up-mrc]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-order-up-mrc');
-        const mList = getMerch();
-        const idx = mList.findIndex(i => i.id === id);
-        if (idx > 0) {
-          const temp = mList[idx];
-          mList[idx] = mList[idx - 1];
-          mList[idx - 1] = temp;
-          saveData('abhigraha_merchandise', mList);
-          renderPublicMerch();
-          renderAdminMerchList();
-          showToast(`Merchandise "${temp.title}" moved up to #${idx}.`);
-        }
-      });
-    });
-
-    container.querySelectorAll('[data-order-down-mrc]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-order-down-mrc');
-        const mList = getMerch();
-        const idx = mList.findIndex(i => i.id === id);
-        if (idx !== -1 && idx < mList.length - 1) {
-          const temp = mList[idx];
-          mList[idx] = mList[idx + 1];
-          mList[idx + 1] = temp;
-          saveData('abhigraha_merchandise', mList);
-          renderPublicMerch();
-          renderAdminMerchList();
-          showToast(`Merchandise "${temp.title}" moved down to #${idx + 2}.`);
-        }
-      });
-    });
-
-    container.querySelectorAll('[data-edit-mrc]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-edit-mrc');
-        const m = getMerch().find(i => i.id === id);
-        if (!m) return;
-
-        const formPanel = document.getElementById('admin-merch-form-panel');
-        document.getElementById('admin-merch-edit-id').value = m.id;
-        document.getElementById('admin-merch-title').value = m.title;
-        document.getElementById('admin-merch-price').value = m.price;
-        document.getElementById('admin-merch-tag').value = m.tag || '';
-        document.getElementById('admin-merch-icon').value = m.icon || '🛍️';
-        const imgInput = document.getElementById('admin-merch-image');
-        if (imgInput) imgInput.value = m.imageUrl || '';
-        const formUrlInput = document.getElementById('admin-merch-form-url');
-        if (formUrlInput) formUrlInput.value = m.formUrl || '';
-        document.getElementById('admin-merch-desc').value = m.desc || '';
-        document.getElementById('admin-merch-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Merch: ${escapeHtml(m.title)}</span>`;
-
-        formPanel.style.display = 'block';
-        formPanel.scrollIntoView({ behavior: 'smooth' });
-      });
-    });
-
-    container.querySelectorAll('[data-del-mrc]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-del-mrc');
-        const m = getMerch().find(i => i.id === id);
-        if (confirm(`Remove "${m ? m.title : id}"?`)) {
-          const updated = getMerch().filter(i => i.id !== id);
-          saveData('abhigraha_merchandise', updated);
-          renderPublicMerch();
-          renderAdminMerchList();
-          showToast('Merchandise item deleted.');
-        }
-      });
-    });
-  }
-
-  // ==========================================================================
-  // TAB 6: GALLERY MANAGEMENT (SUB-HEADINGS, IMAGE QUEUE, DRIVE LINK)
+  // TAB 4: GALLERY MANAGEMENT (SUB-HEADINGS, IMAGE QUEUE, DRIVE LINK)
   // ==========================================================================
   let activeGalleryQueue = [];
 
@@ -2797,7 +2498,7 @@
   }
 
   // ==========================================================================
-  // TAB 7: CONTACTS MANAGEMENT (ADD, EDIT, REMOVE, REORDER)
+  // TAB 5: CONTACTS MANAGEMENT (ADD, EDIT, REMOVE, REORDER)
   // ==========================================================================
   function initContactsAdmin() {
     const addBtn = document.getElementById('admin-add-contact-btn');
@@ -3006,7 +2707,6 @@
     getEvents,
     getSchedule,
     getCrowns,
-    getMerch,
     getGallery,
     getContacts
   };

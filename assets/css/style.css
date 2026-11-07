@@ -1754,114 +1754,6 @@ body {
   display: none;
 }
 
-/* ==========================================================================
-   MERCHANDISE SECTION
-   ========================================================================== */
-.merch-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 28px;
-}
-
-.merch-card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  transition: all var(--transition-smooth);
-  display: flex;
-  flex-direction: column;
-}
-
-.merch-card:hover {
-  transform: translateY(-6px);
-  border-color: var(--color-border-crimson);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 20px var(--color-crimson-glow);
-}
-
-.merch-visual {
-  height: 240px;
-  background: linear-gradient(135deg, #1c0b11 0%, #0d0508 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding: 16px;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Rectangular rounded corner product image keeping natural aspect ratio */
-.merch-img-preview {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 14px;
-  box-shadow: none;
-  display: block;
-  transition: transform var(--transition-smooth);
-}
-
-.merch-card:hover .merch-img-preview {
-  transform: scale(1.04);
-  box-shadow: none;
-}
-
-.merch-icon-preview {
-  font-size: 5rem;
-  filter: drop-shadow(0 10px 20px rgba(220, 38, 38, 0.4));
-  transition: transform var(--transition-smooth);
-}
-.merch-card:hover .merch-icon-preview {
-  transform: scale(1.1);
-}
-
-.merch-tag {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: var(--color-crimson-primary);
-  color: #fff;
-  font-size: 0.74rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-}
-
-.merch-info {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.merch-title {
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.merch-price {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--color-gold-bright);
-  margin-bottom: 14px;
-}
-
-.merch-desc {
-  font-size: 0.88rem;
-  color: var(--color-text-muted);
-  margin-bottom: 20px;
-  flex-grow: 1;
-}
-
-
 /* Custom Vector Button Icons (Consistent with Contact Us style) */
 .btn-svg-icon {
   width: 17px;
@@ -1875,40 +1767,14 @@ body {
 }
 
 .event-schedule-btn .btn-svg-icon,
-.cta-btn-primary .btn-svg-icon,
-.merch-btn .btn-svg-icon {
+.cta-btn-primary .btn-svg-icon {
   margin-right: 3px;
 }
 
 .event-schedule-btn:hover .btn-svg-icon,
 .cta-btn-primary:hover .btn-svg-icon,
-.merch-btn:hover .btn-svg-icon,
 .form-submit-btn:hover .btn-svg-icon {
   transform: scale(1.15);
-}
-
-.merch-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 10px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--color-border-gold);
-  background: transparent;
-  color: var(--color-text-gold);
-  font-weight: 700;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-}
-
-.merch-btn:hover {
-  background: var(--color-gold-bright);
-  color: #070406;
-  box-shadow: 0 4px 15px var(--color-gold-glow);
 }
 
 /* ==========================================================================
@@ -2964,7 +2830,7 @@ body {
 }
 
 /* ==========================================================================
-   MODALS (ADMIN & REGISTRATION & MERCH)
+   MODALS (ADMIN & REGISTRATION)
    ========================================================================== */
 .modal-backdrop {
   position: fixed;
@@ -3722,11 +3588,6 @@ body {
   .crowns-grid {
     grid-template-columns: 1fr;
     gap: 24px;
-  }
-
-  .merch-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
   }
 
   .team-cards-grid {

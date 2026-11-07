@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Valid Page IDs
-  const validPages = ['home', 'events', 'schedule', 'team', 'crowns', 'merchandise', 'gallery', 'sponsors'];
+  const validPages = ['home', 'events', 'schedule', 'team', 'crowns', 'gallery', 'sponsors'];
 
   /**
    * Navigate to a specific page view
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const regCloseBtn = document.getElementById('reg-modal-close');
   const regForm = document.getElementById('reg-form');
   const regEventSelect = document.getElementById('reg-event-select');
-  // Global Event delegation for Event Registration & Merchandise Modals / Google Forms
+  // Global Event delegation for Event Registration Modals / Google Forms
   document.addEventListener('click', (e) => {
     const regBtn = e.target.closest('.event-register-btn');
     if (regBtn) {
@@ -229,22 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         regEventSelect.value = eventName;
       }
       if (regModal) regModal.classList.add('open');
-      return;
-    }
-
-    const merchBtn = e.target.closest('.merch-btn');
-    if (merchBtn) {
-      e.preventDefault();
-      const formUrl = merchBtn.getAttribute('data-form-url');
-      if (formUrl && formUrl.trim().length > 0 && /^https?:\/\//i.test(formUrl.trim())) {
-        window.open(formUrl.trim(), '_blank', 'noopener,noreferrer');
-        return;
-      }
-      const itemTitle = merchBtn.getAttribute('data-merch') || 'Official Merchandise';
-      const merchItemName = document.getElementById('merch-item-name');
-      if (merchItemName) merchItemName.textContent = itemTitle;
-      const merchModal = document.getElementById('merch-modal');
-      if (merchModal) merchModal.classList.add('open');
       return;
     }
   });
@@ -296,27 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
       regForm.reset();
       regModal.classList.remove('open');
       showToast(`🎉 Registration Confirmed! ID: ${regId}. Welcome to Abhigraha 2K26!`);
-    });
-  }
-
-  // Merchandise Modal
-  const merchModal = document.getElementById('merch-modal');
-  const merchCloseBtn = document.getElementById('merch-modal-close');
-  const merchItemName = document.getElementById('merch-item-name');
-  const merchForm = document.getElementById('merch-form');
-
-  if (merchCloseBtn && merchModal) {
-    merchCloseBtn.addEventListener('click', () => {
-      merchModal.classList.remove('open');
-    });
-  }
-
-  if (merchForm) {
-    merchForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      merchForm.reset();
-      merchModal.classList.remove('open');
-      showToast('🛍️ Pre-order Request Received! Our merch team will contact you.');
     });
   }
 
@@ -387,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Close modals on outside click
   window.addEventListener('click', (e) => {
     if (e.target === regModal) regModal.classList.remove('open');
-    if (e.target === merchModal) merchModal.classList.remove('open');
     if (e.target === contactModal) contactModal.classList.remove('open');
     if (e.target === teamModal) teamModal.classList.remove('open');
     const adminModal = document.getElementById('admin-modal');
