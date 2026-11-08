@@ -719,9 +719,6 @@
           </div>
 
         </div>
-
-        <!-- Additional Sponsor Partner Cards (Managed via Admin Portal) -->
-        <div id="sponsors-partners-grid" class="sponsors-partners-grid" style="display: none; margin-top: 36px;"></div>
       </div>
     </div>
   </main>
@@ -1348,22 +1345,14 @@
           </div>
         </div>
 
-        <!-- Tab 6: Sponsors & Partners Management -->
+        <!-- Tab 6: Sponsors & Posters Management -->
         <div class="admin-tab-pane" id="pane-sponsors">
           <!-- Top Bar -->
           <div class="admin-pane-header">
             <div class="admin-pane-header-left">
-              <span style="font-size: 0.9rem; color: var(--color-gold-bright); font-weight: 700;" id="admin-sponsors-count">0 Sponsors</span>
+              <span style="font-size: 0.95rem; color: var(--color-gold-bright); font-weight: 700;">Festival Sponsor Posters</span>
             </div>
             <div class="admin-pane-actions">
-              <button class="admin-btn-sm admin-btn-gold" id="admin-add-sponsor-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>Add Partner</span>
-              </button>
-              <button class="admin-btn-sm admin-btn-subtle" id="admin-reset-sponsors-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
-                <span>Reset Defaults</span>
-              </button>
               <label class="admin-cs-toggle-wrap" title="Toggle Public Coming Soon Mode for Sponsors">
                 <span class="admin-cs-toggle-title">Coming Soon:</span>
                 <input type="checkbox" id="toggle-cs-sponsors" class="admin-cs-toggle-input">
@@ -1410,57 +1399,6 @@
                 <span>Save Posters</span>
               </button>
             </div>
-          </div>
-
-          <!-- Add / Edit Sponsor Partner Form Panel -->
-          <div class="admin-form-panel" id="admin-sponsor-form-panel" style="display: none; margin-bottom: 20px;">
-            <h4 class="admin-form-title-wrap" id="admin-sponsor-form-title" style="margin-bottom: 18px; color: var(--color-gold-bright);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>Add Partner</span>
-            </h4>
-            <form id="admin-sponsor-form">
-              <input type="hidden" id="admin-sponsor-edit-id" value="">
-              <div class="admin-form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
-                <div class="form-group">
-                  <label class="form-label" for="admin-sponsor-name">Partner Name *</label>
-                  <input type="text" class="form-input" id="admin-sponsor-name" placeholder="e.g. Brand Name" required>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="admin-sponsor-tier">Sponsorship Tier *</label>
-                  <input type="text" class="form-input" id="admin-sponsor-tier" placeholder="e.g. Title Sponsor, Beverage Partner" required>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="admin-sponsor-logo">Logo URL</label>
-                  <input type="url" class="form-input" id="admin-sponsor-logo" placeholder="Paste logo image link...">
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="admin-sponsor-link">Website Link</label>
-                  <input type="url" class="form-input" id="admin-sponsor-link" placeholder="https://...">
-                </div>
-              </div>
-
-              <!-- Live Logo Preview in Form -->
-              <div id="admin-sponsor-logo-preview-wrap" style="display: none; margin-top: 10px; align-items: center; gap: 12px; padding: 10px 14px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-gold-bright);">Logo Preview:</span>
-                <img id="admin-sponsor-logo-preview-img" src="" alt="Logo Preview" style="max-height: 40px; max-width: 120px; object-fit: contain;">
-              </div>
-
-              <div class="admin-form-actions" style="margin-top: 18px; display: flex; gap: 12px; justify-content: flex-end;">
-                <button type="button" class="admin-btn-sm admin-btn-subtle" id="admin-sponsor-cancel-btn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                  <span>Cancel</span>
-                </button>
-                <button type="submit" class="admin-btn-sm admin-btn-gold">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="admin-btn-svg"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                  <span>Save Partner</span>
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Sponsors List -->
-          <div class="admin-items-list" id="admin-sponsors-list">
-            <!-- Dynamically populated -->
           </div>
         </div>
 
@@ -1559,7 +1497,7 @@
 
   <!-- Core JavaScript Modules (No flying hearts/petals, clean and fast) -->
   <script src="./assets/js/countdown.js?v=2"></script>
-  <script src="./assets/js/admin.js?v=45"></script>
+  <script src="./assets/js/admin.js?v=46"></script>
   <script src="./assets/js/ink-scroll.js?v=24"></script>
   <script src="./assets/js/main.js?v=17"></script>
 

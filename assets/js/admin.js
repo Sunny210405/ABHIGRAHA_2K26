@@ -1294,7 +1294,6 @@
     const desktopImg = document.getElementById('sponsor-poster-desktop');
     const mobileImg = document.getElementById('sponsor-poster-mobile');
     const placeholder = document.getElementById('sponsor-placeholder-wrapper');
-    const partnersGrid = document.getElementById('sponsors-partners-grid');
 
     const vis = getVisibility();
     const sponsorsData = getSponsors();
@@ -1308,10 +1307,6 @@
       if (mobileImg) {
         mobileImg.removeAttribute('src');
         mobileImg.style.display = 'none';
-      }
-      if (partnersGrid) {
-        partnersGrid.style.display = 'none';
-        partnersGrid.innerHTML = '';
       }
       if (placeholder) {
         placeholder.style.display = 'flex';
@@ -1363,30 +1358,9 @@
       }
     }
 
-    // Render any additional sponsor partner cards
-    const items = sponsorsData.items || [];
-    if (partnersGrid) {
-      if (items.length > 0) {
-        partnersGrid.style.display = 'grid';
-        partnersGrid.innerHTML = items.map(item => `
-          <div class="sponsor-brand-card">
-            ${item.logo ? `<div class="sponsor-brand-logo-wrap"><img src="${escapeHtml(item.logo)}" alt="${escapeHtml(item.name)}" class="sponsor-brand-logo" loading="lazy"></div>` : ''}
-            <div class="sponsor-brand-info">
-              <span class="sponsor-tier-badge">${escapeHtml(item.tier || 'Festival Partner')}</span>
-              <h4 class="sponsor-brand-name">${escapeHtml(item.name)}</h4>
-              ${item.link ? `<a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="sponsor-brand-link">Visit Website ↗</a>` : ''}
-            </div>
-          </div>
-        `).join('');
-      } else {
-        partnersGrid.style.display = 'none';
-        partnersGrid.innerHTML = '';
-      }
-    }
-
     // Toggle placeholder
     if (placeholder) {
-      if (hasPoster || items.length > 0) {
+      if (hasPoster) {
         placeholder.style.display = 'none';
       } else {
         placeholder.style.display = 'flex';
@@ -2854,35 +2828,13 @@
     }
   }
 
-  function updateLogoPreview(url) {
-    const logoInput = document.getElementById('admin-sponsor-logo');
-    const clean = (url !== undefined ? url : (logoInput?.value || '')).trim();
-    const wrap = document.getElementById('admin-sponsor-logo-preview-wrap');
-    const img = document.getElementById('admin-sponsor-logo-preview-img');
-    if (!wrap || !img) return;
-    if (clean) {
-      img.src = clean;
-      wrap.style.display = 'flex';
-    } else {
-      wrap.style.display = 'none';
-      img.removeAttribute('src');
-    }
-  }
-
   function initSponsorsAdmin() {
-    const addBtn = document.getElementById('admin-add-sponsor-btn');
-    const resetBtn = document.getElementById('admin-reset-sponsors-btn');
-    const formPanel = document.getElementById('admin-sponsor-form-panel');
-    const form = document.getElementById('admin-sponsor-form');
-    const cancelBtn = document.getElementById('admin-sponsor-cancel-btn');
     const savePostersBtn = document.getElementById('admin-save-sponsor-posters-btn');
     const clearPostersBtn = document.getElementById('admin-clear-sponsor-posters-btn');
     const pcInput = document.getElementById('admin-sponsor-pc-url');
     const mobileInput = document.getElementById('admin-sponsor-mobile-url');
-    const logoInput = document.getElementById('admin-sponsor-logo');
     const pcImg = document.getElementById('admin-sponsor-pc-preview-img');
     const mobileImg = document.getElementById('admin-sponsor-mobile-preview-img');
-    const logoImg = document.getElementById('admin-sponsor-logo-preview-img');
 
     // Real-time Live Previews on user typing or pasting
     if (pcInput) {
@@ -2892,10 +2844,6 @@
     if (mobileInput) {
       mobileInput.addEventListener('input', () => updateMobilePreview());
       mobileInput.addEventListener('change', () => updateMobilePreview());
-    }
-    if (logoInput) {
-      logoInput.addEventListener('input', () => updateLogoPreview());
-      logoInput.addEventListener('change', () => updateLogoPreview());
     }
 
     if (pcImg) {
@@ -2921,13 +2869,6 @@
         mobileImg.style.display = 'block';
         const txt = document.getElementById('admin-sponsor-mobile-empty-text');
         if (txt) txt.style.display = 'none';
-      });
-    }
-
-    if (logoImg) {
-      logoImg.addEventListener('error', () => {
-        const wrap = document.getElementById('admin-sponsor-logo-preview-wrap');
-        if (wrap) wrap.style.display = 'none';
       });
     }
 
@@ -2964,78 +2905,9 @@
         }
       });
     }
-
-    // Add Partner Click
-    if (addBtn && formPanel) {
-      addBtn.addEventListener('click', () => {
-        if (form) form.reset();
-        document.getElementById('admin-sponsor-edit-id').value = '';
-        document.getElementById('admin-sponsor-form-title').innerHTML = `${ADMIN_ICONS.plus} <span>Add Partner</span>`;
-        updateLogoPreview('');
-        formPanel.style.display = 'block';
-        formPanel.scrollIntoView({ behavior: 'smooth' });
-      });
-    }
-
-    if (cancelBtn && formPanel) {
-      cancelBtn.addEventListener('click', () => {
-        formPanel.style.display = 'none';
-      });
-    }
-
-    // Reset Defaults
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        if (confirm('Reset sponsor posters and partner list back to default?')) {
-          saveData('abhigraha_sponsors', DEFAULT_SPONSORS);
-          renderPublicSponsors();
-          renderAdminSponsorsList();
-          showToast('Sponsors reset to default state.');
-        }
-      });
-    }
-
-    // Form Submit
-    if (form) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const editId = document.getElementById('admin-sponsor-edit-id').value;
-        const name = document.getElementById('admin-sponsor-name').value.trim();
-        const tier = document.getElementById('admin-sponsor-tier').value.trim();
-        const logo = document.getElementById('admin-sponsor-logo').value.trim();
-        const link = document.getElementById('admin-sponsor-link').value.trim();
-
-        if (!name || !tier) {
-          alert('Please provide Partner Name and Sponsorship Tier.');
-          return;
-        }
-
-        const data = getSponsors();
-        data.items = data.items || [];
-
-        if (editId) {
-          const idx = data.items.findIndex(s => s.id === editId);
-          if (idx !== -1) {
-            data.items[idx] = { id: editId, name, tier, logo, link };
-          }
-          showToast(`Sponsor "${name}" updated.`);
-        } else {
-          const newId = 'spn-' + Date.now();
-          data.items.push({ id: newId, name, tier, logo, link });
-          showToast(`Sponsor "${name}" added.`);
-        }
-
-        saveData('abhigraha_sponsors', data);
-        formPanel.style.display = 'none';
-        renderPublicSponsors();
-        renderAdminSponsorsList();
-      });
-    }
   }
 
   function renderAdminSponsorsList() {
-    const container = document.getElementById('admin-sponsors-list');
-    const countEl = document.getElementById('admin-sponsors-count');
     const pcInput = document.getElementById('admin-sponsor-pc-url');
     const mobileInput = document.getElementById('admin-sponsor-mobile-url');
 
@@ -3050,128 +2922,6 @@
 
     updatePcPreview(sponsorsData.desktopPosterUrl || '');
     updateMobilePreview(sponsorsData.mobilePosterUrl || '');
-
-    const items = sponsorsData.items || [];
-    const hasPosters = !!(sponsorsData.desktopPosterUrl || sponsorsData.mobilePosterUrl);
-
-    if (countEl) {
-      countEl.textContent = `${items.length} Partner${items.length !== 1 ? 's' : ''} ${hasPosters ? '· Posters Set' : '· No Posters'}`;
-    }
-
-    if (!container) return;
-
-    if (items.length === 0) {
-      container.innerHTML = `
-        <div style="text-align: center; padding: 24px; color: var(--color-text-muted); background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
-          <p style="margin: 0; font-size: 0.9rem; color: #fff4db;">No individual partner brand cards added yet.</p>
-          <p style="margin: 6px 0 0; font-size: 0.8rem; color: #a38c94;">Use the Desktop & Mobile poster fields above to display festival banners, or click <strong>Add Partner</strong> to spotlight individual brand logos.</p>
-        </div>
-      `;
-      return;
-    }
-
-    container.innerHTML = items.map((spn, idx) => `
-      <div class="admin-item-card">
-        <div class="admin-item-order-corner">
-          <button type="button" class="btn-order-circle" data-order-up-spons="${spn.id}" title="Move Up" aria-label="Move Up" ${idx === 0 ? 'disabled' : ''}>
-            ${ADMIN_ICONS.moveUp}
-          </button>
-          <button type="button" class="btn-order-circle" data-order-down-spons="${spn.id}" title="Move Down" aria-label="Move Down" ${idx === items.length - 1 ? 'disabled' : ''}>
-            ${ADMIN_ICONS.moveDown}
-          </button>
-        </div>
-        <div class="admin-item-main">
-          <div class="admin-item-title">
-            <span class="admin-order-badge">#${idx + 1}</span>
-            <span style="font-weight:700; color:#fff4db;">${escapeHtml(spn.name)}</span>
-            <span class="admin-topbar-badge">${escapeHtml(spn.tier || 'Partner')}</span>
-          </div>
-          <div class="admin-item-meta">
-            ${spn.link ? `<span><a href="${escapeHtml(spn.link)}" target="_blank" style="color: var(--color-gold-bright); text-decoration: underline;">${escapeHtml(spn.link)}</a></span> &bull; ` : ''}
-            <span>${spn.logo ? 'Logo Configured' : 'Text Only'}</span>
-          </div>
-        </div>
-        <div class="admin-item-actions">
-          <button class="btn-action-edit" data-edit-spons="${spn.id}">${ADMIN_ICONS.edit}<span>Edit</span></button>
-          <button class="btn-action-delete" data-del-spons="${spn.id}">${ADMIN_ICONS.delete}<span>Delete</span></button>
-        </div>
-      </div>
-    `).join('');
-
-    // Attach Reorder Listeners
-    container.querySelectorAll('[data-order-up-spons]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-order-up-spons');
-        const data = getSponsors();
-        const idx = (data.items || []).findIndex(s => s.id === id);
-        if (idx > 0) {
-          const temp = data.items[idx];
-          data.items[idx] = data.items[idx - 1];
-          data.items[idx - 1] = temp;
-          saveData('abhigraha_sponsors', data);
-          renderPublicSponsors();
-          renderAdminSponsorsList();
-          showToast(`Sponsor "${temp.name}" moved up.`);
-        }
-      });
-    });
-
-    container.querySelectorAll('[data-order-down-spons]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-order-down-spons');
-        const data = getSponsors();
-        const idx = (data.items || []).findIndex(s => s.id === id);
-        if (idx !== -1 && idx < data.items.length - 1) {
-          const temp = data.items[idx];
-          data.items[idx] = data.items[idx + 1];
-          data.items[idx + 1] = temp;
-          saveData('abhigraha_sponsors', data);
-          renderPublicSponsors();
-          renderAdminSponsorsList();
-          showToast(`Sponsor "${temp.name}" moved down.`);
-        }
-      });
-    });
-
-    // Attach Edit Listeners
-    container.querySelectorAll('[data-edit-spons]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-edit-spons');
-        const data = getSponsors();
-        const item = (data.items || []).find(s => s.id === id);
-        if (!item) return;
-
-        const formPanel = document.getElementById('admin-sponsor-form-panel');
-        document.getElementById('admin-sponsor-edit-id').value = item.id;
-        document.getElementById('admin-sponsor-name').value = item.name || '';
-        document.getElementById('admin-sponsor-tier').value = item.tier || '';
-        document.getElementById('admin-sponsor-logo').value = item.logo || '';
-        document.getElementById('admin-sponsor-link').value = item.link || '';
-        document.getElementById('admin-sponsor-form-title').innerHTML = `${ADMIN_ICONS.edit} <span>Edit Partner: ${escapeHtml(item.name)}</span>`;
-        updateLogoPreview(item.logo || '');
-
-        if (formPanel) {
-          formPanel.style.display = 'block';
-          formPanel.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    });
-
-    // Attach Delete Listeners
-    container.querySelectorAll('[data-del-spons]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-del-spons');
-        const data = getSponsors();
-        const item = (data.items || []).find(s => s.id === id);
-        if (confirm(`Remove sponsor partner "${item ? item.name : id}"?`)) {
-          data.items = (data.items || []).filter(s => s.id !== id);
-          saveData('abhigraha_sponsors', data);
-          renderPublicSponsors();
-          renderAdminSponsorsList();
-          showToast('Sponsor partner deleted.');
-        }
-      });
-    });
   }
 
   // ==========================================================================
